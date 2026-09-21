@@ -1,0 +1,5 @@
+name: turn-router
+version: 1.0.0
+description: Merged skill+rule routing for every turn.
+provides_hooks:
+  - pre_llm_call

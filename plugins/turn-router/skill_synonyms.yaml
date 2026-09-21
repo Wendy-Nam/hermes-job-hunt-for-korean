@@ -1,0 +1,152 @@
+# Skill Synonym Dictionary
+# Purpose: When a user query matches a synonym, the corresponding skill's score gets boosted
+# Format: skill_name: [keyword_list]
+# Design Principles:
+#   1. Only collect keywords users actually type (natural language, not jargon)
+#   2. Avoid overly generic words (e.g., "tool", "use", "help")
+#   3. 5-15 synonyms per skill is optimal
+#   4. Include both languages if bilingual (e.g., "debug" and "调试")
+#
+# CUSTOMIZATION: Run `python scripts/generate_config.py` to auto-generate
+# from your local skill library. Then review and refine.
+# See PROMPTS.md for LLM-assisted generation prompts.
+
+# ═══════════════════════════════════════════════════════
+# Example: Engineering Skills
+# ═══════════════════════════════════════════════════════
+
+systematic-debugging:
+  - 调试
+  - 排查bug
+  - 诊断问题
+  - 修bug
+  - 找bug
+  - 报错
+  - 异常
+  - traceback
+  - 错误分析
+  - 故障排查
+  - 问题定位
+  - 根因分析
+  - debug
+  - 排查问题
+
+skill-creation-guide:
+  - 创建技能
+  - 写技能
+  - 新技能
+  - 技能格式
+  - 技能规范
+  - SKILL.md
+  - 技能模板
+
+find-skills:
+  - 找技能
+  - 搜索技能
+  - 安装技能
+  - 技能发现
+
+# ═══════════════════════════════════════════════════════
+# ADD YOUR SKILLS BELOW
+# ═══════════════════════════════════════════════════════
+# Copy the format above for each of your skills.
+# The generate_config.py script can do this automatically.
+
+# ═══════════════════════════════════════════════════════
+# User daily skills (managed) — L3 ranking boost, no token cost
+# ═══════════════════════════════════════════════════════
+google-workspace:
+  - 이메일
+  - 메일 보내
+  - 메일 확인
+  - gmail
+  - 지메일
+  - 캘린더
+  - 일정 추가
+  - 구글 캘린더
+  - 스프레드시트
+  - 구글 문서
+cron-job-orchestration:
+  - 크론
+  - 스케줄 등록
+  - 정기 알림
+  - 매일 알려
+  - 자동 실행
+  - 예약 작업
+company-interview-research:
+  - 면접 준비
+  - 회사 조사
+  - 기업 리서치
+  - 인터뷰 준비
+  - 회사 알아봐
+llm-wiki:
+  - 위키
+  - 위키에 기록
+  - 위키 검색
+  - 지식베이스
+  - 노트 정리
+obsidian:
+  - 옵시디언
+  - 노트 열어
+  - 노트 검색
+time-awareness:
+  - 지금 몇시
+  - 현재 시각
+  - 며칠
+  - 요일
+  - 날짜
+daily-journaling:
+  - 일기
+  - 저널
+  - 하루 회고
+korean-direct-response-style:
+  - 말투
+  - 반말로
+  - 직설적으로
+wanted-search:
+  - 원티드
+  - 채용
+  - 구직
+  - 채용공고
+  - 잡
+  - 이직
+  - 개발자 채용
+linkedin-search:
+  - 링크드인
+  - linkedin
+  - 인턴
+  - 신입
+  - 인턴십
+  - 채용공고
+  - 해외취업
+
+kr-search:
+  - 사람인
+  - 잡코리아
+  - 국내 채용
+  - 공고 검색
+
+job-match:
+  - 적합도
+  - 매칭
+  - 이력서 적합
+  - 지원 우선순위
+  - 합격 가능성
+apify-search:
+  - apify
+  - 폴백
+  - 리멤버
+  - 액터
+  - 크롤링 폴백
+ats-search:
+  - 외국계
+  - ats
+  - greenhouse
+  - lever
+  - 글로벌 기업
+  - 영문 공고
+job-alert-mail:
+  - 채용 알림
+  - 잡알림
+  - 알림 메일
+  - 추천 공고 메일

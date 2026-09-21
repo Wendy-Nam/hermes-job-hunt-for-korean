@@ -1,0 +1,12 @@
+name: ux-improvements
+version: 1.0.0
+description: >
+  Discord UX 개선 모음:
+  (1) Pre-API compression 내부 메시지 사용자 채널 노출 차단
+  (2) 내부 tool/file/API 이름을 숨기는 단순 상태 표시
+  (3) 맥락형 읽음 반응 이모지 정책 엔진
+  (4) GIF 전송 URL 생성 경로 (Tenor API)
+author: hermes-agent
+hooks:
+  - pre_tool_call
+  # transform_llm_output 제거 - 크론 응답 개행 증발 방지

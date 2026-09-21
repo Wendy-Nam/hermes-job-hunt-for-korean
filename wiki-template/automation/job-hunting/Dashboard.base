@@ -1,0 +1,41 @@
+filters:
+  and:
+    - file.hasTag("공고")
+views:
+  - type: tasknotesKanban
+    name: 현황 추적
+    groupBy:
+      property: 세부
+      direction: ASC
+    order:
+      - file.backlinks
+    swimLane: note.aliases
+    columnOrder: '{"note.세부":["발견","보류","지원","면접","서류합격","오퍼","탈락"]}'
+  - type: tasknotesTaskList
+    name: 상태 리스트
+    order:
+      - file.backlinks
+    subGroup: note.세부
+  - type: table
+    name: 전체
+    order:
+      - 회사
+      - 포지션
+      - 상태
+      - 세부
+      - 적합도
+      - 보드
+      - 게시일
+    sort:
+      - property: 상태
+        direction: ASC
+      - property: 게시일
+        direction: DESC
+  - type: cards
+    name: 카드
+    order:
+      - 회사
+      - 포지션
+      - 상태
+      - 세부
+      - 적합도

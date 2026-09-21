@@ -1,0 +1,7 @@
+name: web-crawl4ai
+version: 1.0.0
+description: "Local Crawl4AI browser extract backend (no API key). Serialized, timeout-guarded."
+author: <YOUR_NAME>
+kind: backend
+provides_web_providers:
+  - crawl4ai

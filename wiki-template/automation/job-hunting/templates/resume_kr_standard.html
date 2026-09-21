@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>{{applicant_name}} - 국문 표준 입사지원서 ({{target_company}} {{target_position}})</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 15mm 15mm 15mm 15mm;
+    }
+    body {
+      font-family: "Malgun Gothic", "맑은 고딕", "Apple SD Gothic Neo", sans-serif;
+      color: #333333;
+      line-height: 1.5;
+      margin: 0;
+      padding: 0;
+      font-size: 10pt;
+    }
+    .title-banner {
+      background-color: #2b3a4a;
+      color: #ffffff;
+      padding: 12px 16px;
+      font-size: 14pt;
+      font-weight: bold;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .target-tag {
+      background-color: #3b82f6;
+      color: #ffffff;
+      font-size: 9.5pt;
+      padding: 3px 8px;
+      border-radius: 3px;
+    }
+    table.grid-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 16px;
+    }
+    table.grid-table th, table.grid-table td {
+      border: 1px solid #cccccc;
+      padding: 7px 9px;
+      font-size: 9.5pt;
+    }
+    table.grid-table th {
+      background-color: #f2f4f7;
+      color: #222222;
+      font-weight: bold;
+      text-align: center;
+      width: 15%;
+    }
+    .sec-header {
+      font-size: 11pt;
+      font-weight: bold;
+      color: #1e293b;
+      border-left: 4px solid #2b3a4a;
+      padding-left: 8px;
+      margin-top: 14px;
+      margin-bottom: 8px;
+    }
+    .exp-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+      background-color: #fafafa;
+    }
+    .exp-title {
+      display: flex;
+      justify-content: space-between;
+      font-weight: bold;
+      font-size: 10.5pt;
+      color: #0f172a;
+    }
+    .exp-dept {
+      color: #64748b;
+      font-size: 9pt;
+      margin-bottom: 6px;
+    }
+    ul.kpi-bullets {
+      margin: 4px 0;
+      padding-left: 18px;
+    }
+    ul.kpi-bullets li {
+      margin-bottom: 3px;
+    }
+    .badge-kpi {
+      color: #2563eb;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="title-banner">
+    <span>입 사 지 원 서 (국문 표준)</span>
+    <span class="target-tag">지원처: {{target_company}} - {{target_position}}</span>
+  </div>
+
+  <!-- 1. 기본 인적사항 (사람인/잡코리아 그리드) -->
+  <table class="grid-table">
+    <tr>
+      <th>성 명</th>
+      <td>{{applicant_name}}</td>
+      <th>지원 직무</th>
+      <td>{{target_position}}</td>
+    </tr>
+    <tr>
+      <th>연락처</th>
+      <td>{{phone}}</td>
+      <th>이메일</th>
+      <td>{{email}}</td>
+    </tr>
+    <tr>
+      <th>포트폴리오</th>
+      <td colspan="3">{{github_or_portfolio}}</td>
+    </tr>
+  </table>
+
+  <!-- 2. 핵심 역량 및 지원 요약 -->
+  <div class="sec-header">1. 핵심 역량 및 요약 (Executive Summary)</div>
+  <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 4px; margin-bottom: 14px;">
+    {{executive_summary}}
+  </div>
+
+  <!-- 3. 경력 사항 (사람인/잡코리아 블록) -->
+  <div class="sec-header">2. 경력 사항 (Work Experience)</div>
+  {{#experiences}}
+  <div class="exp-card">
+    <div class="exp-title">
+      <span>{{company}}</span>
+      <span>{{period}}</span>
+    </div>
+    <div class="exp-dept">{{role}} | {{department}}</div>
+    <ul class="kpi-bullets">
+      {{#accomplishments}}
+      <li><span class="badge-kpi">[{{tag}}]</span> {{description}}</li>
+      {{/accomplishments}}
+    </ul>
+  </div>
+  {{/experiences}}
+
+  <!-- 4. 주요 프로젝트 및 포트폴리오 -->
+  <div class="sec-header">3. 주요 프로젝트 및 성과 (Key Projects)</div>
+  {{#projects}}
+  <div class="exp-card">
+    <div class="exp-title">
+      <span>{{project_name}}</span>
+      <span>{{tech_stack}}</span>
+    </div>
+    <ul class="kpi-bullets">
+      <li>{{description}}</li>
+      <li><strong>성과:</strong> {{impact}}</li>
+    </ul>
+  </div>
+  {{/projects}}
+
+  <!-- 5. 보유 기술 및 자격 -->
+  <div class="sec-header">4. 보유 기술 및 스킬 (Skills)</div>
+  <table class="grid-table">
+    <tr>
+      <th>AI & AX</th>
+      <td>{{skills_ax}}</td>
+    </tr>
+    <tr>
+      <th>Sales Operations</th>
+      <td>{{skills_sales_ops}}</td>
+    </tr>
+    <tr>
+      <th>개발 & 도구</th>
+      <td>{{skills_tools}}</td>
+    </tr>
+  </table>
+
+</body>
+</html>

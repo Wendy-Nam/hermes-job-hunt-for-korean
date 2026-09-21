@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>{{applicant_name}} - 맞춤 자기소개서 ({{target_company}} {{target_position}})</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 20mm 20mm 20mm 20mm;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Segoe UI", Roboto, Arial, sans-serif;
+      color: #2d3748;
+      line-height: 1.65;
+      margin: 0;
+      padding: 0;
+      font-size: 10.5pt;
+    }
+    header {
+      border-bottom: 2px solid #2b6cb0;
+      padding-bottom: 12px;
+      margin-bottom: 24px;
+    }
+    h1 {
+      font-size: 18pt;
+      color: #1a365d;
+      margin: 0 0 6px 0;
+    }
+    .sub-title {
+      font-size: 11pt;
+      color: #4a5568;
+      font-weight: 600;
+    }
+    .section-block {
+      margin-bottom: 20px;
+    }
+    .section-title {
+      font-size: 12pt;
+      font-weight: 700;
+      color: #2b6cb0;
+      margin-bottom: 8px;
+    }
+    .section-body {
+      text-align: justify;
+      white-space: pre-line;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>자기소개서 / Cover Letter</h1>
+    <div class="sub-title">지원자: {{applicant_name}} | 지원 회사: {{target_company}} | 지원 직무: {{target_position}}</div>
+  </header>
+
+  <div class="section-block">
+    <div class="section-title">1. 지원 동기 및 포지션 적합성 (Motivation & Fit Alignment)</div>
+    <div class="section-body">{{motivation_text}}</div>
+  </div>
+
+  <div class="section-block">
+    <div class="section-title">2. 주요 직무 성과 및 문제 해결 사례 (Key Achievements)</div>
+    <div class="section-body">{{achievements_text}}</div>
+  </div>
+
+  <div class="section-block">
+    <div class="section-title">3. 입사 후 기여 계획 (Future Contribution)</div>
+    <div class="section-body">{{future_plan_text}}</div>
+  </div>
+
+</body>
+</html>

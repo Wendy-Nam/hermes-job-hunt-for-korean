@@ -1,0 +1,187 @@
+model:
+  default: deepseek/deepseek-v4-flash
+  provider: openrouter
+fallback_providers:
+  - provider: openai-codex
+    model: gpt-5.6-terra   # 중간 티어. 구독에 5.6이 안 열렸으면 gpt-5.5
+agent:
+  service_tier: fast
+compression:
+  enabled: true
+  threshold: 0.35
+  target_ratio: 0.15
+tts:
+  provider: edge
+  edge:
+    voice: ko-KR-HyunsuMultilingualNeural
+    speed: 1.3
+stt:
+  enabled: true
+  provider: groq
+memory:
+  memory_enabled: false
+  user_profile_enabled: false
+delegation:
+  model: gpt-5.6-sol   # 실작업은 플래그십(난이도별 티어: sol>terra>luna). 미개방 구독은 gpt-5.5
+  provider: openai-codex
+skills:
+  disabled:
+    - korean-image-ocr
+    - quick-image-vision
+    - job-search-pipeline
+    - airtable
+    - architecture-diagram
+    - ascii-art
+    - ascii-video
+    - audiocraft-audio-generation
+    - baoyu-infographic
+    - claude-code
+    - claude-design
+    - codebase-inspection
+    - codex
+    - comfyui
+    - computer-use
+    - design-md
+    - dogfood
+    - evaluating-llms-harness
+    - excalidraw
+    - github-auth
+    - github-issues
+    - github-repo-management
+    - heartmula
+    - himalaya
+    - huggingface-hub
+    - humanizer
+    - jupyter-live-kernel
+    - llama-cpp
+    - manim-video
+    - node-inspect-debugger
+    - notion
+    - opencode
+    - openhue
+    - p5js
+    - petdex
+    - plan
+    - popular-web-designs
+    - pretext
+    - python-debugpy
+    - requesting-code-review
+    - research-paper-writing
+    - segment-anything-model
+    - serving-llms-vllm
+    - simplify-code
+    - sketch
+    - songsee
+    - songwriting-and-ai-music
+    - spike
+    - teams-meeting-pipeline
+    - test-driven-development
+    - touchdesigner-mcp
+    - weights-and-biases
+    - yuanbao
+    - time-awareness
+    - obsidian-syncthing-wiki
+    - attachment-archive-workflow
+timezone: Asia/Seoul
+discord:
+  require_mention: false
+approvals:
+  destructive_slash_confirm: true   # 파괴적 명령은 확인 후 실행 (보수적 기본값)
+# command_allowlist: 기본 비움 — 동작을 이해한 뒤 필요한 것만 의도적으로 추가하라.
+# (예시: script execution via -e/-c flag · execute_code · shell command via -c/-lc flag)
+command_allowlist: []
+onboarding:
+  seen:
+    busy_input_prompt: true
+    tool_progress_prompt: true
+_config_version: 33
+mcp_servers:
+  composio:
+    url: https://connect.composio.dev/mcp
+    headers:
+      x-consumer-api-key: <REDACTED_SET_YOUR_OWN>
+WIKI_PATH: /opt/data/wiki
+OBSIDIAN_VAULT_PATH: /opt/data/wiki
+image_gen:
+  provider: openai-codex
+  model: gpt-image-2-low
+plugins:
+  enabled:
+    - turn-router          # 스킬 검색(L1-5) + 턴별 SOUL 규칙 주입(rules/*.md) 통합 훅
+    - ux-improvements      # Discord 출력 서식 및 가독성 정리
+    - session-sticky       # 세션 고정 라우팅
+    - shared-music         # 음악 재생 및 취향 관리
+    - web-crawl4ai         # crawl4ai 기반 웹 페치 최적화
+  # [선택형 플러그인]
+  # - autonomous-triggers  # 내부 상태 기반 자율 행동 큐
+  # 외부 저작 플러그인(hermes-snow-search·rtk-rewrite)은 업스트림 라이선스 미확인이라 배포판에서 뺐다.
+  # 필요하면 mirror 브랜치에서 가져다 쓰되, 원저작자 라이선스를 직접 확인하고 켤 것.
+platform_toolsets:
+  cli:
+    - browser
+    - clarify
+    - code_execution
+    - context_engine
+    - cronjob
+    - delegation
+    - file
+    - hermes
+    - image_gen
+    - kanban
+    - memory
+    - session_search
+    - skills
+    - terminal
+    - todo
+    - tts
+    - vision
+    - web
+known_plugin_toolsets:
+  cli:
+    - hermes
+    - spotify
+auxiliary:
+  compression:            # 세션 압축(기억) 전담 — 메인이 약한 모델이면 반드시 핀(429 시 메인 자기압축 열화 방지)
+    provider: openai-codex
+    model: gpt-5.6-luna
+  vision:
+    provider: openai-codex
+    model: gpt-5.6-luna   # 이미지 판독은 가성비 티어면 충분. 미개방 구독은 gpt-5.5
+
+# ── Security ──────────────────────────────────────────────────────────
+# Secret redaction is ON by default — strings that look like API keys,
+# tokens, and passwords are masked in tool output, logs, and chat
+# responses before the model or user ever sees them. Set redact_secrets
+# to false to disable (e.g. when developing the redactor itself).
+# tirith pre-exec scanning is enabled by default when the tirith binary
+# is available. Configure via security.tirith_* keys or env vars
+# (TIRITH_ENABLED, TIRITH_BIN, TIRITH_TIMEOUT, TIRITH_FAIL_OPEN).
+#
+# security:
+#   redact_secrets: true
+#   tirith_enabled: true
+#   tirith_path: "tirith"
+#   tirith_timeout: 5
+#   tirith_fail_open: true
+
+# ── Fallback Model ────────────────────────────────────────────────────
+# Automatic provider failover when primary is unavailable.
+# Uncomment and configure to enable. Triggers on rate limits (429),
+# overload (529), service errors (503), or connection failures.
+#
+# Supported providers:
+#   openrouter   (OPENROUTER_API_KEY)  — routes to any model
+#   openai-codex (OAuth — hermes auth) — OpenAI Codex
+#   nous         (OAuth — hermes auth) — Nous Portal
+#   zai          (ZAI_API_KEY)         — Z.AI / GLM
+#   kimi-coding  (KIMI_API_KEY)        — Kimi / Moonshot
+#   kimi-coding-cn (KIMI_CN_API_KEY)   — Kimi / Moonshot (China)
+#   minimax      (MINIMAX_API_KEY)     — MiniMax
+#   minimax-cn   (MINIMAX_CN_API_KEY)  — MiniMax (China)
+#   bedrock      (AWS IAM / boto3)     — AWS Bedrock (Converse API)
+#
+# For custom OpenAI-compatible endpoints, add base_url and key_env.
+#
+# fallback_model:
+#   provider: openrouter
+#   model: anthropic/claude-sonnet-4

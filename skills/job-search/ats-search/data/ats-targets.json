@@ -1,0 +1,98 @@
+[
+ {
+  "company": "쿠팡(Coupang)",
+  "ats": "greenhouse",
+  "token": "coupang",
+  "note": "351 Korea roles"
+ },
+ {
+  "company": "Databricks",
+  "ats": "greenhouse",
+  "token": "databricks",
+  "note": "AI/FDE"
+ },
+ {
+  "company": "Datadog",
+  "ats": "greenhouse",
+  "token": "datadog",
+  "note": "sales/AE"
+ },
+ {
+  "company": "Anthropic",
+  "ats": "greenhouse",
+  "token": "anthropic",
+  "note": "BD/sales"
+ },
+ {
+  "company": "MongoDB",
+  "ats": "greenhouse",
+  "token": "mongodb",
+  "note": "engagement/ops"
+ },
+ {
+  "company": "Airbnb",
+  "ats": "greenhouse",
+  "token": "airbnb",
+  "note": "seoul office"
+ },
+ {
+  "company": "당근(Daangn)",
+  "ats": "greenhouse",
+  "token": "daangn",
+  "note": "39 Korea roles, AD Sales 다수 — 세일즈 트랙 적합"
+ },
+ {
+  "company": "크래프톤(KRAFTON)",
+  "ats": "greenhouse",
+  "token": "krafton",
+  "note": "58 Korea roles, 시니어 많음 — 연차필터 필수"
+ },
+ {
+  "company": "몰로코(Moloco)",
+  "ats": "greenhouse",
+  "token": "moloco",
+  "note": "13 Korea roles, 애드테크"
+ },
+ {
+  "company": "센드버드(Sendbird)",
+  "ats": "greenhouse",
+  "token": "sendbird",
+  "note": "10 Korea roles, AI Agent 인턴 등"
+ },
+ {
+  "company": "Elastic",
+  "ats": "greenhouse",
+  "token": "elastic",
+  "note": "Korea 소수, 시니어 위주"
+ },
+ {
+  "company": "OpenAI",
+  "ats": "ashby",
+  "token": "openai",
+  "note": "Seoul 13 roles — Deployment Engineer/Account Director 등"
+ },
+ {
+  "company": "Notion",
+  "ats": "ashby",
+  "token": "notion",
+  "note": "Korea 5 roles — AE/SDR/Sales Manager, 세일즈 트랙 최적"
+ },
+ {
+  "company": "Palantir",
+  "ats": "lever",
+  "token": "palantir",
+  "note": "Seoul 2 — Deployment Strategist, FDE"
+ },
+ {
+  "company": "Snowflake",
+  "ats": "ashby",
+  "token": "snowflake",
+  "note": "SE/Solutions — 제품 자격증(SnowPro 등) 보유 시 강한 시그널"
+ },
+ {
+  "company": "FriendliAI(프렌들리에이아이)",
+  "ats": "ashby",
+  "token": "friendliai",
+  "note": "AI-native, Seoul 다수 — CS Engineer/GTM 인접 (2026-07-14 실측 18건)"
+ }
+]

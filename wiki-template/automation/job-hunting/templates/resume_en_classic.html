@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{{applicant_name}} - Resume ({{target_company}} {{target_position}})</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 18mm 20mm 18mm 20mm;
+    }
+    body {
+      font-family: "Times New Roman", Times, Georgia, serif;
+      color: #000000;
+      line-height: 1.35;
+      margin: 0;
+      padding: 0;
+      font-size: 10.5pt;
+    }
+    .name-header {
+      text-align: center;
+      margin-bottom: 12px;
+    }
+    h1 {
+      font-size: 18pt;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin: 0 0 4px 0;
+      letter-spacing: 0.5px;
+    }
+    .contact-line {
+      font-size: 9.5pt;
+    }
+    .contact-line span {
+      margin: 0 5px;
+    }
+    .section-title {
+      font-size: 11pt;
+      font-weight: bold;
+      text-transform: uppercase;
+      border-bottom: 1px solid #000000;
+      margin-top: 14px;
+      margin-bottom: 6px;
+      letter-spacing: 0.5px;
+    }
+    .entry-header {
+      display: flex;
+      justify-content: space-between;
+      font-weight: bold;
+    }
+    .entry-sub {
+      display: flex;
+      justify-content: space-between;
+      font-style: italic;
+      margin-bottom: 3px;
+    }
+    ul {
+      margin: 2px 0 6px 0;
+      padding-left: 18px;
+    }
+    li {
+      margin-bottom: 2px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="name-header">
+    <h1>{{applicant_name}}</h1>
+    <div class="contact-line">
+      {{email}} <span>|</span> {{phone}} <span>|</span> {{github_or_portfolio}}
+    </div>
+  </div>
+
+  <div class="section-title">Professional Summary</div>
+  <div style="margin-bottom: 6px;">
+    {{executive_summary}}
+  </div>
+
+  <div class="section-title">Professional Experience</div>
+  {{#experiences}}
+  <div style="margin-bottom: 8px;">
+    <div class="entry-header">
+      <span>{{company}}</span>
+      <span>{{period}}</span>
+    </div>
+    <div class="entry-sub">
+      <span>{{role}} - {{department}}</span>
+    </div>
+    <ul>
+      {{#accomplishments}}
+      <li><strong>[{{tag}}]</strong> {{description}}</li>
+      {{/accomplishments}}
+    </ul>
+  </div>
+  {{/experiences}}
+
+  <div class="section-title">Key Projects & Technical Achievements</div>
+  {{#projects}}
+  <div style="margin-bottom: 6px;">
+    <div class="entry-header">
+      <span>{{project_name}}</span>
+      <span>{{tech_stack}}</span>
+    </div>
+    <ul>
+      <li>{{description}}</li>
+      <li><strong>Impact:</strong> {{impact}}</li>
+    </ul>
+  </div>
+  {{/projects}}
+
+  <div class="section-title">Skills & Technical Qualifications</div>
+  <div>
+    <strong>AI & AX:</strong> {{skills_ax}}<br>
+    <strong>Sales Operations:</strong> {{skills_sales_ops}}<br>
+    <strong>Technical Tools:</strong> {{skills_tools}}<br>
+    <strong>Domains:</strong> {{skills_domain}}
+  </div>
+
+</body>
+</html>

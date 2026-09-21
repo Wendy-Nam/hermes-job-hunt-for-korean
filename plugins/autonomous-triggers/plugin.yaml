@@ -1,0 +1,6 @@
+name: autonomous-triggers
+version: 1.0.0
+description: Internal-state triggers queue spontaneous actions.
+provides_hooks:
+  - post_llm_call
+  - pre_llm_call

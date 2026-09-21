@@ -1,0 +1,16 @@
+# 코어(구직 파이프라인·위키 도구) — Hermes 컨테이너엔 기본 포함.
+#
+# ⚠️ 버전을 정확히 고정(==)하지 않는 이유: 이 키트는 독립 앱이 아니라 **이미 돌고 있는 Hermes 위에
+# 얹는 오버레이**다. 컨테이너가 자기 버전을 이미 갖고 있어(실측: PyYAML 6.0.3 · requests 2.33.0),
+# ==로 박으면 설치 시 다운그레이드·충돌을 일으킨다. 그래서 '이 이상이면 동작한다'는 하한만 선언한다.
+# 재현 가능한 검증은 CI가 담당한다(액션은 커밋 SHA 고정 — .github/workflows/smoke.yml).
+PyYAML>=6.0
+requests>=2.28
+
+# turn-router 토크나이저 — config.example이 turn-router를 기본 활성화하므로 권장된다.
+# (skill_retriever.py의 import jieba는 없으면 리트리버가 L1 키워드 전용으로 폴백한다)
+jieba>=0.42
+
+# turn-router dense 검색(선택 — 없으면 FTS+시노님으로 폴백)
+# sentence-transformers
+# numpy
