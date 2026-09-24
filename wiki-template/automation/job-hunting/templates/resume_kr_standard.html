@@ -4,98 +4,32 @@
   <meta charset="UTF-8">
   <title>{{applicant_name}} - 국문 표준 입사지원서 ({{target_company}} {{target_position}})</title>
   <style>
-    @page {
-      size: A4;
-      margin: 15mm 15mm 15mm 15mm;
-    }
-    body {
-      font-family: "Malgun Gothic", "맑은 고딕", "Apple SD Gothic Neo", sans-serif;
-      color: #333333;
-      line-height: 1.5;
-      margin: 0;
-      padding: 0;
-      font-size: 10pt;
-    }
-    .title-banner {
-      background-color: #2b3a4a;
-      color: #ffffff;
-      padding: 12px 16px;
-      font-size: 14pt;
-      font-weight: bold;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 15px;
-    }
-    .target-tag {
-      background-color: #3b82f6;
-      color: #ffffff;
-      font-size: 9.5pt;
-      padding: 3px 8px;
-      border-radius: 3px;
-    }
-    table.grid-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 16px;
-    }
-    table.grid-table th, table.grid-table td {
-      border: 1px solid #cccccc;
-      padding: 7px 9px;
-      font-size: 9.5pt;
-    }
-    table.grid-table th {
-      background-color: #f2f4f7;
-      color: #222222;
-      font-weight: bold;
-      text-align: center;
-      width: 15%;
-    }
-    .sec-header {
-      font-size: 11pt;
-      font-weight: bold;
-      color: #1e293b;
-      border-left: 4px solid #2b3a4a;
-      padding-left: 8px;
-      margin-top: 14px;
-      margin-bottom: 8px;
-    }
-    .exp-card {
-      border: 1px solid #e2e8f0;
-      border-radius: 4px;
-      padding: 10px 12px;
-      margin-bottom: 10px;
-      background-color: #fafafa;
-    }
-    .exp-title {
-      display: flex;
-      justify-content: space-between;
-      font-weight: bold;
-      font-size: 10.5pt;
-      color: #0f172a;
-    }
-    .exp-dept {
-      color: #64748b;
-      font-size: 9pt;
-      margin-bottom: 6px;
-    }
-    ul.kpi-bullets {
-      margin: 4px 0;
-      padding-left: 18px;
-    }
-    ul.kpi-bullets li {
-      margin-bottom: 3px;
-    }
-    .badge-kpi {
-      color: #2563eb;
-      font-weight: bold;
-    }
+    :root { --ink:#172033; --muted:#526071; --rule:#d9dee7; --accent:#173f5f; }
+    * { box-sizing:border-box; }
+    @page { size:A4; margin:14mm 15mm; }
+    body { font-family:"Pretendard","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif; color:var(--ink); line-height:1.48; margin:0; font-size:9.6pt; -webkit-print-color-adjust:exact; }
+    .title-banner { display:flex; justify-content:space-between; align-items:flex-end; padding:0 0 7mm; border-bottom:1.5px solid var(--accent); margin-bottom:6mm; color:var(--ink); font-size:9pt; }
+    .title-banner>span:first-child { font-size:19pt; font-weight:800; letter-spacing:-.04em; }
+    .target-tag { color:var(--muted); font-size:8.5pt; text-align:right; }
+    table.grid-table { width:100%; border-collapse:collapse; margin-bottom:5mm; }
+    table.grid-table th,table.grid-table td { border:0; border-bottom:1px solid var(--rule); padding:3.2mm 2mm; font-size:9pt; }
+    table.grid-table th { background:transparent; color:var(--muted); font-weight:600; text-align:left; width:12%; white-space:nowrap; }
+    table.grid-table tr:last-child td { border-bottom:0; }
+    .sec-header { font-size:10.5pt; font-weight:750; color:var(--accent); border:0; border-bottom:1px solid var(--accent); padding:0 0 1.5mm; margin:5mm 0 3mm; }
+    .exp-card { border:0; border-bottom:1px solid var(--rule); border-radius:0; padding:0 0 3.5mm; margin:0 0 3.5mm; background:transparent; break-inside:avoid; }
+    .exp-title { display:flex; justify-content:space-between; gap:5mm; font-weight:750; font-size:10.2pt; color:var(--ink); }
+    .exp-title span:last-child,.exp-dept { white-space:nowrap; }
+    .exp-dept { color:var(--muted); font-size:8.7pt; margin:1mm 0 1.5mm; }
+    ul.kpi-bullets { margin:0; padding-left:4.5mm; }
+    ul.kpi-bullets li { margin-bottom:1mm; padding-left:1mm; }
+    .badge-kpi { color:var(--accent); font-weight:700; }
+    .summary { background:#f6f8fa; border-left:3px solid var(--accent); padding:3mm 4mm; margin-bottom:4mm; }
   </style>
 </head>
 <body>
 
   <div class="title-banner">
-    <span>입 사 지 원 서 (국문 표준)</span>
+    <span>{{applicant_name}}</span>
     <span class="target-tag">지원처: {{target_company}} - {{target_position}}</span>
   </div>
 
@@ -121,9 +55,7 @@
 
   <!-- 2. 핵심 역량 및 지원 요약 -->
   <div class="sec-header">1. 핵심 역량 및 요약 (Executive Summary)</div>
-  <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 4px; margin-bottom: 14px;">
-    {{executive_summary}}
-  </div>
+  <div class="summary">{{executive_summary}}</div>
 
   <!-- 3. 경력 사항 (사람인/잡코리아 블록) -->
   <div class="sec-header">2. 경력 사항 (Work Experience)</div>

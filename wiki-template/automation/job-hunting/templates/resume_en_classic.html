@@ -4,62 +4,19 @@
   <meta charset="UTF-8">
   <title>{{applicant_name}} - Resume ({{target_company}} {{target_position}})</title>
   <style>
-    @page {
-      size: A4;
-      margin: 18mm 20mm 18mm 20mm;
-    }
-    body {
-      font-family: "Times New Roman", Times, Georgia, serif;
-      color: #000000;
-      line-height: 1.35;
-      margin: 0;
-      padding: 0;
-      font-size: 10.5pt;
-    }
-    .name-header {
-      text-align: center;
-      margin-bottom: 12px;
-    }
-    h1 {
-      font-size: 18pt;
-      font-weight: bold;
-      text-transform: uppercase;
-      margin: 0 0 4px 0;
-      letter-spacing: 0.5px;
-    }
-    .contact-line {
-      font-size: 9.5pt;
-    }
-    .contact-line span {
-      margin: 0 5px;
-    }
-    .section-title {
-      font-size: 11pt;
-      font-weight: bold;
-      text-transform: uppercase;
-      border-bottom: 1px solid #000000;
-      margin-top: 14px;
-      margin-bottom: 6px;
-      letter-spacing: 0.5px;
-    }
-    .entry-header {
-      display: flex;
-      justify-content: space-between;
-      font-weight: bold;
-    }
-    .entry-sub {
-      display: flex;
-      justify-content: space-between;
-      font-style: italic;
-      margin-bottom: 3px;
-    }
-    ul {
-      margin: 2px 0 6px 0;
-      padding-left: 18px;
-    }
-    li {
-      margin-bottom: 2px;
-    }
+    :root { --ink:#18202b; --accent:#234e70; --muted:#596779; --rule:#ccd3dc; }
+    * { box-sizing:border-box; }
+    @page { size:A4; margin:16mm 18mm; }
+    body { font-family:"Noto Serif","Source Serif 4",Georgia,"Times New Roman",serif; color:var(--ink); line-height:1.38; margin:0; font-size:10.1pt; -webkit-print-color-adjust:exact; }
+    .name-header { text-align:left; border-bottom:1.5px solid var(--accent); padding-bottom:3mm; margin-bottom:5mm; }
+    h1 { font-size:20pt; font-weight:700; margin:0 0 1.5mm; letter-spacing:.02em; }
+    .contact-line { font-size:8.8pt; color:var(--muted); }
+    .contact-line span { margin:0 7px; color:#a0a8b2; }
+    .section-title { font-size:10.5pt; font-weight:700; text-transform:uppercase; border-bottom:1px solid var(--rule); margin:5mm 0 2.5mm; letter-spacing:.08em; }
+    .entry-header { display:flex; justify-content:space-between; gap:6mm; font-weight:700; }
+    .entry-sub { display:flex; justify-content:space-between; color:var(--muted); font-style:italic; margin:1mm 0 1.5mm; }
+    ul { margin:1.5mm 0 4mm; padding-left:5mm; }
+    li { margin-bottom:1.2mm; }
   </style>
 </head>
 <body>
@@ -110,8 +67,8 @@
 
   <div class="section-title">Skills &amp; Technical Qualifications</div>
   <div>
-    <strong>AI &amp; AX:</strong> {{skills_ax}}<br>
-    <strong>Sales Operations:</strong> {{skills_sales_ops}}<br>
+    <strong>AI &amp; Automation:</strong> {{skills_ax}}<br>
+    <strong>Operations &amp; Growth:</strong> {{skills_sales_ops}}<br>
     <strong>Technical Tools:</strong> {{skills_tools}}<br>
     <strong>Domains:</strong> {{skills_domain}}
   </div>
