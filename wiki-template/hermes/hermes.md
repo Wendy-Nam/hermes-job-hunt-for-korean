@@ -69,7 +69,7 @@ tags: [tool, automation]
 ## 0. 가장 중요한 한 줄
 
 **`/opt/hermes/*` 는 Docker 이미지 레이어 → 재빌드 시 사라진다. `/opt/data/*` 만 영속이다.**
-영구 변경은 무조건 `/opt/data` 안에서 한다. 컨테이너: `hermes-agent-ywj7-hermes-agent-1`, 호스트 마운트: `/docker/hermes-agent-ywj7/data ↔ /opt/data`.
+영구 변경은 무조건 `/opt/data` 안에서 한다. 컨테이너: `<컨테이너명>`, 호스트 마운트: `<호스트 데이터 경로> ↔ /opt/data`.
 
 ## 1. 레이어 지도
 

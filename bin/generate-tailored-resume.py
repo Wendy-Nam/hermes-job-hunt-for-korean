@@ -120,10 +120,10 @@ def build_tailored_html(
     res_tmpl = res_file.read_text(encoding="utf-8")
     cov_tmpl = (tmpl_dir / "cover_letter_template.html").read_text(encoding="utf-8")
 
-    applicant_name = "남서아 (Seoa Nam)"
-    email = "seoa.nam@example.com"
+    applicant_name = "홍길동 (Hong Gildong)"   # ← 본인 이름으로 교체
+    email = "your.email@example.com"
     phone = "010-XXXX-XXXX"
-    portfolio_url = "https://github.com/namseoa"
+    portfolio_url = "https://github.com/your-id"
 
     # Recruiter Page Budget & Density Control
     # Target: 1~1.5 pages (Senior/AX Lead max 2 pages)

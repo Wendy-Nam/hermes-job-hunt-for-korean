@@ -6,7 +6,7 @@
 매 턴 시스템 프롬프트에는 전문이 들어가게 하는 패치.
 
 - 이미지 레이어 패치라 컨테이너 **재생성** 시 소멸 → 재실행 필요:
-    docker exec hermes-agent-ywj7-hermes-agent-1 python3 /opt/data/bin/patch-soul-import.py
+    docker exec <container> python3 /opt/data/bin/patch-soul-import.py
   (restart 는 보존됨)
 - fail-open: 대상 파일이 없거나 /opt/data 밖이면 @import 줄을 그대로 둔다
   (모델에게 경로 포인터로 보임 = 종전 동작).
