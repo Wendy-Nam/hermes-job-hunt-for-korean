@@ -1,13 +1,13 @@
 ---
 name: job-hunter-kit
-description: "Use when the user wants Korean job postings: /jobs search, periodic crawl, Telegram digest. Self-contained: vendored wanted+web boards, profile filter, seen-state. Youtube lookup stays in youtube-content."
+description: "Use when the user wants Korean job postings: /jobs search, periodic crawl, Telegram digest. Self-contained: vendored wanted+web boards, profile filter, and seen-state."
 version: 2.0.0
-author: seoa
+author: hermes-agent-kit contributors
 platforms: [linux, macos]
 metadata:
   hermes:
     tags: [구직, 채용, jobs, wanted, telegram, digest]
-    related_skills: [youtube-content]
+    related_skills: [web-search, company-interview-research]
 ---
 
 # Job Hunter Kit v2 — 자립형 구직 플러그인 (가벼운 입문용)
@@ -37,6 +37,7 @@ job-hunter-kit/
 
 의존성: python3 표준라이브러리만 (urllib, argparse, json, re).
 pyyaml은 선택 (없으면 `senior_signals` 한 줄 파서로 폴백).
+
 유튜브 기업리서치는 원본 스킬 그대로 사용 (선택):
 
 `profile.yaml`, `seen.json`이 있는 `state-dir`은 깃에 넣지 않는다.
@@ -70,11 +71,10 @@ hermes cron doctor
 ```
 
 > ⚠️ `Gateway is not running` 경고가 뜨면 크론 시각에 자동 발화 안 됨.
+
 > `hermes gateway install` 후 `start` 필요 (서버) — 로컬 테스트는 `hermes cron run <id>`로 수동 발화.
 
 ```bash
-uv run python3 ~/.hermes/skills/media/youtube-content/scripts/fetch_transcript.py "<URL>" --text-only
-```
 
 ## 사용
 
@@ -101,13 +101,15 @@ python3 scripts/hunt.py "백엔드" --profile ./profile.yaml
  "prompt": "job-hunter-kit hunt.py를 --state-dir ~/.hermes/job-hunter --new-only --json으로 실행하고 신규만 deliver로 텔레그램 전송"}
 ```
 
-## 제외된 것 (호출 안 함 — 파일은 각자 자리에 유지)
+## 다른 구직 스킬과의 역할 경계
 
-- `kr-search` (사람인/잡코리아 HTML 파싱) — 구조 변경·403 취약
-- `linkedin-search` (게스트 엔드포인트) — 차단율 높음
-- `ats-search` — 외국계 한정
-- `apify-search` — API 키 필요
-- `cover-letter-pdf`, `interview-grill`, `job-evaluation-framework`, `job-match`, `company-interview-research`, `demo-*`, `real-job-demo` — 서류/면접 파이프라인 (수집과 분리)
+- `ats-search`, `kr-search`, `linkedin-search`, `web-search`: 보드별 수동 탐색
+- `job-hunter-kit`: 경량·자립형 한글 공고 검색과 주간 다이제스트
+- `job-collect.py`: 여러 보드 수집, 프로필 게이트, 중복 제거, 판정 대기열 운영
+- `job-match`: JD 조회와 적합도 판단
+- `job-alert-mail`: 채용 추천 메일 흡수
+- `generate-tailored-resume.py`: 마스터 재료에서 공고별 맞춤 이력서·자소서 생성
+- `company-interview-research`, `interview-grill`, `web-reader`: 회사 조사·면접 연습
 
 ## Verification
 

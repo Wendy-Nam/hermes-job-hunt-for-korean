@@ -27,7 +27,7 @@ python3 /opt/data/bin/kit-doctor.py /opt/data
 | 필터·판정 | `job-hunter-kit`, `job-collect.py` | 중복 제거, 프로필 필터, 적합도 판정 대기열 |
 | 지원 관리 | `job-alert-mail`, `job-match` | 채용 메일 분류, 지원 노트 생성·갱신, JD 조회 |
 | 문서 작성 | `generate-tailored-resume.py` | 마스터 경력·역량 근거를 JD에 맞춰 국문/영문 이력서·자소서 생성 |
-| 면접 준비 | `company-interview-research`, `interview-grill`, `web-reader`, `youtube-content` | 회사 조사, 질문 연습, 웹·영상 참고자료 수집 |
+| 면접 준비 | `company-interview-research`, `interview-grill`, `web-reader` | 회사 조사, 웹 참고자료 수집, 질문 연습 |
 | 관리 UI | Obsidian 볼트 템플릿 | 공고·리서치·복기·이력서 자료와 TaskNotes 대시보드 |
 | 자동화 | `bundle/cron/jobs.json` | 수집, 판정, 메일 확인, 리마인더 작업(기본 모두 비활성) |
 

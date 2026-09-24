@@ -58,7 +58,7 @@ python3 /opt/data/bin/generate-tailored-resume.py \
   --lang ko
 ```
 
-생성기는 마스터 자료의 모든 내용을 복사하지 않고 공고와 맞는 프로젝트·역량·달성 지표만 골라 국문 또는 영문 HTML로 구성합니다. 웹서치·회사 리서치 결과는 `company-interview-research`, `web-reader`, `youtube-content`로 별도 수집합니다.
+생성기는 마스터 자료의 모든 내용을 복사하지 않고 공고와 맞는 프로젝트·역량·달성 지표만 골라 국문 또는 영문 HTML로 구성합니다. 웹서치와 회사 리서치는 `web-reader`, `company-interview-research`로 진행합니다.
 
 ## 5. 메일과 지원 상태
 
