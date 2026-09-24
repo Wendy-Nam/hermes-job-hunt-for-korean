@@ -37,10 +37,12 @@
     dl.meta dt { color: var(--muted); }
     dl.meta dd { margin: 0; font-weight: 600; }
 
-    .section-block { margin-top: 8mm; break-inside: avoid-page; }
+    .section-block { margin-top: 8mm; }
+    h2.section-title { break-after: avoid; }
     h2.section-title { margin: 0 0 2.5mm; padding-bottom: 1.5mm; border-bottom: 1px solid var(--rule); font-size: 11pt; font-weight: 700; line-height: 1.5; }
     h2.section-title .en { margin-left: 2mm; color: var(--muted); font-size: 8.5pt; font-weight: 400; }
     .section-body { margin: 0; color: var(--ink-2); white-space: pre-line; }
+    .count { margin: 1.5mm 0 0; color: var(--muted); font-size: 8pt; text-align: right; font-variant-numeric: tabular-nums; }
 
     footer { margin-top: 12mm; text-align: right; color: var(--ink-2); font-size: 9.5pt; line-height: 1.7; }
     footer .sign { color: var(--ink); font-weight: 600; }
@@ -57,20 +59,13 @@
     </dl>
   </header>
 
+  {{#questions}}
   <section class="section-block">
-    <h2 class="section-title">1. 지원 동기 및 직무 적합성<span class="en">Motivation &amp; Fit</span></h2>
-    <p class="section-body">{{motivation_text}}</p>
+    <h2 class="section-title">{{no}}. {{title}}{{#en}}<span class="en">{{en}}</span>{{/en}}</h2>
+    <p class="section-body">{{body}}</p>
+    <p class="count">공백 포함 {{count}}자{{#limit}} / {{limit}}자{{/limit}}</p>
   </section>
-
-  <section class="section-block">
-    <h2 class="section-title">2. 주요 성과 및 문제 해결 사례<span class="en">Key Achievements</span></h2>
-    <p class="section-body">{{achievements_text}}</p>
-  </section>
-
-  <section class="section-block">
-    <h2 class="section-title">3. 입사 후 기여 계획<span class="en">Future Contribution</span></h2>
-    <p class="section-body">{{future_plan_text}}</p>
-  </section>
+  {{/questions}}
 
   <footer>
     {{generated_date}}<br>

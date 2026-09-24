@@ -10,9 +10,11 @@
       --ink-2: #3f4650;
       --muted: #6b7280;
       --rule: #dfe2e6;
+      --fill: #f5f6f8;
     }
     * { box-sizing: border-box; }
     @page { size: A4; margin: 16mm 18mm; }
+    html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     body {
       margin: 0;
       color: var(--ink);
@@ -21,6 +23,7 @@
       line-height: 1.6;
       word-break: keep-all;
       overflow-wrap: anywhere;
+      font-variant-numeric: tabular-nums;
     }
     @media screen {
       html { background: #eceef1; }
@@ -28,27 +31,58 @@
     }
     @media screen and (max-width: 640px) {
       body { margin: 0; padding: 20px 16px; }
+      dl.rows { grid-template-columns: 1fr !important; }
+      .figures { grid-template-columns: 1fr !important; }
     }
 
+    /* 표지 머리글 */
     header { display: flex; justify-content: space-between; align-items: flex-end; gap: 8mm; padding-bottom: 3mm; border-bottom: 1.5px solid var(--ink); }
     .doc-type { margin: 0 0 1mm; color: var(--muted); font-size: 8.5pt; font-weight: 600; letter-spacing: .2em; }
     h1 { margin: 0; font-size: 21pt; font-weight: 700; letter-spacing: -.02em; line-height: 1.2; }
-    .meta { margin: 0; color: var(--ink-2); font-size: 8.8pt; text-align: right; line-height: 1.5; }
+    .headline { margin: 1.2mm 0 0; color: var(--ink-2); }
+    .meta { margin: 0; color: var(--ink-2); font-size: 8.8pt; text-align: right; line-height: 1.6; }
+    .meta span { display: block; }
 
     section { margin-top: 7mm; }
-    h2 { margin: 0 0 1mm; padding-bottom: 1.5mm; border-bottom: 1px solid var(--ink); font-size: 11pt; font-weight: 700; }
+    h2 { margin: 0 0 2.5mm; padding-bottom: 1.5mm; border-bottom: 1px solid var(--ink); font-size: 11pt; font-weight: 700; break-after: avoid; }
+    .intro { margin: 0 0 2mm; color: var(--ink-2); }
+    ul { margin: 0; padding-left: 4.2mm; }
+    li { margin-bottom: .6mm; }
+    li::marker { color: var(--muted); }
 
-    .project { padding: 3.5mm 0; border-bottom: 1px solid var(--rule); break-inside: avoid; }
+    /* 프로젝트 목록 */
+    table.overview { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 9pt; }
+    table.overview th, table.overview td { padding: 1.4mm 2.5mm; border-bottom: 1px solid var(--rule); text-align: left; vertical-align: top; }
+    table.overview thead th { background: var(--fill); color: var(--ink-2); font-weight: 600; border-bottom-color: var(--ink-2); }
+    table.overview .c-no { width: 9%; color: var(--muted); }
+    table.overview .c-period { width: 24%; color: var(--ink-2); }
+    table.overview .c-role { width: 24%; color: var(--ink-2); }
+
+    /* 프로젝트 상세 */
+    .project { padding: 5mm 0 4mm; border-bottom: 1px solid var(--rule); }
     .project:last-child { border-bottom: 0; }
-    .project-head { display: flex; justify-content: space-between; align-items: baseline; gap: 6mm; }
-    .project h3 { margin: 0; font-size: 10.6pt; font-weight: 700; }
-    .project .period { flex-shrink: 0; color: var(--ink-2); font-size: 9pt; white-space: nowrap; font-variant-numeric: tabular-nums; }
-    .project .stack { margin: .3mm 0 2mm; color: var(--muted); font-size: 9pt; }
+    .page-each .project + .project { break-before: page; }
+    .project-head { display: flex; justify-content: space-between; align-items: baseline; gap: 6mm; break-after: avoid; }
+    .project h3 { margin: 0; font-size: 12pt; font-weight: 700; letter-spacing: -.01em; }
+    .project h3 .no { margin-right: 2.5mm; color: var(--muted); font-weight: 600; }
+    .project .period { flex-shrink: 0; color: var(--ink-2); font-size: 9pt; white-space: nowrap; }
+    .project .sub { margin: .5mm 0 3mm; color: var(--muted); font-size: 9pt; }
+    .project .sub b { color: var(--ink-2); font-weight: 600; }
 
-    dl.rows { display: grid; grid-template-columns: 20mm 1fr; gap: 1mm 3mm; margin: 0; }
+    dl.rows { display: grid; grid-template-columns: 20mm 1fr; gap: 1.6mm 4mm; margin: 0; }
     dl.rows dt { color: var(--muted); font-size: 9pt; font-weight: 600; }
     dl.rows dd { margin: 0; }
-    section > dl.rows { margin-top: 2.5mm; grid-template-columns: 24mm 1fr; }
+    dl.rows dd.impact { font-weight: 600; }
+    section > dl.rows { grid-template-columns: 28mm 1fr; }
+
+    .figures { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4mm; margin: 4mm 0 0; }
+    figure { margin: 0; break-inside: avoid; }
+    figure img { display: block; width: 100%; max-height: 80mm; object-fit: contain; background: var(--fill); border: 1px solid var(--rule); }
+    figcaption { margin-top: 1mm; color: var(--muted); font-size: 8.5pt; }
+
+    .links { margin: 3mm 0 0; padding: 0; list-style: none; font-size: 9pt; }
+    .links li { display: inline; margin-right: 5mm; }
+    .links b { margin-right: 1.5mm; color: var(--muted); font-weight: 600; }
     a { color: inherit; text-decoration: underline; text-decoration-color: var(--rule); text-underline-offset: 2px; }
   </style>
 </head>
@@ -57,34 +91,69 @@
     <div>
       <p class="doc-type">포트폴리오</p>
       <h1>{{applicant_name}}</h1>
+      {{#headline}}<p class="headline">{{headline}}</p>{{/headline}}
     </div>
-    <p class="meta">{{target_company}} · {{target_position}}<br>{{email}} · {{github_or_portfolio}}{{#linkedin}} · {{linkedin}}{{/linkedin}}</p>
+    <p class="meta"><span>{{target_company}} · {{target_position}}</span>{{#contact_items}}<span>{{value}}</span>{{/contact_items}}</p>
   </header>
 
   <section>
-    <h2>주요 프로젝트</h2>
-    {{#projects}}
-    <article class="project">
-      <div class="project-head">
-        <h3>{{project_name}}</h3>
-        {{#period}}<span class="period">{{period}}</span>{{/period}}
-      </div>
-      <p class="stack">{{tech_stack}}</p>
-      <dl class="rows">
-        <dt>개요</dt><dd>{{description}}</dd>
-        {{#role}}<dt>역할</dt><dd>{{role}}</dd>{{/role}}
-        <dt>성과</dt><dd>{{impact}}</dd>
-        {{#link}}<dt>링크</dt><dd><a href="{{link}}">{{link}}</a></dd>{{/link}}
-      </dl>
-    </article>
-    {{/projects}}
+    <h2>소개</h2>
+    {{#portfolio_intro}}<p class="intro">{{portfolio_intro}}</p>{{/portfolio_intro}}
+    <ul>
+      {{#summary_points}}
+      <li>{{text}}</li>
+      {{/summary_points}}
+    </ul>
   </section>
+
+  {{#has_overview}}
+  <section>
+    <h2>프로젝트 목록</h2>
+    <table class="overview">
+      <thead><tr><th class="c-no">No.</th><th>프로젝트</th><th class="c-period">기간</th><th class="c-role">역할</th></tr></thead>
+      {{#portfolio_projects}}
+      <tr><td class="c-no">{{no}}</td><td>{{project_name}}</td><td class="c-period">{{period}}</td><td class="c-role">{{role}}</td></tr>
+      {{/portfolio_projects}}
+    </table>
+  </section>
+  {{/has_overview}}
 
   <section>
     <h2>보유 기술</h2>
     <dl class="rows">
       {{#skills}}<dt>{{label}}</dt><dd>{{value}}</dd>{{/skills}}
     </dl>
+  </section>
+
+  <section class="{{#page_per_project}}page-each{{/page_per_project}}">
+    <h2>주요 프로젝트</h2>
+    {{#portfolio_projects}}
+    <article class="project">
+      <div class="project-head">
+        <h3><span class="no">{{no}}</span>{{project_name}}</h3>
+        {{#period}}<span class="period">{{period}}</span>{{/period}}
+      </div>
+      <p class="sub">{{#meta}}<b>{{meta}}</b> · {{/meta}}{{tech_stack}}</p>
+      <dl class="rows">
+        <dt>개요</dt><dd>{{description}}</dd>
+        {{#problem}}<dt>배경 · 문제</dt><dd>{{problem}}</dd>{{/problem}}
+        {{#approach}}<dt>해결</dt><dd>{{approach}}</dd>{{/approach}}
+        {{#role}}<dt>역할</dt><dd>{{role}}</dd>{{/role}}
+        <dt>성과</dt><dd class="impact">{{impact}}</dd>
+        {{#learning}}<dt>배운 점</dt><dd>{{learning}}</dd>{{/learning}}
+      </dl>
+      {{#has_images}}
+      <div class="figures">
+        {{#images}}<figure><img src="{{src}}" alt="{{caption}}">{{#caption}}<figcaption>{{caption}}</figcaption>{{/caption}}</figure>{{/images}}
+      </div>
+      {{/has_images}}
+      {{#has_links}}
+      <ul class="links">
+        {{#links}}<li><b>{{label}}</b><a href="{{url}}">{{url}}</a></li>{{/links}}
+      </ul>
+      {{/has_links}}
+    </article>
+    {{/portfolio_projects}}
   </section>
 </body>
 </html>

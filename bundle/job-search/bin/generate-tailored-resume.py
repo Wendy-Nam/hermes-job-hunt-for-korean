@@ -81,6 +81,7 @@ def read_source_vault(wiki_root: Path) -> dict[str, str]:
 
 def find_chrome_binary() -> str | None:
     candidates = [
+        os.environ.get("CHROME_PATH", ""),
         "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
         "/Applications/Chromium.app/Contents/MacOS/Chromium",
         "/usr/bin/google-chrome",
@@ -102,6 +103,8 @@ def render_pdf(html_path: Path, pdf_path: Path) -> bool:
                 "--headless",
                 "--disable-gpu",
                 "--no-sandbox",
+                "--no-pdf-header-footer",      # 파일 경로·날짜 머리글/바닥글 제거
+                "--print-to-pdf-no-header",    # 구버전 Chrome용 같은 옵션
                 f"--print-to-pdf={pdf_path}",
                 str(html_path),
             ]
@@ -294,19 +297,24 @@ def parse_episodes(text: str) -> list:
     return [e for e in episodes if e["result"] or e["action"]]
 
 
+# 자소서 소재 블록: master_resume.md `### 헤딩` → 내부 키
+COVER_BLOCKS = {"지원동기": "motivation", "강점근거": "strength", "포부": "vision",
+                "도메인관심사": "domain", "성장과정": "growth", "성격장단점": "personality",
+                "직무역량": "competency", "협업경험": "collaboration", "실패극복": "challenge"}
+
+
 def parse_cover_blocks(text: str) -> dict:
-    """Parse 지원동기/강점근거/포부/도메인관심사 bullet pools from master_resume.md."""
-    blocks: dict = {"motivation": [], "strength": [], "vision": [], "domain": []}
-    heading_map = {"지원동기": "motivation", "강점근거": "strength",
-                   "포부": "vision", "도메인관심사": "domain"}
+    """Parse cover-letter bullet pools (지원동기·강점근거·포부·도메인관심사·성장과정·
+    성격장단점·직무역량·협업경험·실패극복) from master_resume.md."""
+    blocks: dict = {key: [] for key in COVER_BLOCKS.values()}
     current = None
     for raw in text.splitlines():
         s = raw.strip()
-        mh = re.match(r"^###\s*(지원동기|강점근거|포부|도메인관심사)\b", s)
+        mh = re.match(r"^###\s*(" + "|".join(COVER_BLOCKS) + r")\b", s)
         if mh:
-            current = heading_map[mh.group(1)]
+            current = COVER_BLOCKS[mh.group(1)]
             continue
-        if s.startswith("## "):
+        if s.startswith("#"):
             current = None
             continue
         if current and (s.startswith("- ") or s.startswith("* ")):
@@ -316,22 +324,107 @@ def parse_cover_blocks(text: str) -> dict:
     return blocks
 
 
+# 자소서 문항 유형: 키 → (기본 문항 제목, 영문 부제, 소재 블록들, 사례로 쓸 에피소드 태그, 문장 수)
+COVER_QUESTIONS = {
+    "지원동기": ("지원 동기 및 직무 적합성", "Motivation & Fit", ("motivation", "role", "domain"), (), 3),
+    "성장과정": ("성장 과정", "Background", ("growth",), (), 3),
+    "성격장단점": ("성격의 장단점", "Strengths & Weaknesses", ("personality",), (), 3),
+    "직무역량": ("직무 역량 및 경험", "Job Competency", ("competency", "competencies", "fit"),
+               ("직무", "전문", "역량", "데이터", "자동화"), 3),
+    "성과": ("주요 성과 및 문제 해결 사례", "Key Achievements", ("strength", "results", "fit"),
+           ("성과", "문제해결", "문제 해결", "개선"), 3),
+    "협업경험": ("협업 및 갈등 해결 경험", "Collaboration", ("collaboration",),
+             ("협업", "커뮤니케이션", "조율", "이해관계자", "리더십", "갈등"), 2),
+    "실패극복": ("실패와 극복 경험", "Challenge & Recovery", ("challenge",),
+             ("실패", "극복", "위기", "회복"), 2),
+    "포부": ("입사 후 기여 계획", "Future Contribution", ("vision", "domain"), (), 2),
+}
+DEFAULT_COVER_QUESTIONS = ("지원동기", "성과", "포부")
+
+
+def parse_cover_questions(text: str) -> list:
+    """`## 7. 자기소개서 문항`: `- 유형 | 문항 제목(회사 문항 그대로) | 글자수 제한`.
+    Unknown types and placeholder rows are skipped; empty → the default 3 questions."""
+    rows: list = []
+    in_section = False
+    for raw in text.splitlines():
+        s = raw.strip()
+        if s.startswith("## "):
+            in_section = "자기소개서 문항" in s
+            continue
+        if not in_section or not s.startswith("- "):
+            continue
+        cells = [c.strip() for c in s[2:].split("|")] + ["", ""]
+        kind = _strip_md(cells[0])
+        if kind not in COVER_QUESTIONS:
+            continue
+        title = "" if _is_placeholder(cells[1]) else _strip_md(cells[1])
+        digits = "" if _is_placeholder(cells[2]) else re.sub(r"[^0-9]", "", cells[2])
+        rows.append({"kind": kind, "title": title, "limit": int(digits) if digits else 0})
+    return rows or [{"kind": k, "title": "", "limit": 0} for k in DEFAULT_COVER_QUESTIONS]
+
+
+def _numbers(text: str) -> set:
+    """문장 속 수치 토큰(±22%, 18%, 10시간의 10 …) — 중복 문장 판정용."""
+    return set(re.findall(r"\d+(?:[.,]\d+)?%?", text or "")) - {"1", "2", "3"}
+
+
+def _sentence(text: str) -> str:
+    text = text.strip()
+    return text if not text or text[-1] in ".!?。" else text + "."
+
+
+def episode_paragraph(ep: dict) -> str:
+    """상황 → 행동 → 정량결과를 한 문단으로."""
+    parts = [_sentence(ep["situation"]), _sentence(ep["action"])]
+    if ep["result"]:
+        parts.append(_sentence("그 결과 " + ep["result"]))
+    return " ".join(p for p in parts if p and not _is_placeholder(p))
+
+
+def fit_to_limit(lines: list, limit: int) -> str:
+    """문장(줄)을 순서대로 담되 글자수 제한(공백 포함)을 넘기지 않는다."""
+    out: list = []
+    for line in lines:
+        candidate = "\n".join(out + [line])
+        if limit and len(candidate) > limit:
+            if not out:
+                out.append(line[: max(limit - 1, 0)] + "…")
+            break
+        out.append(line)
+    return "\n".join(out)
+
+
+PROJECT_FIELDS = {
+    "기간": "period", "유형": "type", "팀 구성": "team", "역할": "role", "기여도": "contribution",
+    "개요": "description", "배경·문제": "problem", "배경": "problem", "문제": "problem",
+    "해결": "approach", "해결 방법": "approach", "접근": "approach",
+    "성과": "impact", "배운 점": "learning", "회고": "learning", "기술 스택": "tech_stack",
+}
+PROJECT_LINK_KEYS = {"링크": "링크", "GitHub": "GitHub", "데모": "데모", "문서": "문서",
+                     "포트폴리오": "포트폴리오", "영상": "영상", "발표 자료": "발표 자료"}
+
+
 def parse_projects(text: str) -> list:
-    """Parse project entries (개요/역할/기술 스택/성과/링크) from portfolios.md.
+    """Parse project entries from portfolios.md: 개요/배경·문제/해결/성과/배운 점, 팀 구성·기여도,
+    여러 링크(링크·GitHub·데모·문서…), 이미지(`경로 | 캡션`, 여러 줄).
     Placeholder-only rows are dropped so generated documents never expose template guidance.
     """
     projects: list = []
     cur = None
     for raw in text.splitlines():
         s = raw.strip()
+        if s.startswith("## "):
+            cur = None
+            continue
         mh = re.match(r"^###\s*\d+\.\s*(.+?)\s*(?:\*\(필요하면 추가\)\*)?\s*$", s)
         if mh:
             name = mh.group(1).strip()
             if name.startswith("<"):
                 cur = None
             else:
-                cur = {"project_name": name, "period": "", "description": "", "role": "",
-                       "tech_stack": "", "impact": "", "link": ""}
+                cur = {"project_name": name, **{v: "" for v in PROJECT_FIELDS.values()},
+                       "link": "", "links": [], "images": []}
                 projects.append(cur)
             continue
         if cur is None:
@@ -341,17 +434,35 @@ def parse_projects(text: str) -> list:
             key, val = fm.group(1).strip(), _strip_md(fm.group(2).strip())
             if _is_placeholder(val):
                 continue
-            if key in ("개요", "역할"):
-                cur["description" if key == "개요" else "role"] = val
-            elif key == "기간":
-                cur["period"] = val
-            elif key == "기술 스택":
-                cur["tech_stack"] = val
-            elif key == "성과":
-                cur["impact"] = val
-            elif key in ("링크", "포트폴리오", "GitHub"):
-                cur["link"] = val
+            if key in PROJECT_FIELDS:
+                cur[PROJECT_FIELDS[key]] = val
+            elif key in PROJECT_LINK_KEYS:
+                cur["links"].append({"label": PROJECT_LINK_KEYS[key], "url": val})
+                cur["link"] = cur["link"] or val
+            elif key == "이미지":
+                src, _, caption = (part.strip() for part in val.partition("|"))
+                if src and not _is_placeholder(src):
+                    cur["images"].append({"src": src, "caption": "" if _is_placeholder(caption) else caption})
     return [p for p in projects if p["description"] or p["impact"]]
+
+
+def parse_portfolio_options(text: str) -> dict:
+    """`## 0. 포트폴리오 옵션`의 소개·새 페이지·최대 프로젝트 수."""
+    opts = {"intro": "", "page_per_project": False, "max_projects": 6}
+    for raw in text.splitlines():
+        m = re.match(r"^-\s*\*\*(.+?)\*\*\s*[:：]\s*(.*)$", raw.strip())
+        if not m:
+            continue
+        key, val = m.group(1).strip(), _strip_md(m.group(2).strip())
+        if _is_placeholder(val):
+            continue
+        if key == "소개":
+            opts["intro"] = val
+        elif key == "프로젝트마다 새 페이지":
+            opts["page_per_project"] = val.startswith(("예", "yes", "y", "true", "on"))
+        elif key == "최대 프로젝트 수" and val.isdigit():
+            opts["max_projects"] = max(1, int(val))
+    return opts
 
 
 # "### 학력" 등 표형 섹션: 한 줄 = `- 칸1 | 칸2 | 칸3 | 칸4`, 칸 이름은 섹션별 고정.
@@ -570,13 +681,12 @@ def build_context(company: str, position: str, jd_text: str, sources: dict,
     if not experiences:
         experiences = []
 
-    # --- projects ranked by JD fit, top 3; placeholder-only rows already dropped ---
-    projects = rank_by_jd(
+    # --- projects ranked by JD fit: 이력서엔 상위 3, 포트폴리오엔 전체(옵션 상한) ---
+    all_projects = rank_by_jd(
         projects, keywords,
-        lambda p: " ".join([p["project_name"], p["description"], p["tech_stack"], p["impact"]]),
-        limit=3)
-    if not projects:
-        projects = []
+        lambda p: " ".join([p["project_name"], p["description"], p["problem"], p["approach"],
+                            p["tech_stack"], p["impact"]]))
+    projects = all_projects[:3]
 
     # --- skills: 라벨·순서 모두 master_resume.md가 결정 (언어별 라벨 선택) ---
     skills = [{"label": row["label_en" if lang == "en" else "label_ko"], "value": row["value"]}
@@ -605,27 +715,52 @@ def build_context(company: str, position: str, jd_text: str, sources: dict,
         {"text": "경력·역량 자료를 master_resume.md에 등록해 주세요."}]
     total_career = format_months(total_months([e["period"] for e in experiences]), lang)
 
-    # --- cover letter: JD-ranked sentences from cover blocks + episodes + fit/role pools ---
+    # --- cover letter: 문항별로 소재 블록·에피소드를 JD 순으로 골라 조립 ---
     def top_lines(pool: list, n: int) -> list:
         return _usable(rank_by_jd([x for x in pool if x], keywords, lambda t: t, limit=n))
 
-    motivation_pool = cover["motivation"] + role_msgs
-    motivation_lines = top_lines(motivation_pool, 2) or [
-        f"{company}의 {position}에서 해결하고 싶은 문제를 master_resume.md에 구체적으로 기록해 지원드립니다."
-    ]
-    motivation_text = "\n".join(motivation_lines)
+    pools = {**cover, "role": role_msgs, "competencies": ident["competencies"],
+             "fit": fit_top, "results": [e["result"] for e in episodes if e["result"]]}
+    fallbacks = {
+        "지원동기": f"{company}의 {position}에서 해결하고 싶은 문제를 master_resume.md에 구체적으로 기록해 지원드립니다.",
+        "성과": "정량 성과와 문제 해결 사례를 master_resume.md에 등록하면 공고에 맞게 선별해 제시합니다.",
+        "포부": "입사 후의 기여 계획과 관심 도메인을 master_resume.md에 등록하면 공고에 맞게 선별해 구성합니다.",
+    }
+    used_episodes: set = set()
 
-    strength_pool = cover["strength"] + [e["result"] for e in episodes if e["result"]] + fit_top
-    strength_lines = top_lines(strength_pool, 3) or [
-        "정량 성과와 문제 해결 사례를 master_resume.md에 등록하면 공고에 맞게 선별해 제시합니다."
-    ]
-    achievements_text = "\n".join(strength_lines)
+    def answer(kind: str, limit: int = 0) -> str:
+        _, _, block_keys, tags, n = COVER_QUESTIONS[kind]
+        lines: list = []
+        if tags:  # 사례형 문항: 태그가 맞는 에피소드 하나를 상황→행동→결과 문단으로
+            for i, ep in enumerate(episodes):
+                if i in used_episodes or _is_placeholder(ep["title"]):
+                    continue
+                if any(t in " ".join(ep["tags"] + [ep["title"]]) for t in tags) or kind == "성과":
+                    para = episode_paragraph(ep)
+                    if para:
+                        used_episodes.add(i)
+                        lines.append(para)
+                        break
+        pool = [x for key in block_keys for x in pools.get(key, [])]
+        for line in top_lines(pool, n + 2):
+            # 이미 쓴 문장과 같은 수치를 반복하는 문장은 건너뛴다 (에피소드 결과 ↔ 강점근거 중복)
+            if len(lines) >= n or line in lines or _numbers(line) & _numbers(" ".join(lines)):
+                continue
+            lines.append(line)
+        lines = lines or [fallbacks.get(kind, f"{COVER_QUESTIONS[kind][0]} 소재를 master_resume.md에 등록해 주세요.")]
+        return fit_to_limit(lines, limit)
 
-    vision_pool = cover["vision"] + cover["domain"]
-    vision_lines = top_lines(vision_pool, 2) or [
-        "입사 후의 기여 계획과 관심 도메인을 master_resume.md에 등록하면 공고에 맞게 선별해 구성합니다."
-    ]
-    future_plan_text = "\n".join(vision_lines)
+    questions = []
+    for no, q in enumerate(parse_cover_questions(sources.get("master_resume", "")), 1):
+        default_title, en, *_ = COVER_QUESTIONS[q["kind"]]
+        body = answer(q["kind"], q["limit"])
+        questions.append({"no": no, "title": q["title"] or default_title,
+                          "en": "" if q["title"] else en, "body": body,
+                          "count": len(body), "limit": q["limit"] or ""})
+    used_episodes.clear()
+    motivation_text = answer("지원동기")
+    achievements_text = answer("성과")
+    future_plan_text = answer("포부")
 
     opt = lambda key: "" if _is_placeholder(ident[key]) else ident[key]
     ctx = {
@@ -645,10 +780,12 @@ def build_context(company: str, position: str, jd_text: str, sources: dict,
         "summary_points": summary_points,
         "experiences": experiences,
         "projects": projects,
+        "all_projects": all_projects,
         "skills": skills,
         "motivation_text": motivation_text,
         "achievements_text": achievements_text,
         "future_plan_text": future_plan_text,
+        "questions": questions,
         "generated_date": dt.date.today().isoformat(),
         **sections,
     }
@@ -713,6 +850,16 @@ def build_portfolio_html(company: str, position: str, jd_text: str, sources: dic
     """Render the dedicated portfolio document from the same ranked project pool."""
     tmpl = VAULT_DIR / "automation" / "job-hunting" / "templates" / "portfolio.html"
     ctx = build_context(company, position, jd_text, sources, is_senior=is_senior)
+    opts = parse_portfolio_options(sources.get("portfolios", ""))
+    chosen = ctx["all_projects"][: opts["max_projects"]]
+    ctx["portfolio_projects"] = [
+        {**p, "no": f"{i:02d}", "has_images": bool(p["images"]), "has_links": bool(p["links"]),
+         "meta": " · ".join(x for x in (p["type"], p["team"],
+                                         f"기여도 {p['contribution']}" if p["contribution"] else "") if x)}
+        for i, p in enumerate(chosen, 1)]
+    ctx["has_overview"] = len(chosen) >= 2
+    ctx["portfolio_intro"] = opts["intro"]
+    ctx["page_per_project"] = opts["page_per_project"]
     return render_template(tmpl.read_text(encoding="utf-8"), ctx)
 
 
@@ -844,6 +991,41 @@ def run_selftest() -> None:
     assert "<th scope=\"row\">데이터 분석</th>" in ko_doc and "<dt>Data Analysis</dt>" in en_doc, "스킬 라벨(국/영) 미반영"
     assert "<dt>협업</dt>" in en_doc and "Tableau" in ko_doc and "Jira" in en_doc, "스킬 값·라벨 폴백 누락"
     assert "보유 기술을 master_resume.md에" in r3, "빈 스킬 안내 문구 미주입"
+
+    # 5-3) 자기소개서 문항: 기본 3문항 / 회사 문항·순서·글자수 제한
+    assert [q["kind"] for q in parse_cover_questions(sources["master_resume"])] == list(DEFAULT_COVER_QUESTIONS), \
+        "플레이스홀더 문항 행이 기본 구성을 깨뜨림"
+    assert all(q["limit"] == 0 and q["title"] == "" for q in parse_cover_questions(sources["master_resume"])), \
+        "플레이스홀더 제목·글자수가 적용됨"
+    assert fit_to_limit(["가" * 10, "나" * 10], 15) == "가" * 10, "글자수 제한 문장 단위 절단 실패"
+    assert fit_to_limit(["다" * 30], 10) == "다" * 9 + "…", "첫 문장 초과 시 말줄임 실패"
+    qsrc = {**empty, "master_resume": (
+        "### 에피소드 1: 갈등 조율\n- **상황**: 두 팀이 대립했다\n- **행동**: 공동 지표를 만들었다\n"
+        "- **정량결과**: 이슈 70% 감소\n- **역량태그**: 협업\n\n"
+        "## 6. 자기소개서 소재\n### 성장과정 (Background)\n- 어릴 때부터 기록을 좋아했습니다.\n\n"
+        "## 7. 자기소개서 문항\n- 협업경험 | 갈등을 해결한 경험을 쓰세요 | 60\n- 성장과정 | | \n- 없는유형 | 무시 | 100\n")}
+    _, qcov = build_tailored_html("T", "P", "", qsrc)
+    assert "1. 갈등을 해결한 경험을 쓰세요" in qcov and "2. 성장 과정" in qcov, "문항 순서·제목 미반영"
+    assert "그 결과 이슈 70% 감소." in qcov and "/ 60자" in qcov, "사례형 문항 에피소드·글자수 표시 누락"
+    assert "무시" not in qcov and "3." not in qcov.split("</header>")[1], "알 수 없는 문항 유형이 렌더링됨"
+    _assert_balanced(qcov, "cover-questions")
+
+    # 5-4) 포트폴리오: 문제→해결→성과, 링크 여러 개, 이미지, 목록 표, 플레이스홀더 숨김
+    kit_pf = build_portfolio_html("T", "P", "", sources)
+    assert "<img" not in kit_pf and "<h2>프로젝트 목록" not in kit_pf, "빈 포트폴리오에 이미지·목록이 렌더링됨"
+    pf_md = ("## 0. 포트폴리오 옵션\n- **소개**: 숫자로 일합니다.\n- **프로젝트마다 새 페이지**: 예\n\n"
+             "### 1. 알파\n- **개요**: 대시보드\n- **배경·문제**: 수작업 보고\n- **해결**: 자동 적재\n"
+             "- **기여도**: 80%\n- **성과**: 80% 절감\n- **GitHub**: https://g/a\n- **데모**: https://d/a\n"
+             "- **이미지**: img/a.png | 메인 화면\n- **이미지**: <경로 | 캡션>\n\n"
+             "### 2. 베타\n- **개요**: 모델\n- **성과**: 전환율 9%p\n")
+    pfp = parse_projects(pf_md)
+    assert len(pfp) == 2 and len(pfp[0]["links"]) == 2 and pfp[0]["images"] == [{"src": "img/a.png", "caption": "메인 화면"}], \
+        f"포트폴리오 필드 파싱 실패: {pfp[0]}"
+    pf = build_portfolio_html("T", "P", "", {**empty, "portfolios": pf_md})
+    for needle in ("배경 · 문제", "수작업 보고", "기여도 80%", 'src="img/a.png"', "메인 화면",
+                   "https://d/a", "<h2>프로젝트 목록", "숫자로 일합니다.", "page-each", "주요 프로젝트"):
+        assert needle in pf, f"포트폴리오 렌더링 누락: {needle}"
+    _assert_balanced(pf, "portfolio-filled")
 
     # 6) PDF 렌더링(Chrome 있는 환경에서만 강제)
     html_file = tmp / "TestCo_Sales_Ops_Resume.html"
