@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>김하늘 포트폴리오 · 에이크미코리아 Sales Operations Manager</title>
+  <style>
+    :root {
+      --ink: #1a1d21;
+      --ink-2: #3f4650;
+      --muted: #6b7280;
+      --rule: #dfe2e6;
+      --fill: #f5f6f8;
+    }
+    * { box-sizing: border-box; }
+    @page { size: A4; margin: 16mm 18mm; }
+    html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: "Pretendard", "Pretendard Variable", "Noto Sans KR", "Noto Sans CJK KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+      font-size: 9.8pt;
+      line-height: 1.6;
+      word-break: keep-all;
+      overflow-wrap: anywhere;
+      font-variant-numeric: tabular-nums;
+    }
+    @media screen {
+      html { background: #eceef1; }
+      body { max-width: 210mm; margin: 24px auto; padding: 16mm 18mm; background: #fff; }
+    }
+    @media screen and (max-width: 640px) {
+      body { margin: 0; padding: 20px 16px; }
+      dl.rows { grid-template-columns: 1fr !important; }
+      .figures { grid-template-columns: 1fr !important; }
+    }
+
+    /* 표지 머리글 */
+    header { display: flex; justify-content: space-between; align-items: flex-end; gap: 8mm; padding-bottom: 3mm; border-bottom: 1.5px solid var(--ink); }
+    .doc-type { margin: 0 0 1mm; color: var(--muted); font-size: 8.5pt; font-weight: 600; letter-spacing: .2em; }
+    h1 { margin: 0; font-size: 21pt; font-weight: 700; letter-spacing: -.02em; line-height: 1.2; }
+    .headline { margin: 1.2mm 0 0; color: var(--ink-2); }
+    .meta { margin: 0; color: var(--ink-2); font-size: 8.8pt; text-align: right; line-height: 1.6; }
+    .meta span { display: block; }
+
+    section { margin-top: 7mm; }
+    h2 { margin: 0 0 2.5mm; padding-bottom: 1.5mm; border-bottom: 1px solid var(--ink); font-size: 11pt; font-weight: 700; break-after: avoid; }
+    .intro { margin: 0 0 2mm; color: var(--ink-2); }
+    ul { margin: 0; padding-left: 4.2mm; }
+    li { margin-bottom: .6mm; }
+    li::marker { color: var(--muted); }
+
+    /* 프로젝트 목록 */
+    table.overview { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 9pt; }
+    table.overview th, table.overview td { padding: 1.4mm 2.5mm; border-bottom: 1px solid var(--rule); text-align: left; vertical-align: top; }
+    table.overview thead th { background: var(--fill); color: var(--ink-2); font-weight: 600; border-bottom-color: var(--ink-2); }
+    table.overview .c-no { width: 9%; color: var(--muted); }
+    table.overview .c-period { width: 24%; color: var(--ink-2); }
+    table.overview .c-role { width: 24%; color: var(--ink-2); }
+
+    /* 프로젝트 상세 */
+    .project { padding: 5mm 0 4mm; border-bottom: 1px solid var(--rule); }
+    .project:last-child { border-bottom: 0; }
+    .page-each .project + .project { break-before: page; }
+    .project-head { display: flex; justify-content: space-between; align-items: baseline; gap: 6mm; break-after: avoid; }
+    .project h3 { margin: 0; font-size: 12pt; font-weight: 700; letter-spacing: -.01em; }
+    .project h3 .no { margin-right: 2.5mm; color: var(--muted); font-weight: 600; }
+    .project .period { flex-shrink: 0; color: var(--ink-2); font-size: 9pt; white-space: nowrap; }
+    .project .sub { margin: .5mm 0 3mm; color: var(--muted); font-size: 9pt; }
+    .project .sub b { color: var(--ink-2); font-weight: 600; }
+
+    dl.rows { display: grid; grid-template-columns: 20mm 1fr; gap: 1.6mm 4mm; margin: 0; }
+    dl.rows dt { color: var(--muted); font-size: 9pt; font-weight: 600; }
+    dl.rows dd { margin: 0; }
+    dl.rows dd.impact { font-weight: 600; }
+    section > dl.rows { grid-template-columns: 28mm 1fr; }
+
+    .figures { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4mm; margin: 4mm 0 0; }
+    figure { margin: 0; break-inside: avoid; }
+    figure img { display: block; width: 100%; max-height: 80mm; object-fit: contain; background: var(--fill); border: 1px solid var(--rule); }
+    figcaption { margin-top: 1mm; color: var(--muted); font-size: 8.5pt; }
+
+    .links { margin: 3mm 0 0; padding: 0; list-style: none; font-size: 9pt; }
+    .links li { display: inline; margin-right: 5mm; }
+    .links b { margin-right: 1.5mm; color: var(--muted); font-weight: 600; }
+    a { color: inherit; text-decoration: underline; text-decoration-color: var(--rule); text-underline-offset: 2px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <p class="doc-type">포트폴리오</p>
+      <h1>김하늘</h1>
+      <p class="headline">6년차 B2B SaaS 세일즈옵스 매니저 · 영업 데이터 자동화</p>
+    </div>
+    <p class="meta"><span>에이크미코리아 · Sales Operations Manager</span><span>서울 성동구</span><span>haneul.kim@example.com</span><span>010-1234-5678</span><span>github.com/haneul-kim</span><span>linkedin.com/in/haneul-kim</span></p>
+  </header>
+
+  <section>
+    <h2>소개</h2>
+    <p class="intro">영업 조직이 숫자를 믿고 움직일 수 있게 만드는 일을 합니다. CRM 데이터 구조 설계부터 리포팅 자동화, 사내 AI 도구까지 직접 만들어 운영해 왔습니다.</p>
+    <ul>
+      
+      <li>Salesforce 파이프라인 재설계로 매출 예측 오차율 ±22% → ±8% 개선</li>
+      
+      <li>영업 리포팅 자동화로 팀 전체 주 10시간 이상 절감</li>
+      
+      <li>리드 스코어링 도입으로 영업 전환율 18% → 27% 향상</li>
+      
+      <li>두 분기 만에 예측 오차를 ±8%로 줄이고 월간 경영 보고 양식을 표준화했습니다</li>
+      
+    </ul>
+  </section>
+
+  
+  <section>
+    <h2>프로젝트 목록</h2>
+    <table class="overview">
+      <thead><tr><th class="c-no">No.</th><th>프로젝트</th><th class="c-period">기간</th><th class="c-role">역할</th></tr></thead>
+      
+      <tr><td class="c-no">01</td><td>영업 리포팅 자동화 파이프라인</td><td class="c-period">2022.04 ~ 2022.09</td><td class="c-role">기획·파이프라인 개발 리드</td></tr>
+      
+      <tr><td class="c-no">02</td><td>리드 스코어링 모델</td><td class="c-period">2023.02 ~ 2023.05</td><td class="c-role">모델 설계·영업팀 온보딩</td></tr>
+      
+      <tr><td class="c-no">03</td><td>LLM 기반 영업 메일 초안 도구</td><td class="c-period">2024.01 ~ 2024.03</td><td class="c-role">기획·개발·운영</td></tr>
+      
+    </table>
+  </section>
+  
+
+  <section>
+    <h2>보유 기술</h2>
+    <dl class="rows">
+      <dt>언어</dt><dd>Python(상), SQL(상), TypeScript(중)</dd><dt>데이터 · 자동화</dt><dd>Airflow, dbt, Zapier, LLM API</dd><dt>CRM · 영업 도구</dt><dd>Salesforce Admin, HubSpot, Outreach</dd><dt>협업</dt><dd>Jira, Notion, Slack</dd><dt>외국어</dt><dd>영어(비즈니스), 일본어(일상 회화)</dd>
+    </dl>
+  </section>
+
+  <section class="">
+    <h2>주요 프로젝트</h2>
+    
+    <article class="project">
+      <div class="project-head">
+        <h3><span class="no">01</span>영업 리포팅 자동화 파이프라인</h3>
+        <span class="period">2022.04 ~ 2022.09</span>
+      </div>
+      <p class="sub"><b>회사 프로젝트 · 세일즈옵스 1 · 데이터 엔지니어 1 · 기여도 80%</b> · Python, Salesforce API, BigQuery, Looker Studio</p>
+      <dl class="rows">
+        <dt>개요</dt><dd>CRM 데이터를 매일 수집·정제해 경영진 대시보드로 자동 배포하는 파이프라인</dd>
+        <dt>배경 · 문제</dt><dd>주간 보고를 매번 수작업으로 만들어 영업기획팀이 주 10시간을 쓰고, 수치가 보고서마다 달랐습니다.</dd>
+        <dt>해결</dt><dd>Salesforce API로 원천 데이터를 매일 적재하고 지표 정의를 한곳에 모은 뒤, Looker Studio 대시보드와 Slack 요약을 자동 발송했습니다.</dd>
+        <dt>역할</dt><dd>기획·파이프라인 개발 리드</dd>
+        <dt>성과</dt><dd class="impact">보고 리소스 80% 절감, 데이터 정합성 이슈 월 12건 → 1건</dd>
+        <dt>배운 점</dt><dd>지표 정의를 코드보다 먼저 합의해야 자동화가 신뢰를 얻는다는 것을 배웠습니다.</dd>
+      </dl>
+      
+      <div class="figures">
+        <figure><img src="images/reporting-dashboard.svg" alt="자동 배포되는 주간 파이프라인 대시보드"><figcaption>자동 배포되는 주간 파이프라인 대시보드</figcaption></figure>
+      </div>
+      
+      
+      <ul class="links">
+        <li><b>GitHub</b><a href="https://github.com/haneul-kim/sales-report">https://github.com/haneul-kim/sales-report</a></li><li><b>문서</b><a href="https://haneul-kim.github.io/sales-report">https://haneul-kim.github.io/sales-report</a></li>
+      </ul>
+      
+    </article>
+    
+    <article class="project">
+      <div class="project-head">
+        <h3><span class="no">02</span>리드 스코어링 모델</h3>
+        <span class="period">2023.02 ~ 2023.05</span>
+      </div>
+      <p class="sub"><b>회사 프로젝트 · 세일즈옵스 1 · 마케팅 1</b> · SQL, Salesforce, Python</p>
+      <dl class="rows">
+        <dt>개요</dt><dd>인바운드 리드를 전환 가능성 순으로 정렬하는 점수 모델</dd>
+        <dt>배경 · 문제</dt><dd>영업과 마케팅이 좋은 리드의 기준을 두고 합의하지 못했습니다.</dd>
+        <dt>해결</dt><dd>과거 6개월 리드를 함께 검토해 기준을 합의하고, 행동·기업 속성 가중치 모델을 CRM에 적용했습니다.</dd>
+        <dt>역할</dt><dd>모델 설계·영업팀 온보딩</dd>
+        <dt>성과</dt><dd class="impact">영업 전환율 18% → 27%</dd>
+        
+      </dl>
+      
+      
+    </article>
+    
+    <article class="project">
+      <div class="project-head">
+        <h3><span class="no">03</span>LLM 기반 영업 메일 초안 도구</h3>
+        <span class="period">2024.01 ~ 2024.03</span>
+      </div>
+      <p class="sub"><b>사내 사이드 프로젝트 · 단독 · 기여도 100%</b> · Python, LLM API, Slack Bolt</p>
+      <dl class="rows">
+        <dt>개요</dt><dd>고객 이력과 제품 정보를 바탕으로 후속 메일 초안을 만들어 주는 Slack 도구</dd>
+        <dt>배경 · 문제</dt><dd>영업사원이 미팅 후 후속 메일 작성에 1인당 주 3시간 이상을 쓰고 있었습니다.</dd>
+        <dt>해결</dt><dd>CRM 활동 기록과 제품 문서를 검색해 LLM 프롬프트에 넣고, Slack 명령 한 번으로 초안을 받도록 했습니다.</dd>
+        <dt>역할</dt><dd>기획·개발·운영</dd>
+        <dt>성과</dt><dd class="impact">영업사원 1인당 주 3시간 절감, 팀 12명 전원 사용</dd>
+        
+      </dl>
+      
+      
+      <ul class="links">
+        <li><b>데모</b><a href="https://example.com/demo/mail-draft">https://example.com/demo/mail-draft</a></li>
+      </ul>
+      
+    </article>
+    
+  </section>
+</body>
+</html>

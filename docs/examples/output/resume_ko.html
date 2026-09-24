@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>김하늘 이력서 · 에이크미코리아 Sales Operations Manager</title>
+  <style>
+    :root {
+      --ink: #1a1d21;
+      --ink-2: #3f4650;
+      --muted: #6b7280;
+      --rule: #dfe2e6;
+      --fill: #f5f6f8;
+    }
+    * { box-sizing: border-box; }
+    @page { size: A4; margin: 16mm 18mm; }
+    html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: "Pretendard", "Pretendard Variable", "Noto Sans KR", "Noto Sans CJK KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+      font-size: 9.5pt;
+      line-height: 1.55;
+      word-break: keep-all;
+      overflow-wrap: anywhere;
+      font-variant-numeric: tabular-nums;
+    }
+    @media screen {
+      html { background: #eceef1; }
+      body { max-width: 210mm; margin: 24px auto; padding: 16mm 18mm; background: #fff; }
+    }
+    @media screen and (max-width: 640px) {
+      body { margin: 0; padding: 20px 16px; }
+    }
+
+    /* 머리글 */
+    .doc-header { display: flex; justify-content: space-between; align-items: flex-end; gap: 8mm; padding-bottom: 3mm; border-bottom: 1.5px solid var(--ink); }
+    .doc-type { margin: 0 0 1mm; color: var(--muted); font-size: 8.5pt; font-weight: 600; letter-spacing: .2em; }
+    h1 { margin: 0; font-size: 21pt; font-weight: 700; letter-spacing: -.02em; line-height: 1.2; }
+    h1 .name-en { margin-left: 2.5mm; color: var(--muted); font-size: 10pt; font-weight: 500; letter-spacing: 0; }
+    .headline { margin: 1.2mm 0 0; color: var(--ink-2); font-size: 9.8pt; }
+    .target { margin: 0; color: var(--ink-2); font-size: 8.8pt; text-align: right; line-height: 1.5; }
+    .target b { font-weight: 600; color: var(--ink); }
+
+    /* 인적사항: 채워진 항목만 2쌍씩 흐르는 격자 */
+    .profile-wrap { display: flex; gap: 4mm; margin-top: 4mm; }
+    .photo { flex-shrink: 0; width: 26mm; height: 34.5mm; object-fit: cover; border: 1px solid var(--rule); }
+    dl.profile { flex: 1; display: grid; grid-template-columns: 22mm 1fr 22mm 1fr; margin: 0; border-top: 1px solid var(--ink); align-content: start; }
+    dl.profile dt, dl.profile dd { margin: 0; padding: 1.5mm 3mm; border-bottom: 1px solid var(--rule); font-size: 9pt; }
+    dl.profile dt { background: var(--fill); color: var(--ink-2); font-weight: 600; white-space: nowrap; }
+
+    /* 표: 보유 기술 (행 제목형) */
+    table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    table th, table td { padding: 1.5mm 3mm; border-bottom: 1px solid var(--rule); text-align: left; vertical-align: top; font-size: 9pt; }
+    table th { background: var(--fill); color: var(--ink-2); font-weight: 600; white-space: nowrap; }
+    tr { break-inside: avoid; }
+    table.grid-table th { width: 17%; }
+
+    /* 표: 학력·자격·교육 등 (열 제목형) */
+    table.list-table th, table.list-table td { padding: 1.2mm 3mm; }
+    table.list-table thead th { border-bottom-color: var(--ink-2); font-size: 8.6pt; }
+    table.list-table .col-date { width: 22%; }
+    table.list-table .col-sm { width: 28%; }
+    table.list-table td.muted { color: var(--ink-2); }
+
+    /* 섹션 */
+    section { margin-top: 6mm; }
+    h2.sec-header { display: flex; justify-content: space-between; align-items: baseline; margin: 0 0 3mm; padding-bottom: 1.5mm; border-bottom: 1px solid var(--ink); font-size: 11pt; font-weight: 700; letter-spacing: -.01em; }
+    h2.sec-header .sec-note { color: var(--ink-2); font-size: 9pt; font-weight: 500; }
+    section.compact { margin-top: 5mm; break-inside: avoid; }
+    h2.sec-header { break-after: avoid; }
+    section.compact h2.sec-header { margin-bottom: 0; }
+
+    /* 경력·프로젝트 항목 */
+    .exp-card { margin-bottom: 4mm; break-inside: avoid; }
+    .exp-card:last-child { margin-bottom: 0; }
+    .exp-title { display: flex; justify-content: space-between; align-items: baseline; gap: 6mm; }
+    .exp-title h3 { margin: 0; font-size: 10.2pt; font-weight: 700; }
+    .exp-title .company-desc { margin-left: 2mm; color: var(--muted); font-size: 8.6pt; font-weight: 400; }
+    .exp-period { flex-shrink: 0; color: var(--ink-2); font-size: 9pt; white-space: nowrap; }
+    .exp-period .duration { margin-left: 1.5mm; color: var(--muted); }
+    .exp-dept { margin: .5mm 0 1.5mm; color: var(--ink-2); font-size: 9pt; }
+    .exp-tools { margin: 1.2mm 0 0; color: var(--muted); font-size: 8.6pt; }
+    .exp-tools + .exp-tools { margin-top: .3mm; }
+    ul { margin: 0; padding-left: 4.2mm; }
+    li { margin-bottom: .5mm; padding-left: .5mm; }
+    li::marker { color: var(--muted); }
+    .label { font-weight: 600; }
+
+    /* 확인 문구 */
+    .attest { margin-top: 9mm; text-align: center; color: var(--ink-2); font-size: 9pt; line-height: 1.9; break-inside: avoid; }
+    .attest .sign { color: var(--ink); font-weight: 600; letter-spacing: .05em; }
+  </style>
+</head>
+<body>
+
+  <header class="doc-header">
+    <div>
+      <p class="doc-type">이력서</p>
+      <h1>김하늘<span class="name-en">Haneul Kim</span></h1>
+      <p class="headline">6년차 B2B SaaS 세일즈옵스 매니저 · 영업 데이터 자동화</p>
+    </div>
+    <p class="target">지원 회사 <b>에이크미코리아</b><br>지원 직무 <b>Sales Operations Manager</b></p>
+  </header>
+
+  <div class="profile-wrap">
+    
+    <dl class="profile">
+      <dt>성명</dt><dd>김하늘 (Haneul Kim)</dd><dt>생년월일</dt><dd>1993.05.12</dd><dt>연락처</dt><dd>010-1234-5678</dd><dt>이메일</dt><dd>haneul.kim@example.com</dd><dt>거주지</dt><dd>서울 성동구</dd><dt>포트폴리오</dt><dd>github.com/haneul-kim</dd><dt>LinkedIn</dt><dd>linkedin.com/in/haneul-kim</dd><dt>입사 가능일</dt><dd>합격 후 1개월</dd>
+    </dl>
+  </div>
+
+  <section>
+    <h2 class="sec-header">핵심 역량</h2>
+    <ul>
+      
+      <li>Salesforce 파이프라인 재설계로 매출 예측 오차율 ±22% → ±8% 개선</li>
+      
+      <li>영업 리포팅 자동화로 팀 전체 주 10시간 이상 절감</li>
+      
+      <li>리드 스코어링 도입으로 영업 전환율 18% → 27% 향상</li>
+      
+      <li>두 분기 만에 예측 오차를 ±8%로 줄이고 월간 경영 보고 양식을 표준화했습니다</li>
+      
+    </ul>
+  </section>
+
+  <section>
+    <h2 class="sec-header">경력 사항<span class="sec-note">총 8년 3개월</span></h2>
+    
+    <div class="exp-card">
+      <div class="exp-title">
+        <h3>주식회사 베타소프트<span class="company-desc">B2B SaaS · 임직원 120명</span></h3>
+        <span class="exp-period">2021.03 ~ 현재<span class="duration">(5년 7개월)</span></span>
+      </div>
+      <p class="exp-dept">Sales Operations 매니저 · 영업기획팀 · CRM·파이프라인 운영 · 정규직</p>
+      <ul>
+        
+        <li>Salesforce 파이프라인 대시보드를 재설계해 주간 보고 작성 시간 10시간 → 2시간으로 단축</li>
+        
+        <li>분기 매출 예측 오차율 ±22%에서 ±8%로 감소, 경영진 보고 체계 표준화</li>
+        
+        <li>리드 스코어링 모델 도입으로 영업 전환율 18% → 27% 개선</li>
+        
+      </ul>
+      <p class="exp-tools">사용 기술 · Salesforce, SQL, Python, Looker Studio</p>
+      
+    </div>
+    
+    <div class="exp-card">
+      <div class="exp-title">
+        <h3>감마커머스<span class="company-desc">이커머스 · 임직원 300명</span></h3>
+        <span class="exp-period">2018.07 ~ 2021.02<span class="duration">(2년 8개월)</span></span>
+      </div>
+      <p class="exp-dept">영업지원 선임 · B2B 영업본부 · 견적·계약 운영 · 정규직</p>
+      <ul>
+        
+        <li>Python·Google Apps Script로 정산 자동화, 월 40시간 수작업 제거</li>
+        
+        <li>견적·계약 프로세스 표준화로 계약 리드타임 14일 → 6일 단축</li>
+        
+      </ul>
+      <p class="exp-tools">사용 기술 · Excel, Google Apps Script, Python</p>
+      <p class="exp-tools">퇴사 사유 · SaaS 도메인으로 커리어 전환</p>
+    </div>
+    
+  </section>
+
+  <section>
+    <h2 class="sec-header">주요 프로젝트</h2>
+    
+    <div class="exp-card">
+      <div class="exp-title">
+        <h3>영업 리포팅 자동화 파이프라인</h3>
+        <span class="exp-period">2022.04 ~ 2022.09</span>
+      </div>
+      <p class="exp-dept">Python, Salesforce API, BigQuery, Looker Studio</p>
+      <ul>
+        <li>CRM 데이터를 매일 수집·정제해 경영진 대시보드로 자동 배포하는 파이프라인</li>
+        <li><span class="label">역할</span> 기획·파이프라인 개발 리드</li>
+        <li><span class="label">성과</span> 보고 리소스 80% 절감, 데이터 정합성 이슈 월 12건 → 1건</li>
+      </ul>
+    </div>
+    
+    <div class="exp-card">
+      <div class="exp-title">
+        <h3>리드 스코어링 모델</h3>
+        <span class="exp-period">2023.02 ~ 2023.05</span>
+      </div>
+      <p class="exp-dept">SQL, Salesforce, Python</p>
+      <ul>
+        <li>인바운드 리드를 전환 가능성 순으로 정렬하는 점수 모델</li>
+        <li><span class="label">역할</span> 모델 설계·영업팀 온보딩</li>
+        <li><span class="label">성과</span> 영업 전환율 18% → 27%</li>
+      </ul>
+    </div>
+    
+    <div class="exp-card">
+      <div class="exp-title">
+        <h3>LLM 기반 영업 메일 초안 도구</h3>
+        <span class="exp-period">2024.01 ~ 2024.03</span>
+      </div>
+      <p class="exp-dept">Python, LLM API, Slack Bolt</p>
+      <ul>
+        <li>고객 이력과 제품 정보를 바탕으로 후속 메일 초안을 만들어 주는 Slack 도구</li>
+        <li><span class="label">역할</span> 기획·개발·운영</li>
+        <li><span class="label">성과</span> 영업사원 1인당 주 3시간 절감, 팀 12명 전원 사용</li>
+      </ul>
+    </div>
+    
+  </section>
+
+  
+  <section class="compact">
+    <h2 class="sec-header">학력</h2>
+    <table class="list-table">
+      <thead><tr><th class="col-date">기간</th><th>학교</th><th>전공 · 학위</th><th class="col-sm">구분</th></tr></thead>
+      
+      <tr><td class="muted">2012.03 ~ 2018.02</td><td>한국대학교</td><td>경영학 학사</td><td class="muted">졸업 (3.8/4.5)</td></tr>
+      
+    </table>
+  </section>
+  
+
+  <section>
+    <h2 class="sec-header">보유 기술</h2>
+    <table class="grid-table">
+      
+      <tr>
+        <th scope="row">언어</th>
+        <td>Python(상), SQL(상), TypeScript(중)</td>
+      </tr>
+      
+      <tr>
+        <th scope="row">데이터 · 자동화</th>
+        <td>Airflow, dbt, Zapier, LLM API</td>
+      </tr>
+      
+      <tr>
+        <th scope="row">CRM · 영업 도구</th>
+        <td>Salesforce Admin, HubSpot, Outreach</td>
+      </tr>
+      
+      <tr>
+        <th scope="row">협업</th>
+        <td>Jira, Notion, Slack</td>
+      </tr>
+      
+      <tr>
+        <th scope="row">외국어</th>
+        <td>영어(비즈니스), 일본어(일상 회화)</td>
+      </tr>
+      
+    </table>
+  </section>
+
+  
+  <section class="compact">
+    <h2 class="sec-header">자격증</h2>
+    <table class="list-table">
+      <thead><tr><th class="col-date">취득일</th><th>자격명</th><th class="col-sm">발급기관</th></tr></thead>
+      
+      <tr><td class="muted">2022.11</td><td>SQL 개발자(SQLD)</td><td class="muted">한국데이터산업진흥원</td></tr>
+      
+      <tr><td class="muted">2020.05</td><td>Salesforce Certified Administrator</td><td class="muted">Salesforce</td></tr>
+      
+    </table>
+  </section>
+  
+
+  
+  <section class="compact">
+    <h2 class="sec-header">어학</h2>
+    <table class="list-table">
+      <thead><tr><th class="col-date">취득일</th><th>시험 · 언어</th><th class="col-sm">점수 · 등급</th></tr></thead>
+      
+      <tr><td class="muted">2023.04</td><td>OPIc 영어</td><td>AL</td></tr>
+      
+    </table>
+  </section>
+  
+
+  
+  <section class="compact">
+    <h2 class="sec-header">교육 이수</h2>
+    <table class="list-table">
+      <thead><tr><th class="col-date">기간</th><th>과정명</th><th class="col-sm">기관</th></tr></thead>
+      
+      <tr><td class="muted">2023.01 ~ 2023.03</td><td>데이터 분석 실무 과정</td><td class="muted">패스트캠퍼스</td></tr>
+      
+    </table>
+  </section>
+  
+
+  
+  <section class="compact">
+    <h2 class="sec-header">수상</h2>
+    <table class="list-table">
+      <thead><tr><th class="col-date">수상일</th><th>수상명</th><th class="col-sm">수여기관</th></tr></thead>
+      
+      <tr><td class="muted">2022.12</td><td>올해의 운영 혁신상</td><td class="muted">베타소프트</td></tr>
+      
+    </table>
+  </section>
+  
+
+  
+  <section class="compact">
+    <h2 class="sec-header">대외활동</h2>
+    <table class="list-table">
+      <thead><tr><th class="col-date">기간</th><th>활동명</th><th class="col-sm">역할 · 내용</th></tr></thead>
+      
+      <tr><td class="muted">2019.03 ~ 2020.12</td><td>RevOps 코리아 커뮤니티</td><td class="muted">운영진, 월간 밋업 기획</td></tr>
+      
+    </table>
+  </section>
+  
+
+  
+  <section class="compact">
+    <h2 class="sec-header">해외 경험</h2>
+    <table class="list-table">
+      <thead><tr><th class="col-date">기간</th><th>국가 · 도시</th><th class="col-sm">목적 · 내용</th></tr></thead>
+      
+      <tr><td class="muted">2016.08 ~ 2017.01</td><td>네덜란드 암스테르담</td><td class="muted">교환학생</td></tr>
+      
+    </table>
+  </section>
+  
+
+  
+
+  
+  <section class="compact">
+    <h2 class="sec-header">발표 · 강연</h2>
+    <table class="list-table">
+      <thead><tr><th class="col-date">일자</th><th>주제</th><th class="col-sm">행사 · 기관</th></tr></thead>
+      
+      <tr><td class="muted">2024.06</td><td>영업 데이터 자동화 사례</td><td class="muted">SaaS Ops Day 2024</td></tr>
+      
+    </table>
+  </section>
+  
+
+  
+  <section class="compact">
+    <h2 class="sec-header">병역</h2>
+    <table class="list-table">
+      <thead><tr><th class="col-date">복무 기간</th><th>군별 · 계급</th><th class="col-sm">구분</th></tr></thead>
+      
+      <tr><td class="muted">2013.03 ~ 2014.12</td><td>육군 병장</td><td>군필</td></tr>
+      
+    </table>
+  </section>
+  
+
+  
+
+  
+  <p class="attest">
+    위 기재 사항은 사실과 다름없음을 확인합니다.<br>
+    2026-09-24<br>
+    <span class="sign">지원자 김하늘</span>
+  </p>
+  
+
+</body>
+</html>

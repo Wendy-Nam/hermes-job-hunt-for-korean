@@ -31,6 +31,21 @@ python3 /opt/data/bin/kit-doctor.py /opt/data
 | 관리 UI | Obsidian 볼트 템플릿 | 공고·리서치·복기·이력서 자료와 TaskNotes 대시보드 |
 | 자동화 | `bundle/cron/jobs.json` | 수집, 판정, 메일 확인, 리마인더 작업(기본 모두 비활성) |
 
+## 문서 서식 예시
+
+가상 인물 자료로 생성한 국문·영문 이력서, 자기소개서, 포트폴리오입니다. 모두 A4 인쇄용 미니멀 서식입니다.
+
+![이력서·자기소개서·포트폴리오 서식 예시](docs/examples/preview.png)
+
+| 문서 | HTML | PDF |
+|---|---|---|
+| 국문 이력서 | [resume_ko.html](docs/examples/output/resume_ko.html) | [resume_ko.pdf](docs/examples/output/resume_ko.pdf) |
+| 영문 이력서 | [resume_en.html](docs/examples/output/resume_en.html) | [resume_en.pdf](docs/examples/output/resume_en.pdf) |
+| 자기소개서 | [cover_letter_ko.html](docs/examples/output/cover_letter_ko.html) | [cover_letter_ko.pdf](docs/examples/output/cover_letter_ko.pdf) |
+| 포트폴리오 | [portfolio_ko.html](docs/examples/output/portfolio_ko.html) | [portfolio_ko.pdf](docs/examples/output/portfolio_ko.pdf) |
+
+입력으로 쓴 자료는 [`docs/examples/wiki/…/master_resume.md`](docs/examples/wiki/automation/job-hunting/resume/master_resume.md)와 [`portfolios.md`](docs/examples/wiki/automation/job-hunting/resume/portfolios.md)입니다. 빈 서식을 채울 때 참고하세요. 예시는 `python3 docs/examples/build_examples.py`로 다시 만들 수 있습니다(Chrome, `pymupdf`, `pillow` 필요).
+
 ## 번들 구조
 
 ```text
