@@ -4,7 +4,7 @@
 Material-warehouse driven renderer (소재 창고 → JD 스코어링 → 렌더러):
 1. Accept JD text/file + company/position inputs.
 2. Read the material warehouse from the wiki vault (fallback: kit templates):
-   - master_resume.md  : identity, career KPIs, skills slots, episode pool, cover blocks
+   - master_resume.md  : identity, career KPIs, labelled skill rows, episode pool, cover blocks
    - fit_evidence.md   : verified fit proof points
    - role_contexts.md  : role key messages
    - portfolios.md     : projects
@@ -162,6 +162,31 @@ def _usable(values: list[str]) -> list[str]:
     return [v for v in (_strip_md(x) for x in values) if v and not _is_placeholder(v)]
 
 
+# 보유 기술: 스킬 섹션 안의 `- **국문 라벨 / English Label**: 값` 한 줄 = 표 한 행.
+SKILLS_HEADING_RE = re.compile(r"skills|보유 기술|핵심 역량 및 도구", re.IGNORECASE)
+# 구버전 고정 슬롯 키 → (국문, 영문) 라벨. 기존 master_resume.md 호환용.
+LEGACY_SKILL_LABELS = {
+    "ax": ("AI · 자동화", "AI & Automation"),
+    "sales_ops": ("영업 운영", "Sales Operations"),
+    "tools": ("개발 · 도구", "Tools"),
+    "domain": ("도메인 · 언어", "Domains & Languages"),
+}
+
+
+def parse_skill_row(key: str, val: str) -> dict | None:
+    """'데이터 분석 / Data Analysis' + 'SQL, Python' → {label_ko, label_en, value, key}.
+    Placeholder labels or values yield None so untouched template rows stay hidden."""
+    value = _strip_md(val)
+    if _is_placeholder(key) or _is_placeholder(value):
+        return None
+    if key in LEGACY_SKILL_LABELS:
+        ko, en = LEGACY_SKILL_LABELS[key]
+    else:
+        ko, _, en = (part.strip() for part in key.partition(" / "))
+        en = en or ko
+    return {"key": key, "label_ko": ko, "label_en": en, "value": value}
+
+
 def parse_master_resume(text: str) -> dict:
     """Parse identity, experiences (with KPI bullets), and skill slots from master_resume.md."""
     ident_keys = {"이름": "name", "영문 이름": "name_en", "한 줄 소개": "headline",
@@ -176,11 +201,11 @@ def parse_master_resume(text: str) -> dict:
                 "고용 형태": "employment_type", "퇴사 사유": "leave_reason",
                 "사용 도구 & 기술": "tools"}
     experiences: list = []
-    skills: dict = {}
+    skills: list = []
     current_exp = None
     in_kpi = False
     in_competency = False
-    skill_keys = {"ax", "sales_ops", "tools", "domain"}
+    in_skills = False
 
     for raw in text.splitlines():
         line = raw.rstrip()
@@ -203,14 +228,18 @@ def parse_master_resume(text: str) -> dict:
         if s.startswith("#"):
             in_kpi = False
             in_competency = False
+            if s.startswith("## "):
+                in_skills = bool(SKILLS_HEADING_RE.search(s))
             continue
         m = re.match(r"^-\s*\*\*(.+?)\*\*\s*[:：]\s*(.*)$", s)
         if m:
             key, val = m.group(1).strip(), m.group(2).strip()
             in_kpi = False
             in_competency = False
-            if key in skill_keys:
-                skills[key] = _strip_md(val)
+            if key in LEGACY_SKILL_LABELS or in_skills:
+                row = parse_skill_row(key, val)
+                if row:
+                    skills.append(row)
             elif key in ident_keys:
                 ident[ident_keys[key]] = _strip_md(val)
             elif key == "커리어 핵심 경쟁력":
@@ -549,12 +578,10 @@ def build_context(company: str, position: str, jd_text: str, sources: dict,
     if not projects:
         projects = []
 
-    # --- skills slots (4) ---
-    skills = master["skills"]
-    skills_ax = _first_filled([skills.get("ax", "")], "AI·자동화 도구를 입력해 주세요.")
-    skills_sales_ops = _first_filled([skills.get("sales_ops", "")], "운영·그로스 역량을 입력해 주세요.")
-    skills_tools = _first_filled([skills.get("tools", "")], "공통 도구를 입력해 주세요.")
-    skills_domain = _first_filled([skills.get("domain", "")], "산업·언어 역량을 입력해 주세요.")
+    # --- skills: 라벨·순서 모두 master_resume.md가 결정 (언어별 라벨 선택) ---
+    skills = [{"label": row["label_en" if lang == "en" else "label_ko"], "value": row["value"]}
+              for row in master["skills"]] or [
+        {"label": "보유 기술", "value": "보유 기술을 master_resume.md에 `- **분야**: 기술` 형식으로 등록해 주세요."}]
 
     # --- episodes: JD-ranked pool feeds summary + cover achievements ---
     episodes = rank_by_jd(
@@ -618,10 +645,7 @@ def build_context(company: str, position: str, jd_text: str, sources: dict,
         "summary_points": summary_points,
         "experiences": experiences,
         "projects": projects,
-        "skills_ax": skills_ax,
-        "skills_sales_ops": skills_sales_ops,
-        "skills_tools": skills_tools,
-        "skills_domain": skills_domain,
+        "skills": skills,
         "motivation_text": motivation_text,
         "achievements_text": achievements_text,
         "future_plan_text": future_plan_text,
@@ -725,7 +749,12 @@ def run_selftest() -> None:
     assert master["ident"]["name"] == "<지원자 이름>", f"식별자 파싱 실패: {master['ident']}"
     assert len(master["experiences"]) >= 1, "경력 블록 파싱 실패"
     assert master["experiences"][0]["kpis"], "KPI 불릿 파싱 실패"
-    assert set(master["skills"]) >= {"ax", "sales_ops", "tools", "domain"}, f"스킬 슬롯 파싱 실패: {master['skills']}"
+    assert not master["skills"], f"플레이스홀더 스킬 행이 파싱됨: {master['skills']}"
+    legacy = parse_master_resume("## 3. Skills\n- **ax**: Python\n- **데이터 분석 / Data Analysis**: SQL\n"
+                                 "- **<분야>**: <기술>\n\n## 4. 기타\n- **메모**: 무시")["skills"]
+    assert [(r["label_ko"], r["label_en"], r["value"]) for r in legacy] == [
+        ("AI · 자동화", "AI & Automation", "Python"), ("데이터 분석", "Data Analysis", "SQL")], \
+        f"스킬 라벨 파싱 실패: {legacy}"
     episodes = parse_episodes(sources["master_resume"])
     assert len(episodes) >= 4, f"에피소드 풀 파싱 실패: {len(episodes)}"
     assert all(e["result"] and e["tags"] for e in episodes), "에피소드 4요소 파싱 실패"
@@ -790,6 +819,7 @@ def run_selftest() -> None:
         "### 알파 (근무 기간: 2020.01 ~ 2021.12)\n- **직급/직책**: 매니저\n- **고용 형태**: 정규직\n"
         "- **퇴사 사유**: 이직\n- **주요 정량 성과 (KPI)**:\n  - 전환율 10% 개선\n\n"
         "### 베타 (근무 기간: 2021.07 ~ 2022.06)\n- **직급/직책**: 겸직\n- **주요 정량 성과 (KPI)**:\n  - 비용 5% 절감\n\n"
+        "## 3. 보유 기술 (Skills)\n- **데이터 분석 / Data Analysis**: Tableau\n- **협업**: Jira\n\n"
         "## 4. 학력 · 자격 · 활동\n### 학력\n- 2010.03 ~ 2014.02 | 한국대 | 경영학 학사 | 졸업\n"
         "### 자격증\n- 2020.05 | SQLD | 한국데이터산업진흥원\n### 수상\n- 2021.12 | 혁신상 | 알파\n"
         "### 병역\n- 군필 | 육군 병장 | 2014.03 ~ 2015.12\n### 취업 우대\n- <보훈 대상> | <내용>\n"
@@ -811,6 +841,9 @@ def run_selftest() -> None:
     assert "1990.01.01" in ko_doc and "군필" in ko_doc and "2년 6개월" in ko_doc, "국문 선택 항목 누락"
     assert "1990.01.01" not in en_doc and "군필" not in en_doc, "영문에 국내 전용 항목 노출"
     assert "linkedin.com/in/hong" in en_doc and "정규직" in ko_doc, "연락처·고용 형태 누락"
+    assert "<th scope=\"row\">데이터 분석</th>" in ko_doc and "<dt>Data Analysis</dt>" in en_doc, "스킬 라벨(국/영) 미반영"
+    assert "<dt>협업</dt>" in en_doc and "Tableau" in ko_doc and "Jira" in en_doc, "스킬 값·라벨 폴백 누락"
+    assert "보유 기술을 master_resume.md에" in r3, "빈 스킬 안내 문구 미주입"
 
     # 6) PDF 렌더링(Chrome 있는 환경에서만 강제)
     html_file = tmp / "TestCo_Sales_Ops_Resume.html"

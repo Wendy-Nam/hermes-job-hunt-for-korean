@@ -85,14 +85,21 @@ tags: [career, resume, master-cv]
 
 ---
 
-## 3. 핵심 역량 및 도구 (Skills & Tools)
+## 3. 보유 기술 (Skills)
 
-> [필수] 슬롯 키(`ax`/`sales_ops`/`tools`/`domain`)는 템플릿 4행과 1:1 대응한다. 형식을 바꾸지 말 것.
+> [필수] 한 줄 = 이력서 보유 기술 표의 한 행. 분야 이름(라벨)과 순서를 직접 정한다. 3~6행을 권장한다.
+> 형식: `- **국문 라벨 / English Label**: 기술, 도구, 수준`. 영문 라벨을 생략하면 국문 라벨이 영문 이력서에도 그대로 쓰인다.
+> 직군별 예시
+> - 개발: `언어 / Languages`, `프레임워크 / Frameworks`, `인프라 · 클라우드 / Infrastructure`, `데이터베이스 / Databases`
+> - 디자인: `디자인 도구 / Design Tools`, `프로토타이핑 / Prototyping`, `리서치 / UX Research`
+> - 마케팅: `퍼포먼스 / Performance Marketing`, `분석 도구 / Analytics`, `콘텐츠 / Content`
+> - 세일즈옵스: `AI · 자동화 / AI & Automation`, `영업 운영 / Sales Operations`, `개발 · 도구 / Tools`
+> 이전 버전의 고정 키(`ax` / `sales_ops` / `tools` / `domain`)도 그대로 읽힌다.
 
-- **ax**: <AI·자동화 스킬/도구 — 예: Python, n8n, LLM API, Agent Framework>
-- **sales_ops**: <세일즈옵스 스킬/도구 — 예: Salesforce, HubSpot, 파이프라인 분석, RevOps>
-- **tools**: <공통 언어/도구 — 예: SQL, Excel, Git, Looker Studio, Slack API>
-- **domain**: <도메인/산업/언어 — 예: B2B SaaS, 이커머스, 물류, 영어/일본어 커뮤니케이션>
+- **<분야 1 — 예: 데이터 분석 / Data Analysis>**: <기술·도구 — 예: SQL(상), Python(중), Looker Studio>
+- **<분야 2 — 예: 업무 자동화 / Automation>**: <기술·도구>
+- **<분야 3 — 예: 협업 도구 / Collaboration>**: <기술·도구>
+- **<언어 / Languages>**: <예: 영어(비즈니스), 일본어(일상 회화)>
 
 ---
 

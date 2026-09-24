@@ -133,10 +133,7 @@
   <section>
     <h2 class="section-title">Skills</h2>
     <dl class="skills">
-      <dt>AI &amp; Automation</dt><dd>{{skills_ax}}</dd>
-      <dt>Sales Operations</dt><dd>{{skills_sales_ops}}</dd>
-      <dt>Tools</dt><dd>{{skills_tools}}</dd>
-      <dt>Domains &amp; Languages</dt><dd>{{skills_domain}}</dd>
+      {{#skills}}<dt>{{label}}</dt><dd>{{value}}</dd>{{/skills}}
     </dl>
   </section>
 

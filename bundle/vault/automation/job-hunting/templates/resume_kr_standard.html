@@ -172,22 +172,12 @@
   <section>
     <h2 class="sec-header">보유 기술</h2>
     <table class="grid-table">
+      {{#skills}}
       <tr>
-        <th scope="row">AI · 자동화</th>
-        <td>{{skills_ax}}</td>
+        <th scope="row">{{label}}</th>
+        <td>{{value}}</td>
       </tr>
-      <tr>
-        <th scope="row">영업 운영</th>
-        <td>{{skills_sales_ops}}</td>
-      </tr>
-      <tr>
-        <th scope="row">개발 · 도구</th>
-        <td>{{skills_tools}}</td>
-      </tr>
-      <tr>
-        <th scope="row">도메인 · 언어</th>
-        <td>{{skills_domain}}</td>
-      </tr>
+      {{/skills}}
     </table>
   </section>
 

@@ -139,10 +139,7 @@
   <section>
     <h2>보유 기술</h2>
     <dl class="skills">
-      <dt>AI · 자동화</dt><dd>{{skills_ax}}</dd>
-      <dt>영업 운영</dt><dd>{{skills_sales_ops}}</dd>
-      <dt>개발 · 도구</dt><dd>{{skills_tools}}</dd>
-      <dt>도메인 · 언어</dt><dd>{{skills_domain}}</dd>
+      {{#skills}}<dt>{{label}}</dt><dd>{{value}}</dd>{{/skills}}
     </dl>
   </section>
 
