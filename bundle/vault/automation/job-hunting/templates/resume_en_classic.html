@@ -2,76 +2,112 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>{{applicant_name}} - Resume ({{target_company}} {{target_position}})</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{applicant_name}} Resume · {{target_company}} {{target_position}}</title>
   <style>
-    :root { --ink:#18202b; --accent:#234e70; --muted:#596779; --rule:#ccd3dc; }
-    * { box-sizing:border-box; }
-    @page { size:A4; margin:16mm 18mm; }
-    body { font-family:"Noto Serif","Source Serif 4",Georgia,"Times New Roman",serif; color:var(--ink); line-height:1.38; margin:0; font-size:10.1pt; -webkit-print-color-adjust:exact; }
-    .name-header { text-align:left; border-bottom:1.5px solid var(--accent); padding-bottom:3mm; margin-bottom:5mm; }
-    h1 { font-size:20pt; font-weight:700; margin:0 0 1.5mm; letter-spacing:.02em; }
-    .contact-line { font-size:8.8pt; color:var(--muted); }
-    .contact-line span { margin:0 7px; color:#a0a8b2; }
-    .section-title { font-size:10.5pt; font-weight:700; text-transform:uppercase; border-bottom:1px solid var(--rule); margin:5mm 0 2.5mm; letter-spacing:.08em; }
-    .entry-header { display:flex; justify-content:space-between; gap:6mm; font-weight:700; }
-    .entry-sub { display:flex; justify-content:space-between; color:var(--muted); font-style:italic; margin:1mm 0 1.5mm; }
-    ul { margin:1.5mm 0 4mm; padding-left:5mm; }
-    li { margin-bottom:1.2mm; }
+    :root {
+      --ink: #1a1d21;
+      --ink-2: #3f4650;
+      --muted: #6b7280;
+    }
+    * { box-sizing: border-box; }
+    @page { size: A4; margin: 16mm 18mm; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: "Source Serif 4", "Source Serif Pro", "Noto Serif", Georgia, "Times New Roman", "Noto Serif KR", "Noto Serif CJK KR", serif;
+      font-size: 10.2pt;
+      line-height: 1.42;
+      word-break: keep-all;
+      overflow-wrap: anywhere;
+      font-variant-numeric: tabular-nums;
+    }
+    @media screen {
+      html { background: #eceef1; }
+      body { max-width: 210mm; margin: 24px auto; padding: 16mm 18mm; background: #fff; }
+    }
+    @media screen and (max-width: 640px) {
+      body { margin: 0; padding: 20px 16px; }
+    }
+
+    header { text-align: center; margin-bottom: 4mm; }
+    h1 { margin: 0 0 1mm; font-size: 20pt; font-weight: 600; letter-spacing: .01em; }
+    .contact-line { margin: 0; color: var(--ink-2); font-size: 9.2pt; }
+    .contact-line .sep { margin: 0 2mm; color: var(--muted); }
+
+    section { margin-top: 5mm; }
+    h2.section-title { margin: 0 0 2.5mm; padding-bottom: .8mm; border-bottom: .75pt solid var(--ink); font-size: 10pt; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+    .summary { margin: 0; }
+
+    .entry { margin-bottom: 3.5mm; break-inside: avoid; }
+    .entry:last-child { margin-bottom: 0; }
+    .entry-header { display: flex; justify-content: space-between; align-items: baseline; gap: 6mm; }
+    .entry-header h3 { margin: 0; font-size: 10.4pt; font-weight: 700; }
+    .entry-date { flex-shrink: 0; white-space: nowrap; }
+    .entry-sub { margin: .3mm 0 1mm; color: var(--ink-2); font-style: italic; }
+    ul { margin: 0; padding-left: 4.5mm; }
+    li { margin-bottom: .6mm; padding-left: .5mm; }
+
+    dl.skills { display: grid; grid-template-columns: max-content 1fr; gap: .8mm 4mm; margin: 0; }
+    dl.skills dt { font-weight: 700; }
+    dl.skills dd { margin: 0; }
   </style>
 </head>
 <body>
 
-  <div class="name-header">
+  <header>
     <h1>{{applicant_name}}</h1>
-    <div class="contact-line">
-      {{email}} <span>|</span> {{phone}} <span>|</span> {{github_or_portfolio}}
-    </div>
-  </div>
+    <p class="contact-line">{{email}}<span class="sep">·</span>{{phone}}<span class="sep">·</span>{{github_or_portfolio}}</p>
+  </header>
 
-  <div class="section-title">Professional Summary</div>
-  <div style="margin-bottom: 6px;">
-    {{executive_summary}}
-  </div>
+  <section>
+    <h2 class="section-title">Summary</h2>
+    <p class="summary">{{executive_summary}}</p>
+  </section>
 
-  <div class="section-title">Professional Experience</div>
-  {{#experiences}}
-  <div style="margin-bottom: 8px;">
-    <div class="entry-header">
-      <span>{{company}}</span>
-      <span>{{period}}</span>
+  <section>
+    <h2 class="section-title">Experience</h2>
+    {{#experiences}}
+    <div class="entry">
+      <div class="entry-header">
+        <h3>{{company}}</h3>
+        <span class="entry-date">{{period}}</span>
+      </div>
+      <p class="entry-sub">{{role}}, {{department}}</p>
+      <ul>
+        {{#accomplishments}}
+        <li>{{description}}</li>
+        {{/accomplishments}}
+      </ul>
     </div>
-    <div class="entry-sub">
-      <span>{{role}} - {{department}}</span>
-    </div>
-    <ul>
-      {{#accomplishments}}
-      <li><strong>[{{tag}}]</strong> {{description}}</li>
-      {{/accomplishments}}
-    </ul>
-  </div>
-  {{/experiences}}
+    {{/experiences}}
+  </section>
 
-  <div class="section-title">Key Projects &amp; Technical Achievements</div>
-  {{#projects}}
-  <div style="margin-bottom: 6px;">
-    <div class="entry-header">
-      <span>{{project_name}}</span>
-      <span>{{tech_stack}}</span>
+  <section>
+    <h2 class="section-title">Projects</h2>
+    {{#projects}}
+    <div class="entry">
+      <div class="entry-header">
+        <h3>{{project_name}}</h3>
+      </div>
+      <p class="entry-sub">{{tech_stack}}</p>
+      <ul>
+        <li>{{description}}</li>
+        <li><strong>Impact:</strong> {{impact}}</li>
+      </ul>
     </div>
-    <ul>
-      <li>{{description}}</li>
-      <li><strong>Impact:</strong> {{impact}}</li>
-    </ul>
-  </div>
-  {{/projects}}
+    {{/projects}}
+  </section>
 
-  <div class="section-title">Skills &amp; Technical Qualifications</div>
-  <div>
-    <strong>AI &amp; Automation:</strong> {{skills_ax}}<br>
-    <strong>Operations &amp; Growth:</strong> {{skills_sales_ops}}<br>
-    <strong>Technical Tools:</strong> {{skills_tools}}<br>
-    <strong>Domains:</strong> {{skills_domain}}
-  </div>
+  <section>
+    <h2 class="section-title">Skills</h2>
+    <dl class="skills">
+      <dt>AI &amp; Automation</dt><dd>{{skills_ax}}</dd>
+      <dt>Sales Operations</dt><dd>{{skills_sales_ops}}</dd>
+      <dt>Tools</dt><dd>{{skills_tools}}</dd>
+      <dt>Domains &amp; Languages</dt><dd>{{skills_domain}}</dd>
+    </dl>
+  </section>
 
 </body>
 </html>

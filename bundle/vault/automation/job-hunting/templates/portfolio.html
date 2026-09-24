@@ -3,49 +3,86 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{{applicant_name}} - 포트폴리오 ({{target_company}} {{target_position}})</title>
+  <title>{{applicant_name}} 포트폴리오 · {{target_company}} {{target_position}}</title>
   <style>
-    :root { --ink:#152238; --muted:#617085; --rule:#d8e0e8; --accent:#123f63; --soft:#f3f7fa; }
-    * { box-sizing:border-box; }
-    @page { size:A4; margin:15mm 16mm; }
-    body { margin:0; color:var(--ink); font-family:"Pretendard","Noto Sans KR","Apple SD Gothic Neo",sans-serif; font-size:10pt; line-height:1.5; -webkit-print-color-adjust:exact; }
-    header { border-bottom:2px solid var(--accent); padding-bottom:5mm; margin-bottom:5mm; }
-    h1 { margin:0; color:var(--accent); font-size:23pt; letter-spacing:-.04em; }
-    .meta { margin-top:2mm; color:var(--muted); font-size:8.8pt; }
-    .section { margin:0 0 5mm; }
-    .section h2 { font-size:11pt; color:var(--accent); border-bottom:1px solid var(--rule); padding-bottom:1.5mm; margin:0 0 3mm; }
-    .project { border-left:3px solid var(--accent); background:var(--soft); padding:3.5mm 4mm; margin:0 0 4mm; break-inside:avoid; }
-    .project h3 { margin:0 0 1.5mm; font-size:11pt; color:var(--accent); }
-    .project p { margin:1mm 0; }
-    .project a { color:var(--accent); text-decoration:none; overflow-wrap:anywhere; }
-    .label { display:inline-block; min-width:18mm; color:var(--muted); font-size:8.5pt; font-weight:700; }
-    .empty { color:var(--muted); font-style:italic; }
+    :root {
+      --ink: #1a1d21;
+      --ink-2: #3f4650;
+      --muted: #6b7280;
+      --rule: #dfe2e6;
+    }
+    * { box-sizing: border-box; }
+    @page { size: A4; margin: 16mm 18mm; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: "Pretendard", "Pretendard Variable", "Noto Sans KR", "Noto Sans CJK KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+      font-size: 9.8pt;
+      line-height: 1.6;
+      word-break: keep-all;
+      overflow-wrap: anywhere;
+    }
+    @media screen {
+      html { background: #eceef1; }
+      body { max-width: 210mm; margin: 24px auto; padding: 16mm 18mm; background: #fff; }
+    }
+    @media screen and (max-width: 640px) {
+      body { margin: 0; padding: 20px 16px; }
+    }
+
+    header { display: flex; justify-content: space-between; align-items: flex-end; gap: 8mm; padding-bottom: 3mm; border-bottom: 1.5px solid var(--ink); }
+    .doc-type { margin: 0 0 1mm; color: var(--muted); font-size: 8.5pt; font-weight: 600; letter-spacing: .2em; }
+    h1 { margin: 0; font-size: 21pt; font-weight: 700; letter-spacing: -.02em; line-height: 1.2; }
+    .meta { margin: 0; color: var(--ink-2); font-size: 8.8pt; text-align: right; line-height: 1.5; }
+
+    section { margin-top: 7mm; }
+    h2 { margin: 0 0 1mm; padding-bottom: 1.5mm; border-bottom: 1px solid var(--ink); font-size: 11pt; font-weight: 700; }
+
+    .project { padding: 3.5mm 0; border-bottom: 1px solid var(--rule); break-inside: avoid; }
+    .project:last-child { border-bottom: 0; }
+    .project h3 { margin: 0; font-size: 10.6pt; font-weight: 700; }
+    .project .stack { margin: .3mm 0 2mm; color: var(--muted); font-size: 9pt; }
+
+    dl.rows { display: grid; grid-template-columns: 20mm 1fr; gap: 1mm 3mm; margin: 0; }
+    dl.rows dt { color: var(--muted); font-size: 9pt; font-weight: 600; }
+    dl.rows dd { margin: 0; }
+    section > dl.rows { margin-top: 2.5mm; grid-template-columns: 24mm 1fr; }
+    a { color: inherit; text-decoration: underline; text-decoration-color: var(--rule); text-underline-offset: 2px; }
   </style>
 </head>
 <body>
   <header>
-    <h1>{{applicant_name}}</h1>
-    <div class="meta">{{target_company}} · {{target_position}} · {{email}} · {{github_or_portfolio}}</div>
+    <div>
+      <p class="doc-type">포트폴리오</p>
+      <h1>{{applicant_name}}</h1>
+    </div>
+    <p class="meta">{{target_company}} · {{target_position}}<br>{{email}} · {{github_or_portfolio}}</p>
   </header>
-  <div class="section">
+
+  <section>
     <h2>주요 프로젝트</h2>
     {{#projects}}
     <article class="project">
       <h3>{{project_name}}</h3>
-      <p><span class="label">개요</span>{{description}}</p>
-      {{#role}}<p><span class="label">역할</span>{{role}}</p>{{/role}}
-      <p><span class="label">기술 스택</span>{{tech_stack}}</p>
-      <p><span class="label">성과</span>{{impact}}</p>
-      {{#link}}<p><span class="label">링크</span><a href="{{link}}">{{link}}</a></p>{{/link}}
+      <p class="stack">{{tech_stack}}</p>
+      <dl class="rows">
+        <dt>개요</dt><dd>{{description}}</dd>
+        {{#role}}<dt>역할</dt><dd>{{role}}</dd>{{/role}}
+        <dt>성과</dt><dd>{{impact}}</dd>
+        {{#link}}<dt>링크</dt><dd><a href="{{link}}">{{link}}</a></dd>{{/link}}
+      </dl>
     </article>
     {{/projects}}
-  </div>
-  <div class="section">
+  </section>
+
+  <section>
     <h2>보유 기술</h2>
-    <p><span class="label">AI · 자동화</span>{{skills_ax}}</p>
-    <p><span class="label">운영 · 그로스</span>{{skills_sales_ops}}</p>
-    <p><span class="label">기술 도구</span>{{skills_tools}}</p>
-    <p><span class="label">도메인</span>{{skills_domain}}</p>
-  </div>
+    <dl class="rows">
+      <dt>AI · 자동화</dt><dd>{{skills_ax}}</dd>
+      <dt>영업 운영</dt><dd>{{skills_sales_ops}}</dd>
+      <dt>개발 · 도구</dt><dd>{{skills_tools}}</dd>
+      <dt>도메인 · 언어</dt><dd>{{skills_domain}}</dd>
+    </dl>
+  </section>
 </body>
 </html>
