@@ -1,0 +1,20 @@
+# ══════════════════════════════════════════════════════════════
+# job-hunter-kit 프로필 예제 — 복사해서 내 것에 맞게 고친다:
+#   cp profile.example.yaml profile.yaml
+# 이 파일은 예제이므로 hunt.py가 기본으로 읽는다. 내 실제 프로필은
+# profile.yaml(깃 무시)에 둔다. 깨진 yaml은 hunt가 중단한다(fail-closed).
+# ══════════════════════════════════════════════════════════════
+
+# 내 수준: junior | mid | senior
+# junior → 아래 senior_signals로 시니어/인턴 제외
+# senior → senior_signals를 비워둔다 ('' → 필터 해제)
+profile:
+  level: junior
+  tracks: [backend, devops]
+  languages: [ko, en]
+
+limit_per_board: 10
+
+filters:
+  # 제목에 이 정규식이 매치되면 제외. 시니어면 '' 로 비운다.
+  senior_signals: 'senior|\bsr\.?\b|staff|principal|\blead\b|director|head\s+of|\bvp\b|chief|리더|시니어|수석|책임|총괄|팀장|실장|본부장|팀리드|\bintern(ship)?\b|인턴|체험형'

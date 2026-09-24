@@ -1,5 +1,9 @@
 # Changelog
 
+job-hunter-kit v2 (2026-09-24):
+- **자립형 입문킷 신설** — `skills/job-search/job-hunter-kit/`: 풀 파이프라인(수집→AI판정→위키→메일) 없이 원티드+웹 수집→텔레그램 다이제스트만 받는 최소 묶음. 외부 스킬 무의존(보드 스크립트 벤더링), 필터는 `profile.yaml` 1개, 크론·래퍼까지 `install.sh` 한 방. `tests/test_hunt.py` 9건 외부망 없이 통과.
+- 설치기 계약: 자가테스트→보드 실동작 1건→no-agent 크론 등록, 실패하면 중단. README 구성표에 풀 파이프라인과 관계 명시.
+
 유튜브·프록시(2026-09-12):
 - **youtube-content 스킬 편입 + Gemini 경로** — `scripts/gemini_video.py`: 유튜브 URL을 Gemini `file_data`로 넘겨 서버사이드로 시청(요약·질문답·전사 대용). 클라우드 IP 차단과 무관, 무료 티어, stdlib만. `data/.env`의 `GEMINI_API_KEY`를 직접 읽어 재시작 불필요. 자막 API(`fetch_transcript.py`)는 데이터센터 IP(VPS·Webshare datacenter 전부)에서 차단됨을 실측 — residential 프록시가 있을 때만 2순위.
 - **수집기 프록시 스코핑** — `scripts/job-collect.py`가 프록시를 `PROXY_BOARDS=("wanted",)`(+wanted.co.kr JD fetch)에만 주입, 나머지 보드·ATS는 직접 연결. 무료 프록시 대역폭 소진·수집 지연의 원인이 전 보드 경유였음.

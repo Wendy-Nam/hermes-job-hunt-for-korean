@@ -116,8 +116,8 @@ flowchart LR
 | 경로 | 설명 |
 |---|---|
 | `wiki-template/` | Obsidian 위키의 뼈대 — 주제별 폴더와 기록 규칙(`SCHEMA.md`). 개인 노트는 없음. |
-| `skills/job-search/` | 공고 수집 스킬 — 원티드 · 사람인/잡코리아 · 링크드인 · 외국계 채용페이지(Greenhouse/Lever/Ashby). `job-match`는 공고와 이력서 궁합을 채점한다(이미지 공고문도 읽음). |
-| `scripts/job-collect.py` | 공고 수집기. LLM을 안 써서 **비용이 들지 않는다.** |
+| `skills/job-search/` | 공고 수집 스킬 — 원티드 · 사람인/잡코리아 · 링크드인 · 외국계 채용페이지(Greenhouse/Lever/Ashby). `job-match`는 공고와 이력서 궁합을 채점한다(이미지 공고문도 읽음). 가벼운 입문용은 **`job-hunter-kit/`** — 위키·판정 없이 원티드+웹 수집→텔레그램 다이제스트, `install.sh` 한 방 (SKILL.md에 풀 파이프라인과 관계 명시). |
+| `scripts/job-collect.py` | 공고 수집기. LLM을 안 써서 **비용이 들지 않는다.** `job-hunter-kit`와 보드 스크립트를 공유하지 않는다(각자 벤더링 — 입문킷 독립성 유지). |
 | `bin/` | 관리 도구 — `note-set-field.py`(노트 속성 안전 수정), `priority-recalc.py`(우선순위 계산), `proxy-doctor.py`(죽은 프록시 감지·자동 교체), `patch-soul-import.py`(SOUL `@import` 모듈 확장, 선택), 위키 점검. |
 | `plugins/` | `eagle-eye`(맥락 스킬 추천) · `conditional-rules`(SOUL 상세 규칙을 관련 턴에만 주입) · `turn-router`(스킬 검색+규칙 라우팅 단일 훅) · `hermes-self`(자아 런타임 — [상세](plugins/hermes-self/README.md)) · `autonomous-triggers`(내부 상태→자율 행동 큐잉) · `ux-improvements`(Discord 출력 정리) · `session-sticky` · `shared-music` · `web-crawl4ai`. |
 | `scripts/self_runtime/` | `hermes-self`의 Node 상태 엔진 — self.db CRUD, 승격 사이클, 리플렉션. 자체 [README](scripts/self_runtime/README.md) 참고. |
