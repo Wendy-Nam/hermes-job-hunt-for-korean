@@ -14,6 +14,7 @@ Usage:
 """
 import argparse
 import json
+import sys
 import urllib.parse
 import urllib.request
 from datetime import datetime, timezone, timedelta
