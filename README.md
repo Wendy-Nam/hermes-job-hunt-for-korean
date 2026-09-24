@@ -18,7 +18,7 @@
 
 ```bash
 git clone <repo> && cd hermes-agent-kit
-pip install -r requirements.txt # 의존성(PyYAML·requests·jieba) — 빠뜨리면 스킬 추천이 조용히 죽는다
+pip install -r requirements.txt # 의존성(PyYAML·requests)
 ./install.sh /opt/data          # 이미 있는 파일은 덮어쓰지 않는다 (⚠️ /opt/data 권장 — 아래 참고)
 python3 tests/smoke_test.py     # 코드가 제대로 도는지 점검(25축, 네트워크 불필요)
 python3 bin/kit-doctor.py /opt/data   # 설치본 점검 — 병합 실수·손상 파일·의존성·크론 배달지
@@ -109,19 +109,18 @@ flowchart LR
 - `tests/smoke_test.py`가 필터·노트 안전성·동시성·SSRF 가드 등 25가지를 자동 점검한다(CI에서 Python 3.10·3.12 양쪽 실행, 네트워크 없이 자립).
 - **자동 검사되지 않는 것**(솔직히): 실제 Hermes 0.18.x 플러그인 로딩·크론 스키마 호환·Discord 배달·Composio Gmail 변경·이미지 공고 판독은 **살아있는 Hermes가 있어야 검증되므로 CI에 없다.** `kit-doctor.py`가 설정·배달지·의존성까지는 봐주지만, 실제 연동은 **쓰기 스위치를 켜기 전 며칠간 `[DRY-RUN]` 보고를 눈으로 확인**하는 게 유일한 검증이다. 채용 사이트 HTML이 바뀌면 파서가 깨지는데, 그건 '0건'이 아니라 경고로 드러난다.
 - **외부 콘텐츠는 데이터로만 취급하도록** SOUL·크론 프롬프트에 경계를 넣었다(공고·메일에 적힌 지시는 따르지 않음). 다만 이건 프롬프트 수준 방어라 100%는 아니다 — 그래서 DRY-RUN 기간이 필요하다.
-- 외부 저작 플러그인(`hermes-snow-search`·`rtk-rewrite`)은 업스트림 라이선스를 확인하지 못해 **이 배포판에서 제외했다**([THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)). 필요하면 `mirror` 브랜치에 있으니 원저작자 라이선스를 직접 확인하고 쓸 것. 배포판에 남은 플러그인(`eagle-eye`·`conditional-rules`·`turn-router`·`hermes-self`·`autonomous-triggers`·`ux-improvements`·`session-sticky`·`shared-music`·`web-crawl4ai`)은 전부 원저작이다.
+- 외부 저작 플러그인은 이 배포판에서 제외했습니다. 번들에는 구직 파이프라인에 필요한 경량 플러그인만 남겨 두었습니다.
 
 ## 구성
 
 | 경로 | 설명 |
 |---|---|
-| `wiki-template/` | Obsidian 위키의 뼈대 — 주제별 폴더와 기록 규칙(`SCHEMA.md`). 개인 노트는 없음. |
-| `skills/job-search/` | 공고 수집 스킬 — 원티드 · 사람인/잡코리아 · 링크드인 · 외국계 채용페이지(Greenhouse/Lever/Ashby). `job-match`는 공고와 이력서 궁합을 채점한다(이미지 공고문도 읽음). 가벼운 입문용은 **`job-hunter-kit/`** — 위키·판정 없이 원티드+웹 수집→텔레그램 다이제스트, `install.sh` 한 방 (SKILL.md에 풀 파이프라인과 관계 명시). |
-| `scripts/job-collect.py` | 공고 수집기. LLM을 안 써서 **비용이 들지 않는다.** `job-hunter-kit`와 보드 스크립트를 공유하지 않는다(각자 벤더링 — 입문킷 독립성 유지). |
-| `bin/` | 관리 도구 — `note-set-field.py`(노트 속성 안전 수정), `priority-recalc.py`(우선순위 계산), `proxy-doctor.py`(죽은 프록시 감지·자동 교체), `patch-soul-import.py`(SOUL `@import` 모듈 확장, 선택), 위키 점검. |
-| `plugins/` | `eagle-eye`(맥락 스킬 추천) · `conditional-rules`(SOUL 상세 규칙을 관련 턴에만 주입) · `turn-router`(스킬 검색+규칙 라우팅 단일 훅) · `hermes-self`(자아 런타임 — [상세](plugins/hermes-self/README.md)) · `autonomous-triggers`(내부 상태→자율 행동 큐잉) · `ux-improvements`(Discord 출력 정리) · `session-sticky` · `shared-music` · `web-crawl4ai`. |
-| `scripts/self_runtime/` | `hermes-self`의 Node 상태 엔진 — self.db CRUD, 승격 사이클, 리플렉션. 자체 [README](scripts/self_runtime/README.md) 참고. |
-| `cron/jobs.json` | 자동화 작업 목록. 전부 꺼진 상태. |
+| `wiki-template/` | 구직용 Obsidian 볼트 템플릿 — 공고·리서치·면접·이력서·대시보드. 개인 노트는 없음. |
+| `skills/job-search/` | 공고 수집·판정·이력서 생성 스킬. 가벼운 단독 설치는 `job-hunter-kit/`. |
+| `scripts/job-collect.py` | 풀 파이프라인 공고 수집기. LLM 없이 동작하며, 원티드·웹 보드 결과를 장부와 대기열로 관리한다. |
+| `bin/` | 구직 파이프라인 관리 도구 — 노트 속성 수정, 우선순위 계산, 이력서 생성, 설치 점검. |
+| `plugins/` | 선택형 Hermes 런타임 플러그인. 구직 기능 자체에는 필수가 아니다. |
+| `cron/jobs.json` | 구직 자동화 작업 목록. 모두 기본 비활성 상태다. |
 | `config.example.yaml` | 설정 예시 — 모델·플러그인·키 자리. |
 
 ## 요구사항

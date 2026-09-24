@@ -188,9 +188,7 @@ python3 -c "import sys; sys.path.insert(0, '$DATA/skills/job-search'); import jo
 check_py() {
   python3 -c "import sys, os; p = os.environ.get('HERMES_PLUGIN_VENDOR', '$DATA/python-site'); os.path.isdir(p) and sys.path.insert(0, p); $1" 2>/dev/null
 }
-check_py "import yaml" && say "OK  PyYAML" || fail "PyYAML 없음 — pip install -r requirements.txt"
-if check_py "import jieba"; then say "OK  jieba (turn-router 검색 레이어)"
-else warn "jieba 없음 — turn-router가 L1 키워드 트리거만 동작하고 검색 레이어(L2~5)는 조용히 꺼진다. 해결: pip install -r requirements.txt"; fi
+
 
 # 6) placeholder 잔존 안내 (config·cron은 사용자가 병합하는 파일이라 여기선 안내만)
 PH=$(grep -c "<YOUR_DISCORD\|<REDACTED_SET_YOUR_OWN>" "$HERE/cron/jobs.json" "$HERE/config.example.yaml" 2>/dev/null | awk -F: '{s+=$2} END{print s}')
