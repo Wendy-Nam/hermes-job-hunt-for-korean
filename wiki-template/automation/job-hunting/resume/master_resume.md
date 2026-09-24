@@ -12,11 +12,11 @@ tags: [career, resume, master-cv]
 
 ## 1. 인적 사항 & 커리어 서머리
 - **이름**: 
-- **주요 트랙**: B2B Sales Ops / AX (AI Transformation) / Key Account Management
+- **주요 트랙**: <본인 대표 트랙 1> / <본인 대표 트랙 2> / <본인 대표 트랙 3>
 - **커리어 핵심 경쟁력**:
-  - B2B 영업 프로세스 고도화 및 데이터 기반 Sales Ops 체계 구축
-  - n8n, Python, LLM/RAG 활용 비즈니스 업무 자동화(AX) 리딩
-  - 대형 파트너사 관리(KAM) 및 정량적 매출 성과 달성
+  - <경쟁력 1: 어떤 문제를 어떤 방식으로 풀었는지 한 줄>
+  - <경쟁력 2: 대표 기술/도구와 그로 만든 결과>
+  - <경쟁력 3: 규모·성과가 드러나는 실적>
 
 ---
 
@@ -26,13 +26,13 @@ tags: [career, resume, master-cv]
 - **직급/직책**: 
 - **담당 업무**:
 - **주요 정량 성과 (KPI)**:
-  - 성과 1: (예: n8n RAG 파이프라인 도입으로 매칭 리드 타임 40% 단축)
-  - 성과 2: (예: 주요 고객사 갱신율 92% 달성 및 ARR X% 성장)
-- **사용 도구 & 기술**: Python, n8n, CRM (Salesforce/HubSpot), SQL, LLM API
+  - 성과 1: <무엇을 바꿔 무엇이 얼마나 좋아졌는지 숫자로 — 예: 파이프라인 도입으로 처리 타임 40% 단축>
+  - 성과 2: <두 번째 정량 성과 — 예: 주요 고객사 갱신율 92% 달성 및 ARR X% 성장>
+- **사용 도구 & 기술**: <주력 도구 나열 — 예: Python, CRM, SQL, LLM API>
 
 ---
 
 ## 3. 핵심 역량 및 도구 (Skills & Tools)
-- **AI & Automation (AX)**: n8n, LLM RAG, Python, Prompt Engineering, API Integration
-- **Sales Operations**: Sales Pipeline Management, CRM Optimization, Lead Scoring, Sales Analytics
-- **Business Development / KAM**: Enterprise Account Management, Contract Negotiation, Partner Relations
+- **<역량군 1>**: <그룹에 속하는 스킬/도구>
+- **<역량군 2>**: <그룹에 속하는 스킬/도구>
+- **<역량군 3>**: <그룹에 속하는 스킬/도구>

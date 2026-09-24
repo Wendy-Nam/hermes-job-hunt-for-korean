@@ -12,7 +12,7 @@ Flow:
 5. Compile HTML to pixel-perfect A4 PDF using Headless Chrome or PDF renderer.
 
 Usage:
-  python3 bin/generate-tailored-resume.py --company "Rainbow Robotics" --position "Sales Advancement" --jd-text "..." --pdf
+  python3 bin/generate-tailored-resume.py --company "Target Company" --position "Target Role" --jd-text "..." --pdf
   python3 bin/generate-tailored-resume.py --selftest
 """
 from __future__ import annotations
@@ -133,8 +133,8 @@ def build_tailored_html(
     fit_points = [l.strip("- ") for l in sources["fit_evidence"].splitlines() if l.strip().startswith("- ")]
     raw_summary = (
         f"{company} {position} 포지션에 맞춤화된 레주메입니다. "
-        f"B2B Sales Operations 고도화 및 n8n/Python/LLM RAG 기반 업무 자동화(AX) 리딩 경험을 바탕으로 "
-        f"영업 파이프라인 리드 타임 단축과 매출 가시성 확보에 즉시 기여합니다."
+        f"<본인 대표 역량 1>과 <본인 대표 역량 2>를 바탕으로 "
+        f"<그 역량이 만드는 구체적 결과를 한 줄로>."
     )
     exec_summary = apply_recruiter_density_guard(raw_summary, is_senior=is_senior)
 
@@ -148,14 +148,16 @@ def build_tailored_html(
     res_html = res_html.replace("{{github_or_portfolio}}", portfolio_url)
     res_html = res_html.replace("{{executive_summary}}", exec_summary)
 
-    # Insert experiences & projects blocks
+    # Insert experiences & projects blocks.
+    # NOTE: 이 블록의 본문은 *예시*다 — 실제 지원 시 master_resume.md / fit_evidence.md /
+    # role_contexts.md 의 내용을 읽어 그 사람의 것으로 채운다. 하드코딩된 개인 이력 금지.
     exp_block = """
     <div class="job-item">
-      <div class="job-header"><span>Rainbow Robotics / Sales Advancement Team (지원 직무 타깃)</span><span>2024.01 ~ Present</span></div>
-      <div class="job-sub">B2B Sales Operations Specialist & AX Lead</div>
+      <div class="job-header"><span>&lt;회사명&gt; / &lt;팀명&gt; (지원 직무 타깃)</span><span>YYYY.MM ~ YYYY.MM</span></div>
+      <div class="job-sub">&lt;직무/직책&gt;</div>
       <ul>
-        <li><span class="kpi-tag">AX 파이프라인</span> n8n 및 LLM/RAG 기반 공고 및 리드 자동 수집·판정 파이프라인 구축 (리드 처리 타임 80% 절감)</li>
-        <li><span class="kpi-tag">Sales Ops</span> 파이프라인 가시화 및 CRM 데이터 정규화로 계정 갱신율 및 영업 성공률 향상</li>
+        <li><span class="kpi-tag">&lt;역량태그&gt;</span> &lt;무엇을 바꿔 무엇이 얼마나 좋아졌는지 숫자 포함&gt;</li>
+        <li><span class="kpi-tag">&lt;역량태그&gt;</span> &lt;두 번째 정량 성과&gt;</li>
       </ul>
     </div>
     """
@@ -163,28 +165,28 @@ def build_tailored_html(
 
     proj_block = """
     <div class="job-item">
-      <div class="job-header"><span>Hermes Agent Kit & VPS Automated Infrastructure</span><span>Python, Docker, Syncthing</span></div>
+      <div class="job-header"><span>&lt;프로젝트명&gt;</span><span>&lt;핵심 스택&gt;</span></div>
       <ul>
-        <li>에이전트 기반 세컨브레인 위키 동기화 및 원자적 장부 관리 체계 구축</li>
-        <li><strong>성과:</strong> 31종 스모크 테스트 무유실 가동 및 10000:10000 권한 정규화 완료</li>
+        <li>&lt;프로젝트 개요와 본인 역할&gt;</li>
+        <li><strong>성과:</strong> &lt;숫자로 증명되는 결과&gt;</li>
       </ul>
     </div>
     """
     res_html = re.sub(r"\{\{#projects\}\}.*?\{\{/projects\}\}", proj_block, res_html, flags=re.DOTALL)
 
-    res_html = res_html.replace("{{skills_ax}}", "n8n, Python, LLM API, RAG, Prompt Engineering, crawl4ai")
-    res_html = res_html.replace("{{skills_sales_ops}}", "Sales Pipeline Management, Lead Scoring, CRM Optimization, Sales Analytics")
-    res_html = res_html.replace("{{skills_tools}}", "Python, Shell Script, Docker, Git, YAML, SQL")
-    res_html = res_html.replace("{{skills_domain}}", "B2B SaaS, IT/자동화, 로보틱스/산업 자동화")
+    res_html = res_html.replace("{{skills_ax}}", "<트랙1 스킬 나열>")
+    res_html = res_html.replace("{{skills_sales_ops}}", "<트랙2 스킬 나열>")
+    res_html = res_html.replace("{{skills_tools}}", "<공통 도구 나열>")
+    res_html = res_html.replace("{{skills_domain}}", "<도메인/산업 나열>")
 
     # Cover Letter Template Substitution
     cov_html = cov_tmpl
     cov_html = cov_html.replace("{{applicant_name}}", applicant_name)
     cov_html = cov_html.replace("{{target_company}}", company)
     cov_html = cov_html.replace("{{target_position}}", position)
-    cov_html = cov_html.replace("{{motivation_text}}", f"{company}의 {position} 포지션에서 B2B 영업 프로세스를 혁신하고 AX 업무 자동화를 이끌고자 지원하였습니다.")
-    cov_html = cov_html.replace("{{achievements_text}}", f"n8n과 Python을 활용한 업무 파이프라인 수집 엔진 구축으로 리드 스코어링 수작업 시간을 80% 이상 절감하였으며, Sales Operations 데이터 정규화를 통해 정량적 KPI 성과를 창출했습니다.")
-    cov_html = cov_html.replace("{{future_plan_text}}", f"입사 후 영업팀의 파이프라인 병목을 데이터로 정밀 진단하고, 자동화 에이전트 구축을 통해 팀 전체의 영업 생산성을 증대하겠습니다.")
+    cov_html = cov_html.replace("{{motivation_text}}", f"{company}의 {position} 포지션에 <본인이 지원하는 이유 — 그 회사·그 역할에서 만들고 싶은 변화>를 통해 지원하였습니다.")
+    cov_html = cov_html.replace("{{achievements_text}}", f"<정량 성과 1 — 숫자로 증명되는 대표 성과>와 <정량 성과 2>를 통해 검증된 역량을 증명해 왔습니다.")
+    cov_html = cov_html.replace("{{future_plan_text}}", f"입사 후 <입사하면 먼저 풀 문제와 접근 방법 — 직무 맥락에 맞게 한 문단>하겠습니다.")
 
     return res_html, cov_html
 

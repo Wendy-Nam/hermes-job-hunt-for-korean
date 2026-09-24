@@ -20,14 +20,14 @@ tags: [career, profile, hub]
 ---
 
 ## 🎯 타깃 직무 트랙 & 핵심 경쟁력
-1. **AX (AI Transformation) & 업무 자동화 리드**:
-   - n8n, Python, LLM API, RAG 인프라 및 커스텀 에이전트 구축
-2. **B2B Sales Operations Specialist**:
-   - 영업 프로세스 데이터화, 리드 수집/판정 자동화, 파이프라인 가시화
-3. **Key Account Management (KAM)**:
-   - B2B 주요 고객 관리, 파트너십 제안 및 비즈니스 조율
+1. **<트랙 1 — 예: 데이터 분석 / Product Ops>**:
+   - <그 트랙에서 내 경쟁력을 증명하는 기술·실적 한 줄>
+2. **<트랙 2>**:
+   - <경쟁력 한 줄>
+3. **<트랙 3>**:
+   - <경쟁력 한 줄>
 
 ---
 
 ## 📝 최신 이력 덤프 & 업데이트 이력
-- **2026-09**: Hermes Agent Kit & VPS Setup 덤프 반영 완료 (`bin/career-dump-ingest.py`)
+- **YYYY-MM**: <새 이력 반영 완료 — `bin/career-dump-ingest.py`로 구조화 이식>
