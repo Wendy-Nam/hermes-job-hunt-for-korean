@@ -1,0 +1,34 @@
+name: smoke
+on:
+  push:
+    branches: [master]
+  pull_request:
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.10", "3.12"]   # 표방 하한(3.10)과 현행을 둘 다 — 하한 회귀를 CI가 잡게
+    steps:
+      # 액션은 커밋 SHA로 고정 — 태그는 재이동 가능(공급망). 갱신 시 태그→SHA 재조회.
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5      # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5
+        with: { python-version: "${{ matrix.python }}" }
+      # 런타임은 하한(오버레이라 유연해야 함), CI는 constraints로 고정 — 업스트림 변경에 테스트가 흔들리지 않게
+      - run: pip install -r requirements.txt
+      - run: python3 tests/smoke_test.py
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5      # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5
+        with: { python-version: "3.12" }
+      - run: pip install ruff pip-audit
+      # 스타일이 아니라 '진짜 버그'만: 문법(E9)·미정의명/미사용(F) — 노이즈 없이 회귀 방지
+      - name: ruff (버그 세트만)
+        run: ruff check --select E9,F63,F7,F82,F821,F811 bundle tests
+      # 의존성 취약점 — 직접 선언 의존성 기준(오버레이라 전이 핀은 못 하니 직접분만 게이트)
+      - name: pip-audit (의존성 취약점)
+        run: pip-audit -r requirements.txt
+      # mypy(타입 검사)는 코드가 타입 미부착이라 노이즈만 됨 — 도입하려면 먼저 타입 주석부터(별도 작업). 지금은 제외.

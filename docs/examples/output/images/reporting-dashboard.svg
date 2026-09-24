@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" font-family="Noto Sans KR, sans-serif">
+  <rect width="640" height="360" fill="#ffffff"/>
+  <text x="32" y="44" font-size="18" font-weight="700" fill="#1a1d21">주간 파이프라인 리포트</text>
+  <text x="32" y="68" font-size="12" fill="#6b7280">매주 월요일 08:00 자동 발송 · 원천: Salesforce</text>
+  <g font-size="12" fill="#3f4650">
+    <rect x="32" y="92" width="176" height="64" fill="#f5f6f8"/><text x="44" y="114">파이프라인 금액</text><text x="44" y="142" font-size="20" font-weight="700" fill="#1a1d21">₩4.8B</text>
+    <rect x="232" y="92" width="176" height="64" fill="#f5f6f8"/><text x="244" y="114">예측 오차</text><text x="244" y="142" font-size="20" font-weight="700" fill="#1a1d21">±8%</text>
+    <rect x="432" y="92" width="176" height="64" fill="#f5f6f8"/><text x="444" y="114">전환율</text><text x="444" y="142" font-size="20" font-weight="700" fill="#1a1d21">27%</text>
+  </g>
+  <line x1="32" y1="320" x2="608" y2="320" stroke="#dfe2e6"/>
+  <g fill="#3f4650">
+    <rect x="60" y="250" width="44" height="70"/><rect x="140" y="232" width="44" height="88"/><rect x="220" y="214" width="44" height="106"/>
+    <rect x="300" y="226" width="44" height="94"/><rect x="380" y="198" width="44" height="122"/><rect x="460" y="186" width="44" height="134"/>
+    <rect x="540" y="172" width="44" height="148" fill="#1a1d21"/>
+  </g>
+  <g font-size="11" fill="#6b7280" text-anchor="middle">
+    <text x="82" y="338">1주</text><text x="162" y="338">2주</text><text x="242" y="338">3주</text><text x="322" y="338">4주</text><text x="402" y="338">5주</text><text x="482" y="338">6주</text><text x="562" y="338">7주</text>
+  </g>
+</svg>

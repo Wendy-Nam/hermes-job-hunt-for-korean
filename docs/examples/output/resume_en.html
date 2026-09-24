@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>김하늘 Resume · 에이크미코리아 Sales Operations Manager</title>
+  <style>
+    :root {
+      --ink: #1a1d21;
+      --ink-2: #3f4650;
+      --muted: #6b7280;
+    }
+    * { box-sizing: border-box; }
+    @page { size: A4; margin: 16mm 18mm; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: "Source Serif 4", "Source Serif Pro", "Noto Serif", Georgia, "Times New Roman", "Noto Serif KR", "Noto Serif CJK KR", serif;
+      font-size: 10.2pt;
+      line-height: 1.42;
+      word-break: keep-all;
+      overflow-wrap: anywhere;
+      font-variant-numeric: tabular-nums;
+    }
+    @media screen {
+      html { background: #eceef1; }
+      body { max-width: 210mm; margin: 24px auto; padding: 16mm 18mm; background: #fff; }
+    }
+    @media screen and (max-width: 640px) {
+      body { margin: 0; padding: 20px 16px; }
+    }
+
+    header { text-align: center; margin-bottom: 4mm; }
+    h1 { margin: 0 0 .5mm; font-size: 20pt; font-weight: 600; letter-spacing: .01em; }
+    .headline { margin: 0 0 1mm; color: var(--ink-2); font-style: italic; }
+    .contact-line { margin: 0; color: var(--ink-2); font-size: 9.2pt; }
+    .contact-line span + span::before { content: "·"; margin: 0 2mm; color: var(--muted); }
+
+    section { margin-top: 5mm; }
+    section:has(.line) { break-inside: avoid; }
+    h2.section-title { break-after: avoid; }
+    h2.section-title { margin: 0 0 2.5mm; padding-bottom: .8mm; border-bottom: .75pt solid var(--ink); font-size: 10pt; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+
+    .entry { margin-bottom: 3.5mm; break-inside: avoid; }
+    .entry:last-child { margin-bottom: 0; }
+    .entry-header { display: flex; justify-content: space-between; align-items: baseline; gap: 6mm; }
+    .entry-header h3 { margin: 0; font-size: 10.4pt; font-weight: 700; }
+    .entry-header .company-desc { margin-left: 2mm; color: var(--muted); font-size: 9pt; font-weight: 400; }
+    .entry-date { flex-shrink: 0; white-space: nowrap; }
+    .entry-sub { margin: .3mm 0 1mm; color: var(--ink-2); font-style: italic; }
+    .entry-tools { margin: .8mm 0 0; color: var(--ink-2); font-size: 9.2pt; }
+    ul { margin: 0; padding-left: 4.5mm; }
+    li { margin-bottom: .6mm; padding-left: .5mm; }
+
+    /* one-line rows: Education, Certifications, Awards ... */
+    .line { display: flex; justify-content: space-between; align-items: baseline; gap: 6mm; margin-bottom: 1mm; }
+    .line:last-child { margin-bottom: 0; }
+    .line .what b { font-weight: 700; }
+    .line .what i { color: var(--ink-2); }
+    .line .when { flex-shrink: 0; white-space: nowrap; }
+
+    dl.skills { display: grid; grid-template-columns: max-content 1fr; gap: .8mm 4mm; margin: 0; }
+    dl.skills dt { font-weight: 700; }
+    dl.skills dd { margin: 0; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>김하늘</h1>
+    <p class="headline">6년차 B2B SaaS 세일즈옵스 매니저 · 영업 데이터 자동화</p>
+    <p class="contact-line"><span>서울 성동구</span><span>haneul.kim@example.com</span><span>010-1234-5678</span><span>github.com/haneul-kim</span><span>linkedin.com/in/haneul-kim</span></p>
+  </header>
+
+  <section>
+    <h2 class="section-title">Summary</h2>
+    <ul>
+      
+      <li>Salesforce 파이프라인 재설계로 매출 예측 오차율 ±22% → ±8% 개선</li>
+      
+      <li>영업 리포팅 자동화로 팀 전체 주 10시간 이상 절감</li>
+      
+      <li>리드 스코어링 도입으로 영업 전환율 18% → 27% 향상</li>
+      
+      <li>두 분기 만에 예측 오차를 ±8%로 줄이고 월간 경영 보고 양식을 표준화했습니다</li>
+      
+    </ul>
+  </section>
+
+  <section>
+    <h2 class="section-title">Experience</h2>
+    
+    <div class="entry">
+      <div class="entry-header">
+        <h3>주식회사 베타소프트<span class="company-desc">B2B SaaS · 임직원 120명</span></h3>
+        <span class="entry-date">2021.03 ~ 현재</span>
+      </div>
+      <p class="entry-sub">Sales Operations 매니저, 영업기획팀 · CRM·파이프라인 운영 (정규직)</p>
+      <ul>
+        
+        <li>Salesforce 파이프라인 대시보드를 재설계해 주간 보고 작성 시간 10시간 → 2시간으로 단축</li>
+        
+        <li>분기 매출 예측 오차율 ±22%에서 ±8%로 감소, 경영진 보고 체계 표준화</li>
+        
+        <li>리드 스코어링 모델 도입으로 영업 전환율 18% → 27% 개선</li>
+        
+      </ul>
+      <p class="entry-tools"><strong>Tools:</strong> Salesforce, SQL, Python, Looker Studio</p>
+    </div>
+    
+    <div class="entry">
+      <div class="entry-header">
+        <h3>감마커머스<span class="company-desc">이커머스 · 임직원 300명</span></h3>
+        <span class="entry-date">2018.07 ~ 2021.02</span>
+      </div>
+      <p class="entry-sub">영업지원 선임, B2B 영업본부 · 견적·계약 운영 (정규직)</p>
+      <ul>
+        
+        <li>Python·Google Apps Script로 정산 자동화, 월 40시간 수작업 제거</li>
+        
+        <li>견적·계약 프로세스 표준화로 계약 리드타임 14일 → 6일 단축</li>
+        
+      </ul>
+      <p class="entry-tools"><strong>Tools:</strong> Excel, Google Apps Script, Python</p>
+    </div>
+    
+  </section>
+
+  <section>
+    <h2 class="section-title">Projects</h2>
+    
+    <div class="entry">
+      <div class="entry-header">
+        <h3>영업 리포팅 자동화 파이프라인</h3>
+        <span class="entry-date">2022.04 ~ 2022.09</span>
+      </div>
+      <p class="entry-sub">Python, Salesforce API, BigQuery, Looker Studio</p>
+      <ul>
+        <li>CRM 데이터를 매일 수집·정제해 경영진 대시보드로 자동 배포하는 파이프라인</li>
+        <li><strong>Role:</strong> 기획·파이프라인 개발 리드</li>
+        <li><strong>Impact:</strong> 보고 리소스 80% 절감, 데이터 정합성 이슈 월 12건 → 1건</li>
+      </ul>
+    </div>
+    
+    <div class="entry">
+      <div class="entry-header">
+        <h3>리드 스코어링 모델</h3>
+        <span class="entry-date">2023.02 ~ 2023.05</span>
+      </div>
+      <p class="entry-sub">SQL, Salesforce, Python</p>
+      <ul>
+        <li>인바운드 리드를 전환 가능성 순으로 정렬하는 점수 모델</li>
+        <li><strong>Role:</strong> 모델 설계·영업팀 온보딩</li>
+        <li><strong>Impact:</strong> 영업 전환율 18% → 27%</li>
+      </ul>
+    </div>
+    
+    <div class="entry">
+      <div class="entry-header">
+        <h3>LLM 기반 영업 메일 초안 도구</h3>
+        <span class="entry-date">2024.01 ~ 2024.03</span>
+      </div>
+      <p class="entry-sub">Python, LLM API, Slack Bolt</p>
+      <ul>
+        <li>고객 이력과 제품 정보를 바탕으로 후속 메일 초안을 만들어 주는 Slack 도구</li>
+        <li><strong>Role:</strong> 기획·개발·운영</li>
+        <li><strong>Impact:</strong> 영업사원 1인당 주 3시간 절감, 팀 12명 전원 사용</li>
+      </ul>
+    </div>
+    
+  </section>
+
+  
+  <section>
+    <h2 class="section-title">Education</h2>
+    
+    <div class="line">
+      <span class="what"><b>한국대학교</b>, <i>경영학 학사</i> · 졸업 (3.8/4.5)</span>
+      <span class="when">2012.03 ~ 2018.02</span>
+    </div>
+    
+  </section>
+  
+
+  <section>
+    <h2 class="section-title">Skills</h2>
+    <dl class="skills">
+      <dt>Languages</dt><dd>Python(상), SQL(상), TypeScript(중)</dd><dt>Data &amp; Automation</dt><dd>Airflow, dbt, Zapier, LLM API</dd><dt>CRM &amp; Sales Tools</dt><dd>Salesforce Admin, HubSpot, Outreach</dd><dt>Collaboration</dt><dd>Jira, Notion, Slack</dd><dt>Foreign Languages</dt><dd>영어(비즈니스), 일본어(일상 회화)</dd>
+    </dl>
+  </section>
+
+  
+  <section>
+    <h2 class="section-title">Certifications &amp; Languages</h2>
+    
+    <div class="line">
+      <span class="what"><b>SQL 개발자(SQLD)</b>, 한국데이터산업진흥원</span>
+      <span class="when">2022.11</span>
+    </div>
+    
+    <div class="line">
+      <span class="what"><b>Salesforce Certified Administrator</b>, Salesforce</span>
+      <span class="when">2020.05</span>
+    </div>
+    
+    
+    <div class="line">
+      <span class="what"><b>OPIc 영어</b>: AL</span>
+      <span class="when">2023.04</span>
+    </div>
+    
+  </section>
+  
+
+  
+
+  
+  <section>
+    <h2 class="section-title">Talks</h2>
+    
+    <div class="line">
+      <span class="what"><b>영업 데이터 자동화 사례</b>, SaaS Ops Day 2024</span>
+      <span class="when">2024.06</span>
+    </div>
+    
+  </section>
+  
+
+  
+  <section>
+    <h2 class="section-title">Professional Development</h2>
+    
+    <div class="line">
+      <span class="what"><b>데이터 분석 실무 과정</b>, 패스트캠퍼스</span>
+      <span class="when">2023.01 ~ 2023.03</span>
+    </div>
+    
+  </section>
+  
+
+  
+  <section>
+    <h2 class="section-title">Awards</h2>
+    
+    <div class="line">
+      <span class="what"><b>올해의 운영 혁신상</b>, 베타소프트</span>
+      <span class="when">2022.12</span>
+    </div>
+    
+  </section>
+  
+
+  
+  <section>
+    <h2 class="section-title">Activities</h2>
+    
+    <div class="line">
+      <span class="what"><b>RevOps 코리아 커뮤니티</b>, 운영진, 월간 밋업 기획</span>
+      <span class="when">2019.03 ~ 2020.12</span>
+    </div>
+    
+  </section>
+  
+
+  
+  <section>
+    <h2 class="section-title">International Experience</h2>
+    
+    <div class="line">
+      <span class="what"><b>네덜란드 암스테르담</b>, 교환학생</span>
+      <span class="when">2016.08 ~ 2017.01</span>
+    </div>
+    
+  </section>
+  
+
+</body>
+</html>

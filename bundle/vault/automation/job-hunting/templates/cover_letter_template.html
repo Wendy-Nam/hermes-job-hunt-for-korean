@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{applicant_name}} 자기소개서 · {{target_company}} {{target_position}}</title>
+  <style>
+    :root {
+      --ink: #1a1d21;
+      --ink-2: #3f4650;
+      --muted: #6b7280;
+      --rule: #dfe2e6;
+    }
+    * { box-sizing: border-box; }
+    @page { size: A4; margin: 20mm 22mm; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: "Pretendard", "Pretendard Variable", "Noto Sans KR", "Noto Sans CJK KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+      font-size: 10.2pt;
+      line-height: 1.8;
+      word-break: keep-all;
+      overflow-wrap: anywhere;
+    }
+    @media screen {
+      html { background: #eceef1; }
+      body { max-width: 210mm; margin: 24px auto; padding: 20mm 22mm; background: #fff; }
+    }
+    @media screen and (max-width: 640px) {
+      body { margin: 0; padding: 20px 16px; }
+    }
+
+    header { padding-bottom: 3mm; border-bottom: 1.5px solid var(--ink); }
+    h1 { margin: 0 0 3mm; font-size: 20pt; font-weight: 700; letter-spacing: -.02em; line-height: 1.2; }
+    dl.meta { display: grid; grid-template-columns: repeat(3, auto); justify-content: start; gap: 0 8mm; margin: 0; font-size: 9pt; line-height: 1.5; }
+    dl.meta div { display: flex; gap: 2mm; }
+    dl.meta dt { color: var(--muted); }
+    dl.meta dd { margin: 0; font-weight: 600; }
+
+    .section-block { margin-top: 8mm; }
+    h2.section-title { break-after: avoid; }
+    h2.section-title { margin: 0 0 2.5mm; padding-bottom: 1.5mm; border-bottom: 1px solid var(--rule); font-size: 11pt; font-weight: 700; line-height: 1.5; }
+    h2.section-title .en { margin-left: 2mm; color: var(--muted); font-size: 8.5pt; font-weight: 400; }
+    .section-body { margin: 0; color: var(--ink-2); white-space: pre-line; }
+    .count { margin: 1.5mm 0 0; color: var(--muted); font-size: 8pt; text-align: right; font-variant-numeric: tabular-nums; }
+
+    footer { margin-top: 12mm; text-align: right; color: var(--ink-2); font-size: 9.5pt; line-height: 1.7; }
+    footer .sign { color: var(--ink); font-weight: 600; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>자기소개서</h1>
+    <dl class="meta">
+      <div><dt>지원자</dt><dd>{{applicant_name}}</dd></div>
+      <div><dt>지원 회사</dt><dd>{{target_company}}</dd></div>
+      <div><dt>지원 직무</dt><dd>{{target_position}}</dd></div>
+    </dl>
+  </header>
+
+  {{#questions}}
+  <section class="section-block">
+    <h2 class="section-title">{{no}}. {{title}}{{#en}}<span class="en">{{en}}</span>{{/en}}</h2>
+    <p class="section-body">{{body}}</p>
+    <p class="count">공백 포함 {{count}}자{{#limit}} / {{limit}}자{{/limit}}</p>
+  </section>
+  {{/questions}}
+
+  <footer>
+    {{generated_date}}<br>
+    <span class="sign">지원자 {{applicant_name}}</span>
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,94 @@
+# ══════════════════════════════════════════════════════════════
+#  구직 프로필 — "나에 대한 것"은 여기만 고치면 된다.
+#  (job-collect.py 가 이 파일을 읽는다. 파일이 없으면 내장 기본값으로 동작하지만,
+#   **깨져 있으면 수집·판정·우선도 계산이 중단된다** — 잘못된 기준으로 도는 것보다 안전.)
+# ══════════════════════════════════════════════════════════════
+
+# ── 내 프로필 요약 — 설치 후 가장 먼저 이 블록을 본인에 맞게 수정 ──
+# 이 블록은 "지도"다: 실제 동작은 각 항목 오른쪽에 적힌 섹션이 결정한다.
+profile:
+  level: junior              # 연차대 → 실제 필터: filters.senior_signals · title_exp_min_years · body_exp_min_years
+  region: korea              # 지역   → 실제 동작: boards (채용 사이트 목록)
+  tracks: [sales, ops, ai]   # 직군   → 실제 검색어: keyword_blocks / 수집 관문: filters.title_must_match
+  languages: [ko, en]        # 언어   → 실제 필터: filters.exclude_roles.language
+# 판정 기준(적합/부적합·회사 등급)과 이력서 변형 매핑은 wiki/automation/job-hunting/Rules.md가 SoT.
+
+limit_per_board: 20      # 보드당 수집 개수
+body_fetch_cap: 100      # 실행당 JD 본문 fetch 상한(런타임 보호) — 35였을 땐 대량수집 시 절반이 연차게이트 미통과
+
+# ── 검색 키워드 블록 (검색어·시노님의 유일 원본) ─────────────
+# 수집기가 런마다 한 블록씩 순환한다(지속 카운터 .job-rotation.json, 전 블록 커버 —
+# 하루 2런 기준 6블록 = 3일 주기). 시노님 추가/삭제는 여기서만. 네 타깃 직무로 교체.
+keyword_blocks:
+  - ["sales operations", "revenue operations", "business operations", "세일즈 오퍼레이션"]
+  - ["business development", "사업개발", "SaaS 영업", "소프트웨어 기술영업", "IT 솔루션 영업", "AI 자동화", "AX"]
+  - ["data analyst", "business analyst", "데이터 분석가", "product operations"]
+  - ["영업기획", "customer success", "inside sales", "AI automation", "AX"]
+  - ["GTM operations", "sales enablement", "growth operations", "CX operations", "commercial excellence"]
+  - ["사업운영", "B2B SaaS 영업", "클라우드 영업", "account executive", "account manager", "영업 신입", "SaaS sales"]
+  - ["AI Agent", "AI 에이전트", "AX 컨설턴트", "AI 교육", "AI 자동화", "AI 도입"]
+  - ["Sales Engineer", "Solutions Engineer", "Forward Deployed Engineer", "GTM Engineer", "Technical Account Manager", "sales engineering"]
+
+# ── 필터 ─────────────────────────────────────────────────
+# 저연차 기준. 시니어면 title/body 임계값을 올리거나 senior_signals를 비우면 됨.
+filters:
+  # 트랙 게이트: 제목이 이 정규식과 무관하면 수집 자체를 안 함(쓰레기풀 방지)
+  title_must_match: '영업|세일즈|sales|서비스\s*운영|비즈니스|business|\bBDR?\b|\bSDR\b|\bAE\b|account|사업\s*개발|파트너십|partnership|customer\s*success|\bCS\b|오퍼레이션|operation|revops|\bGTM\b|enablement|데이터\s*분석|data\s*analyst|business\s*analyst|\bPM\b|\bPO\b|product|프로덕트|경영\s*기획|영업\s*기획|\bAX\b|AI\s*(자동화|automation|agent|에이전트|교육|도입)|\bFDE\b|forward\s*deployed|포워드\s*디플로이|GTM\s*engineer|기술\s*account|solutions?\s*(engineer|consultant)|프리세일즈|pre-?sales|inside\s*sales|고객\s*성공|그로스|growth'
+  title_exp_min_years: 3    # 제목에 N년+ 경력 요구 → 제외
+  body_exp_min_years: 5     # JD 본문에 N년+ 요구 → 제외(보수적, 오삭제 방지)
+  # AX/AI 자동화 예외: 수요 성장 중 + 문제해결·운영 중심이라 연차를 더 열어둠.
+  # 제목이 ax_title에 매치되면 연차 컷을 ax_exp_min_years(4년+)부터 적용.
+  # 시니어 신호(senior_signals)는 그대로 적용. 순수 기술직 컷은 판정(Rules.md) 담당.
+  ax_title: '\bAX\b|AI\s*(자동화|automation|transformation|에이전트|agent|도입|교육)|업무\s*자동화|process\s*automation|\bRPA\b'
+  ax_exp_min_years: 4
+  # AX 맥락이 아니면 제외할 직무(유저: "AX면 전략기획이어도 볼래")
+  exclude_unless_ax: '전략\s*기획'
+  # 본문 어드민 게이트(보수적): JD에 어드민 신호가 2종+ 있는데 코어(옵스/세일즈) 신호가 0이면
+  # '완전 어드민'으로 컷. 사무가 일부 섞인 옵스는 코어 신호가 있어 통과 → 최종 판단은 트리아지(LLM).
+  body_admin_signals: '수출입|통관|선적|정산|발주|재고\s*관리|경리|총무|사무\s*보조|서류\s*(?:작성|관리|발급)|비품|우편물|경비\s*처리|증빙|문서\s*수발'
+  body_core_signals: '분석|자동화|개선|전략|CRM|SQL|대시보드|파이프라인|리드\s*(?:발굴|제너레이션)|프로스펙팅|세일즈|영업\s*(?:전략|기획)|그로스|growth|KPI|인사이트|automation|revops|프로세스\s*(?:개선|설계)'
+  # 시니어 신호(제목) → 제외. 스크래퍼·수집기가 공유(jobfilter.py가 이 값을 읽음).
+  # 인턴을 원하면 `\bintern(ship)?\b|인턴|체험형` 제거. 시니어 원하면 이 줄을 비우면 됨.
+  senior_signals: 'senior|\bsr\.?\b|staff|principal|\blead\b|director|head\s+of|\bvp\b|chief|高[级級]|리더|리더급|strategic|시니어|수석|책임|총괄|팀장|실장|본부장|매니저급|팀리드|파트장|그룹장|\bintern(ship)?\b|인턴|체험형|\b\d{2,}년'
+  # 무관/비타깃 직무(제목) → 제외. 개발직 지원자면 개발 키워드들을 지울 것.
+  # 무관/비타깃 직무 제외 — 카테고리별(로더가 전부 OR로 합침). 새 제외는 해당 카테고리에 추가.
+  exclude_roles:
+    dev: ['프로그래머', '개발자', '백엔드', '프론트엔드', '풀스택', '앱\s*개발', '웹\s*개발', '서버\s*(운영|관리)', '퍼블리셔', 'devops', 'sre', '\bqa\b', '테스터', 'backend', 'frontend', 'full.?stack', 'android', 'ios\b']
+    creative: ['디자이너', '일러스트', '영상편집', '번역', '통역']
+    licensed: ['간호', '약사', '의사', '회계사', '세무사', '변호사']
+    bluecollar: ['생산직', '물류\s*(관리|사원)']
+    marketing: ['광고\s*(검수|마케팅|집행|운영|소재)', '마케터', '마케팅']
+    mobility: ['모빌리티', 'mobility']
+    language: ['(일본어|중국어|일어|중어|Japanese|Chinese|JLPT|HSK)\s*(필수|능통|가능|native|fluent)']
+    coordinator: ['코디네이터', 'coordinator']
+    finance: ['금융사', '은행', '보험사', '보험\s*설계', '증권사', '카드사', '캐피탈', '저축은행', '신용평가', '여신', '수신']
+    admin: ['수출', '수출입', '통관', '선적', '무역\s*사무', '정산', '발주', '출하', '재고\s*관리', '경리', '총무', '사무\s*(보조|지원|직|원)', '서무']
+    events_retail: ['행사', '이벤트', '스토어', '매장', '점포', '아웃렛', 'outlet', '리테일', 'retail', '머천다이징', 'merchandis']
+    gig: ['크리에이터', 'creator', '인플루언서', 'influencer', '부업', '프리랜서', 'freelance', '알바', '아르바이트', '파트타임', 'part-?time', '시급', 'hourly', '/hour', 'excel\s*expert', 'data\s*entry', '데이터\s*입력', '라벨링', 'data\s*label', 'annotation', 'crowdsourc', '어노테이', '시간제', '튜터', 'tutor', '트레이너', 'trainer', '\brater\b', 'evaluator', '평가자', '평가\s*(?:알바|아르바이트)', 'assessor', '\$\s?\d', 'per\s*task', '데이터\s*수집', '음성\s*수집', '녹음\s*(알바|아르바이트)?', 'AI\s*(학습|훈련)\s*데이터', '크라우드\s*(소싱|워커)']
+    overseas_sales: ['해외영업', '해외\s*영업', '글로벌\s*(영업|세일즈)', '\bKAM\b', 'Key\s*Account\s*Manager']  # Global Sales/Business 영문 패턴은 글로벌테크 SDR·BD를 오컷해서 제거(2026-07-16)
+    mfg_industrial: ['반도체\s*(영업|기술)', '제조\s*(영업|기술)', '자동차\s*(부품|영업)', '산업\s*(기기|자동화|영업)', '하드웨어\s*영업', '장비\s*영업', '계측', 'Rotork', 'TÜV', 'UL\s*Solutions', 'Yokogawa', 'Pepperl', 'Fuchs']
+    pure_dev_rnd: ['AI\s*엔지니어', '백엔드\s*개발', '백엔드\s*개발자', 'PHP', '웹\s*프로그래머', '엔지니어링\s*\(모델', '연구원\s*채용', 'R&D\s*Operation', '연구소', '프로그래머', '서버\s*운영자']
+
+# ── 쓸 보드 ───────────────────────────────────────────────
+# 스크래퍼 스킬 이름. 다른 나라면 이 목록 + skills/job-search/ 스크립트를 교체.
+# web 보드는 기본 꺼짐 — DDG 검색 결과의 "임의 사이트" 본문을 가져와 LLM 판정에 넣는 구조라
+# 프롬프트 주입·오염 표면이 넓다(allowlist는 이 기능의 본질과 상충해서 두지 않았다).
+# 보드 밖 회사 채용페이지 발굴이 필요할 때만 "web"을 다시 넣어라.
+boards: ["wanted", "saramin", "jobkorea", "linkedin", "ats"]
+
+# ── 직무 트랙 가산점 (우선도 파생용, 첫 매치 적용 — 유저 선호 서열 2026-07-10) ──
+# 외국계 대기업(티어 S/A) > AI 자동화 > 자동화 중심 옵스 > 기술영업 > 일반 영업(SMB)
+track_bonus:
+  - ['\bAX\b|AI\s*(자동화|automation|agent|에이전트|교육|도입|transformation)|\bRPA\b|업무\s*자동화', 1.5]
+  - ['자동화|automation|revops|revenue\s*operations|sales\s*operations|business\s*operations|\bGTM\b|enablement', 1.0]
+  - ['기술영업|솔루션|프리세일즈|pre-?sales|sales\s*engineer|solutions?\s*(engineer|consultant)|\bFDE\b', 0.7]
+  - ['영업|세일즈|sales|\bBDR\b|\bSDR\b|\bAE\b|account|customer\s*success|고객\s*성공', 0.3]
+
+# ── 회사 별칭 (dedup용, 선택) ──────────────────────────────────────────
+# 규칙 정규화(법인격·영문병기·수식어 제거)로도 못 합치는 '진짜 별칭'을 여기 명시한다.
+# 같은 회사가 다른 이름으로 올라와 중복 노트가 생기는 걸 막는다(유사도 매칭은 오검출 위험이라 안 쓴다).
+# 형식:  표준명: [별칭, 별칭, ...]   — 별칭들이 표준명으로 접힌다.
+company_aliases:
+  당근: [당근마켓, Daangn, Karrot]
+  쿠팡: [Coupang, 쿠팡풀필먼트]
+  토스: [비바리퍼블리카, Toss, 토스페이먼츠]
