@@ -1,6 +1,7 @@
 filters:
-  and:
+  or:
     - file.hasTag("공고")
+    - file.hasTag("posting")
 views:
   - type: tasknotesKanban
     name: 현황 추적
@@ -8,9 +9,12 @@ views:
       property: 세부
       direction: ASC
     order:
-      - file.backlinks
-    swimLane: note.aliases
-    columnOrder: '{"note.세부":["발견","보류","지원","면접","서류합격","오퍼","탈락"]}'
+      - 링크
+    sort:
+      - property: 우선도
+        direction: DESC
+    swimLane: note.name
+    columnOrder: '{"note.세부":["지원준비","발견","보류","지원","마감","면접","과제","탈락","면접포기","면접탈락","오퍼","서류합격","미스핏","{\"icon\":\"lucide-file-question\"}","2026-07-20 16:00 면접","1차 면접 완료","오퍼 취소 진행","오퍼 거절","오퍼수락","None","SDR 인턴 6개월 오퍼(연 3,600만원) 검토 중"]}'
   - type: tasknotesTaskList
     name: 상태 리스트
     order:
@@ -18,6 +22,9 @@ views:
     subGroup: note.세부
   - type: table
     name: 전체
+    filters:
+      and:
+        - 세부 == "면접"
     order:
       - 회사
       - 포지션
@@ -27,9 +34,11 @@ views:
       - 보드
       - 게시일
     sort:
+      - property: 세부
+        direction: DESC
       - property: 상태
         direction: ASC
-      - property: 게시일
+      - property: 우선도
         direction: DESC
   - type: cards
     name: 카드

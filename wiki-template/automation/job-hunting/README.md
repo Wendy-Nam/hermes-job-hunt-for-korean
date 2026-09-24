@@ -1,23 +1,39 @@
 ---
-title: 구직 (Jobs)
+title: 구직 허브
 type: index
+lifecycle_status: active
 private: true
+tags: [구직, 허브]
 ---
 
-# 🎯 구직 (Jobs)
+# 구직 허브
 
-**공고 1건 = `postings/` 노트 1개.** frontmatter: 회사·포지션·보드·적합도·**상태**(대분류)·**세부**(소분류)·게시일·링크·추가링크1~2·메모.
-- 상태(대분류): 예정 / 지원완료 / 진행중 / 완료 · 세부(소분류): 발견·관심·준비 / 지원 / 서류합격·면접·최종·오퍼 / 탈락·보류·미스핏
+구직 자료의 진입점이다. 공고 원문 1건은 `postings/` 노트 1개로 보존하며, 지원 상태와 세부 상태는 각 공고 노트의 기존 필드를 따른다.
 
-## 뷰
-- **Dashboard.base** (Obsidian Bases) — 표·카드. 카드 클릭 = 상세노트.
-- **TaskNotes 칸반** — 공고 노트에 `task` 태그 + `상태` 필드가 있어, TaskNotes에서 **tag `공고`로 필터 + group by 상태** → 예정/지원완료/진행중/완료 4컬럼, 드래그로 상태변경(= `상태` frontmatter 갱신).
+## 바로가기
+- [[strategy]] — 구직 전략·포지셔닝·소싱 ICP
+- [[Rules]] — 필터·판정·상태 규칙의 단일 원본(SoT)
+- [[pipeline]] — 수집부터 완료까지의 파이프라인
+- [[postings/index]] — 채용공고 원문 모음
+- [[sourcing/index]] — 소싱 실행 기록
+- [[research/index]] — 회사·직무 리서치
+- [[interview-reviews/index]] — 면접 준비·복기·전사
+- [[Dashboard.base]] — TaskNotes 칸반·테이블·카드 대시보드
 
-## 구조
-- `postings/` — 공고 노트. 같은 공고가 여러 URL이면 새 노트 대신 `추가링크1~2`에 병합(중복 방지).
+## 대시보드
 
-## 자동화 (Hermes가 대신)
-- 수집: `scripts/job-collect.py`(하루 2회, URL장부+회사·포지션 dedup, LLM 없음).
-- 판정: 구직 트리아지 크론(12시간마다, 신규에 적합도).
-- 정리: 주1회 방치 발견노트 삭제(장부 유지 → 재등장 안 함).
-- 상태변경·로깅: 대화/Gmail 기반으로 Hermes가 `상태`·`세부` frontmatter 수정.
+`Dashboard.base`는 **Dataview**, **Tasks**, **TaskNotes** 플러그인이 설치된 Obsidian에서 연다. `공고` 또는 `posting` 태그가 있는 노트를 대상으로 하며, `우선도` 내림차순·`상태`/`세부` 기준으로 운영한다. 공고 원문은 `postings/`에 보존하고, 상태만 갱신한다.
+
+## 상태 구분
+- `상태`: `open`, `waiting`, `in-progress`, `done`
+- `세부`: `발견`, `지원준비`, `지원`, `면접`, `과제`, `서류합격`, `오퍼`, `탈락`, `보류`, `마감` 등
+- `우선도`: 자동 계산 필드. 손으로 임의 변경하지 않는다.
+
+## 보존 원칙
+- 공고 1건 = 노트 1개. 원문은 요약하거나 삭제하지 않는다.
+- 변경은 frontmatter의 상태·판정 필드에 한정한다.
+
+## 면접 준비 템플릿
+- [[research/면접-리서치-템플릿]] — 면접 직전 15~30분 사전 리서치 양식.
+- [[research/index]] — 리서치 목록과 사용법.
+- [[interview-reviews/index]] — 회사별 `prep/research/review/transcript` 면접 패키지 구조.

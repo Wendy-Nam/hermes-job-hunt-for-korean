@@ -1,5 +1,9 @@
 # Changelog
 
+구직 위키 템플릿 동기화 (2026-09-24):
+- **Obsidian 대시보드 템플릿 갱신** — `wiki-template/automation/job-hunting/Dashboard.base`를 실제 볼트 설정에 맞춰 `공고`/`posting` 태그 OR 필터, `우선도` 정렬, TaskNotes 칸반·테이블·카드 뷰까지 동기화. 플러그인 설정은 `wiki-template/.obsidian/community-plugins.json`에 포함하고 Dataview·Tasks·TaskNotes 필수 플러그인을 README에 명시.
+- **면접 사전 리서치 템플릿 추가** — `research/면접-리서치-템플릿.md`와 `research/index.md` 신설. `interview-reviews/index.md`에 회사별 `prep/research/transcript/review` 패키지 구조 추가. 잘못 생성된 중괄호 플레이스홀더 경로와 임시 캐시 파일은 제거.
+
 job-hunter-kit v2 (2026-09-24):
 - **자립형 입문킷 신설** — `skills/job-search/job-hunter-kit/`: 풀 파이프라인(수집→AI판정→위키→메일) 없이 원티드+웹 수집→텔레그램 다이제스트만 받는 최소 묶음. 외부 스킬 무의존(보드 스크립트 벤더링), 필터는 `profile.yaml` 1개, 크론·래퍼까지 `install.sh` 한 방. `tests/test_hunt.py` 9건 외부망 없이 통과.
 - 설치기 계약: 자가테스트→보드 실동작 1건→no-agent 크론 등록, 실패하면 중단. README 구성표에 풀 파이프라인과 관계 명시.
