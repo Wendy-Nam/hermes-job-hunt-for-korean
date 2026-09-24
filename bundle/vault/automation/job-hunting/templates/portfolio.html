@@ -40,7 +40,9 @@
 
     .project { padding: 3.5mm 0; border-bottom: 1px solid var(--rule); break-inside: avoid; }
     .project:last-child { border-bottom: 0; }
+    .project-head { display: flex; justify-content: space-between; align-items: baseline; gap: 6mm; }
     .project h3 { margin: 0; font-size: 10.6pt; font-weight: 700; }
+    .project .period { flex-shrink: 0; color: var(--ink-2); font-size: 9pt; white-space: nowrap; font-variant-numeric: tabular-nums; }
     .project .stack { margin: .3mm 0 2mm; color: var(--muted); font-size: 9pt; }
 
     dl.rows { display: grid; grid-template-columns: 20mm 1fr; gap: 1mm 3mm; margin: 0; }
@@ -56,14 +58,17 @@
       <p class="doc-type">포트폴리오</p>
       <h1>{{applicant_name}}</h1>
     </div>
-    <p class="meta">{{target_company}} · {{target_position}}<br>{{email}} · {{github_or_portfolio}}</p>
+    <p class="meta">{{target_company}} · {{target_position}}<br>{{email}} · {{github_or_portfolio}}{{#linkedin}} · {{linkedin}}{{/linkedin}}</p>
   </header>
 
   <section>
     <h2>주요 프로젝트</h2>
     {{#projects}}
     <article class="project">
-      <h3>{{project_name}}</h3>
+      <div class="project-head">
+        <h3>{{project_name}}</h3>
+        {{#period}}<span class="period">{{period}}</span>{{/period}}
+      </div>
       <p class="stack">{{tech_stack}}</p>
       <dl class="rows">
         <dt>개요</dt><dd>{{description}}</dd>

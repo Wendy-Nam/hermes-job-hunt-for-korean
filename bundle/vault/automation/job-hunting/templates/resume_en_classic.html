@@ -31,22 +31,33 @@
     }
 
     header { text-align: center; margin-bottom: 4mm; }
-    h1 { margin: 0 0 1mm; font-size: 20pt; font-weight: 600; letter-spacing: .01em; }
+    h1 { margin: 0 0 .5mm; font-size: 20pt; font-weight: 600; letter-spacing: .01em; }
+    .headline { margin: 0 0 1mm; color: var(--ink-2); font-style: italic; }
     .contact-line { margin: 0; color: var(--ink-2); font-size: 9.2pt; }
-    .contact-line .sep { margin: 0 2mm; color: var(--muted); }
+    .contact-line span + span::before { content: "·"; margin: 0 2mm; color: var(--muted); }
 
     section { margin-top: 5mm; }
+    section:has(.line) { break-inside: avoid; }
+    h2.section-title { break-after: avoid; }
     h2.section-title { margin: 0 0 2.5mm; padding-bottom: .8mm; border-bottom: .75pt solid var(--ink); font-size: 10pt; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
-    .summary { margin: 0; }
 
     .entry { margin-bottom: 3.5mm; break-inside: avoid; }
     .entry:last-child { margin-bottom: 0; }
     .entry-header { display: flex; justify-content: space-between; align-items: baseline; gap: 6mm; }
     .entry-header h3 { margin: 0; font-size: 10.4pt; font-weight: 700; }
+    .entry-header .company-desc { margin-left: 2mm; color: var(--muted); font-size: 9pt; font-weight: 400; }
     .entry-date { flex-shrink: 0; white-space: nowrap; }
     .entry-sub { margin: .3mm 0 1mm; color: var(--ink-2); font-style: italic; }
+    .entry-tools { margin: .8mm 0 0; color: var(--ink-2); font-size: 9.2pt; }
     ul { margin: 0; padding-left: 4.5mm; }
     li { margin-bottom: .6mm; padding-left: .5mm; }
+
+    /* one-line rows: Education, Certifications, Awards ... */
+    .line { display: flex; justify-content: space-between; align-items: baseline; gap: 6mm; margin-bottom: 1mm; }
+    .line:last-child { margin-bottom: 0; }
+    .line .what b { font-weight: 700; }
+    .line .what i { color: var(--ink-2); }
+    .line .when { flex-shrink: 0; white-space: nowrap; }
 
     dl.skills { display: grid; grid-template-columns: max-content 1fr; gap: .8mm 4mm; margin: 0; }
     dl.skills dt { font-weight: 700; }
@@ -57,12 +68,17 @@
 
   <header>
     <h1>{{applicant_name}}</h1>
-    <p class="contact-line">{{email}}<span class="sep">·</span>{{phone}}<span class="sep">·</span>{{github_or_portfolio}}</p>
+    {{#headline}}<p class="headline">{{headline}}</p>{{/headline}}
+    <p class="contact-line">{{#contact_items}}<span>{{value}}</span>{{/contact_items}}</p>
   </header>
 
   <section>
     <h2 class="section-title">Summary</h2>
-    <p class="summary">{{executive_summary}}</p>
+    <ul>
+      {{#summary_points}}
+      <li>{{text}}</li>
+      {{/summary_points}}
+    </ul>
   </section>
 
   <section>
@@ -70,15 +86,16 @@
     {{#experiences}}
     <div class="entry">
       <div class="entry-header">
-        <h3>{{company}}</h3>
+        <h3>{{company}}{{#company_desc}}<span class="company-desc">{{company_desc}}</span>{{/company_desc}}</h3>
         <span class="entry-date">{{period}}</span>
       </div>
-      <p class="entry-sub">{{role}}, {{department}}</p>
+      <p class="entry-sub">{{role}}, {{department}}{{#employment_type}} ({{employment_type}}){{/employment_type}}</p>
       <ul>
         {{#accomplishments}}
         <li>{{description}}</li>
         {{/accomplishments}}
       </ul>
+      {{#tools}}<p class="entry-tools"><strong>Tools:</strong> {{tools}}</p>{{/tools}}
     </div>
     {{/experiences}}
   </section>
@@ -89,15 +106,29 @@
     <div class="entry">
       <div class="entry-header">
         <h3>{{project_name}}</h3>
+        {{#period}}<span class="entry-date">{{period}}</span>{{/period}}
       </div>
       <p class="entry-sub">{{tech_stack}}</p>
       <ul>
         <li>{{description}}</li>
+        {{#role}}<li><strong>Role:</strong> {{role}}</li>{{/role}}
         <li><strong>Impact:</strong> {{impact}}</li>
       </ul>
     </div>
     {{/projects}}
   </section>
+
+  {{#has_education}}
+  <section>
+    <h2 class="section-title">Education</h2>
+    {{#education}}
+    <div class="line">
+      <span class="what"><b>{{school}}</b>{{#major}}, <i>{{major}}</i>{{/major}}{{#status}} · {{status}}{{/status}}</span>
+      <span class="when">{{period}}</span>
+    </div>
+    {{/education}}
+  </section>
+  {{/has_education}}
 
   <section>
     <h2 class="section-title">Skills</h2>
@@ -108,6 +139,96 @@
       <dt>Domains &amp; Languages</dt><dd>{{skills_domain}}</dd>
     </dl>
   </section>
+
+  {{#has_quals}}
+  <section>
+    <h2 class="section-title">Certifications &amp; Languages</h2>
+    {{#certifications}}
+    <div class="line">
+      <span class="what"><b>{{name}}</b>{{#issuer}}, {{issuer}}{{/issuer}}</span>
+      <span class="when">{{date}}</span>
+    </div>
+    {{/certifications}}
+    {{#languages}}
+    <div class="line">
+      <span class="what"><b>{{test}}</b>{{#score}}: {{score}}{{/score}}</span>
+      <span class="when">{{date}}</span>
+    </div>
+    {{/languages}}
+  </section>
+  {{/has_quals}}
+
+  {{#has_publications}}
+  <section>
+    <h2 class="section-title">Publications &amp; Patents</h2>
+    {{#publications}}
+    <div class="line">
+      <span class="what"><b>{{title}}</b>{{#venue}}, <i>{{venue}}</i>{{/venue}}</span>
+      <span class="when">{{date}}</span>
+    </div>
+    {{/publications}}
+  </section>
+  {{/has_publications}}
+
+  {{#has_talks}}
+  <section>
+    <h2 class="section-title">Talks</h2>
+    {{#talks}}
+    <div class="line">
+      <span class="what"><b>{{title}}</b>{{#event}}, {{event}}{{/event}}</span>
+      <span class="when">{{date}}</span>
+    </div>
+    {{/talks}}
+  </section>
+  {{/has_talks}}
+
+  {{#has_training}}
+  <section>
+    <h2 class="section-title">Professional Development</h2>
+    {{#training}}
+    <div class="line">
+      <span class="what"><b>{{course}}</b>{{#institution}}, {{institution}}{{/institution}}</span>
+      <span class="when">{{period}}</span>
+    </div>
+    {{/training}}
+  </section>
+  {{/has_training}}
+
+  {{#has_awards}}
+  <section>
+    <h2 class="section-title">Awards</h2>
+    {{#awards}}
+    <div class="line">
+      <span class="what"><b>{{name}}</b>{{#issuer}}, {{issuer}}{{/issuer}}</span>
+      <span class="when">{{date}}</span>
+    </div>
+    {{/awards}}
+  </section>
+  {{/has_awards}}
+
+  {{#has_activities}}
+  <section>
+    <h2 class="section-title">Activities</h2>
+    {{#activities}}
+    <div class="line">
+      <span class="what"><b>{{name}}</b>{{#detail}}, {{detail}}{{/detail}}</span>
+      <span class="when">{{period}}</span>
+    </div>
+    {{/activities}}
+  </section>
+  {{/has_activities}}
+
+  {{#has_overseas}}
+  <section>
+    <h2 class="section-title">International Experience</h2>
+    {{#overseas}}
+    <div class="line">
+      <span class="what"><b>{{country}}</b>{{#purpose}}, {{purpose}}{{/purpose}}</span>
+      <span class="when">{{period}}</span>
+    </div>
+    {{/overseas}}
+  </section>
+  {{/has_overseas}}
 
 </body>
 </html>

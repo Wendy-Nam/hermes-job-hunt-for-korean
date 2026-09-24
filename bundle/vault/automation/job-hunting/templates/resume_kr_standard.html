@@ -37,32 +37,59 @@
     .doc-header { display: flex; justify-content: space-between; align-items: flex-end; gap: 8mm; padding-bottom: 3mm; border-bottom: 1.5px solid var(--ink); }
     .doc-type { margin: 0 0 1mm; color: var(--muted); font-size: 8.5pt; font-weight: 600; letter-spacing: .2em; }
     h1 { margin: 0; font-size: 21pt; font-weight: 700; letter-spacing: -.02em; line-height: 1.2; }
+    h1 .name-en { margin-left: 2.5mm; color: var(--muted); font-size: 10pt; font-weight: 500; letter-spacing: 0; }
+    .headline { margin: 1.2mm 0 0; color: var(--ink-2); font-size: 9.8pt; }
     .target { margin: 0; color: var(--ink-2); font-size: 8.8pt; text-align: right; line-height: 1.5; }
     .target b { font-weight: 600; color: var(--ink); }
 
-    /* 표 (인적사항·보유 기술) */
-    table.grid-table { width: 100%; border-collapse: collapse; table-layout: fixed; margin-top: 4mm; border-top: 1px solid var(--ink); }
-    table.grid-table th,
-    table.grid-table td { padding: 1.5mm 3mm; border-bottom: 1px solid var(--rule); text-align: left; vertical-align: top; font-size: 9pt; }
-    section table.grid-table { margin-top: 0; border-top: 0; }
-    table.grid-table th { width: 17%; background: var(--fill); color: var(--ink-2); font-weight: 600; white-space: nowrap; }
+    /* 인적사항: 채워진 항목만 2쌍씩 흐르는 격자 */
+    .profile-wrap { display: flex; gap: 4mm; margin-top: 4mm; }
+    .photo { flex-shrink: 0; width: 26mm; height: 34.5mm; object-fit: cover; border: 1px solid var(--rule); }
+    dl.profile { flex: 1; display: grid; grid-template-columns: 22mm 1fr 22mm 1fr; margin: 0; border-top: 1px solid var(--ink); align-content: start; }
+    dl.profile dt, dl.profile dd { margin: 0; padding: 1.5mm 3mm; border-bottom: 1px solid var(--rule); font-size: 9pt; }
+    dl.profile dt { background: var(--fill); color: var(--ink-2); font-weight: 600; white-space: nowrap; }
+
+    /* 표: 보유 기술 (행 제목형) */
+    table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    table th, table td { padding: 1.5mm 3mm; border-bottom: 1px solid var(--rule); text-align: left; vertical-align: top; font-size: 9pt; }
+    table th { background: var(--fill); color: var(--ink-2); font-weight: 600; white-space: nowrap; }
+    tr { break-inside: avoid; }
+    table.grid-table th { width: 17%; }
+
+    /* 표: 학력·자격·교육 등 (열 제목형) */
+    table.list-table th, table.list-table td { padding: 1.2mm 3mm; }
+    table.list-table thead th { border-bottom-color: var(--ink-2); font-size: 8.6pt; }
+    table.list-table .col-date { width: 22%; }
+    table.list-table .col-sm { width: 28%; }
+    table.list-table td.muted { color: var(--ink-2); }
 
     /* 섹션 */
     section { margin-top: 6mm; }
-    h2.sec-header { margin: 0 0 3mm; padding-bottom: 1.5mm; border-bottom: 1px solid var(--ink); font-size: 11pt; font-weight: 700; letter-spacing: -.01em; }
-    .summary { margin: 0; color: var(--ink-2); }
+    h2.sec-header { display: flex; justify-content: space-between; align-items: baseline; margin: 0 0 3mm; padding-bottom: 1.5mm; border-bottom: 1px solid var(--ink); font-size: 11pt; font-weight: 700; letter-spacing: -.01em; }
+    h2.sec-header .sec-note { color: var(--ink-2); font-size: 9pt; font-weight: 500; }
+    section.compact { margin-top: 5mm; break-inside: avoid; }
+    h2.sec-header { break-after: avoid; }
+    section.compact h2.sec-header { margin-bottom: 0; }
 
     /* 경력·프로젝트 항목 */
     .exp-card { margin-bottom: 4mm; break-inside: avoid; }
     .exp-card:last-child { margin-bottom: 0; }
     .exp-title { display: flex; justify-content: space-between; align-items: baseline; gap: 6mm; }
     .exp-title h3 { margin: 0; font-size: 10.2pt; font-weight: 700; }
+    .exp-title .company-desc { margin-left: 2mm; color: var(--muted); font-size: 8.6pt; font-weight: 400; }
     .exp-period { flex-shrink: 0; color: var(--ink-2); font-size: 9pt; white-space: nowrap; }
-    .exp-dept { margin: .5mm 0 1.5mm; color: var(--muted); font-size: 9pt; }
-    ul.kpi-bullets { margin: 0; padding-left: 4.2mm; }
-    ul.kpi-bullets li { margin-bottom: .5mm; padding-left: .5mm; }
-    ul.kpi-bullets li::marker { color: var(--muted); }
+    .exp-period .duration { margin-left: 1.5mm; color: var(--muted); }
+    .exp-dept { margin: .5mm 0 1.5mm; color: var(--ink-2); font-size: 9pt; }
+    .exp-tools { margin: 1.2mm 0 0; color: var(--muted); font-size: 8.6pt; }
+    .exp-tools + .exp-tools { margin-top: .3mm; }
+    ul { margin: 0; padding-left: 4.2mm; }
+    li { margin-bottom: .5mm; padding-left: .5mm; }
+    li::marker { color: var(--muted); }
     .label { font-weight: 600; }
+
+    /* 확인 문구 */
+    .attest { margin-top: 9mm; text-align: center; color: var(--ink-2); font-size: 9pt; line-height: 1.9; break-inside: avoid; }
+    .attest .sign { color: var(--ink); font-weight: 600; letter-spacing: .05em; }
   </style>
 </head>
 <body>
@@ -70,45 +97,44 @@
   <header class="doc-header">
     <div>
       <p class="doc-type">이력서</p>
-      <h1>{{applicant_name}}</h1>
+      <h1>{{applicant_name}}{{#applicant_name_en}}<span class="name-en">{{applicant_name_en}}</span>{{/applicant_name_en}}</h1>
+      {{#headline}}<p class="headline">{{headline}}</p>{{/headline}}
     </div>
     <p class="target">지원 회사 <b>{{target_company}}</b><br>지원 직무 <b>{{target_position}}</b></p>
   </header>
 
-  <table class="grid-table">
-    <tr>
-      <th scope="row">성명</th>
-      <td>{{applicant_name}}</td>
-      <th scope="row">연락처</th>
-      <td>{{phone}}</td>
-    </tr>
-    <tr>
-      <th scope="row">이메일</th>
-      <td>{{email}}</td>
-      <th scope="row">포트폴리오</th>
-      <td>{{github_or_portfolio}}</td>
-    </tr>
-  </table>
+  <div class="profile-wrap">
+    {{#photo}}<img class="photo" src="{{photo}}" alt="증명사진">{{/photo}}
+    <dl class="profile">
+      {{#profile}}<dt>{{label}}</dt><dd>{{value}}</dd>{{/profile}}
+    </dl>
+  </div>
 
   <section>
-    <h2 class="sec-header">핵심 역량 요약</h2>
-    <p class="summary">{{executive_summary}}</p>
+    <h2 class="sec-header">핵심 역량</h2>
+    <ul>
+      {{#summary_points}}
+      <li>{{text}}</li>
+      {{/summary_points}}
+    </ul>
   </section>
 
   <section>
-    <h2 class="sec-header">경력 사항</h2>
+    <h2 class="sec-header">경력 사항{{#total_career}}<span class="sec-note">총 {{total_career}}</span>{{/total_career}}</h2>
     {{#experiences}}
     <div class="exp-card">
       <div class="exp-title">
-        <h3>{{company}}</h3>
-        <span class="exp-period">{{period}}</span>
+        <h3>{{company}}{{#company_desc}}<span class="company-desc">{{company_desc}}</span>{{/company_desc}}</h3>
+        <span class="exp-period">{{period}}{{#duration}}<span class="duration">({{duration}})</span>{{/duration}}</span>
       </div>
-      <p class="exp-dept">{{role}} · {{department}}</p>
-      <ul class="kpi-bullets">
+      <p class="exp-dept">{{role}} · {{department}}{{#employment_type}} · {{employment_type}}{{/employment_type}}</p>
+      <ul>
         {{#accomplishments}}
         <li>{{description}}</li>
         {{/accomplishments}}
       </ul>
+      {{#tools}}<p class="exp-tools">사용 기술 · {{tools}}</p>{{/tools}}
+      {{#leave_reason}}<p class="exp-tools">퇴사 사유 · {{leave_reason}}</p>{{/leave_reason}}
     </div>
     {{/experiences}}
   </section>
@@ -119,15 +145,29 @@
     <div class="exp-card">
       <div class="exp-title">
         <h3>{{project_name}}</h3>
+        {{#period}}<span class="exp-period">{{period}}</span>{{/period}}
       </div>
       <p class="exp-dept">{{tech_stack}}</p>
-      <ul class="kpi-bullets">
+      <ul>
         <li>{{description}}</li>
+        {{#role}}<li><span class="label">역할</span> {{role}}</li>{{/role}}
         <li><span class="label">성과</span> {{impact}}</li>
       </ul>
     </div>
     {{/projects}}
   </section>
+
+  {{#has_education}}
+  <section class="compact">
+    <h2 class="sec-header">학력</h2>
+    <table class="list-table">
+      <thead><tr><th class="col-date">기간</th><th>학교</th><th>전공 · 학위</th><th class="col-sm">구분</th></tr></thead>
+      {{#education}}
+      <tr><td class="muted">{{period}}</td><td>{{school}}</td><td>{{major}}</td><td class="muted">{{status}}</td></tr>
+      {{/education}}
+    </table>
+  </section>
+  {{/has_education}}
 
   <section>
     <h2 class="sec-header">보유 기술</h2>
@@ -150,6 +190,134 @@
       </tr>
     </table>
   </section>
+
+  {{#has_certifications}}
+  <section class="compact">
+    <h2 class="sec-header">자격증</h2>
+    <table class="list-table">
+      <thead><tr><th class="col-date">취득일</th><th>자격명</th><th class="col-sm">발급기관</th></tr></thead>
+      {{#certifications}}
+      <tr><td class="muted">{{date}}</td><td>{{name}}</td><td class="muted">{{issuer}}</td></tr>
+      {{/certifications}}
+    </table>
+  </section>
+  {{/has_certifications}}
+
+  {{#has_languages}}
+  <section class="compact">
+    <h2 class="sec-header">어학</h2>
+    <table class="list-table">
+      <thead><tr><th class="col-date">취득일</th><th>시험 · 언어</th><th class="col-sm">점수 · 등급</th></tr></thead>
+      {{#languages}}
+      <tr><td class="muted">{{date}}</td><td>{{test}}</td><td>{{score}}</td></tr>
+      {{/languages}}
+    </table>
+  </section>
+  {{/has_languages}}
+
+  {{#has_training}}
+  <section class="compact">
+    <h2 class="sec-header">교육 이수</h2>
+    <table class="list-table">
+      <thead><tr><th class="col-date">기간</th><th>과정명</th><th class="col-sm">기관</th></tr></thead>
+      {{#training}}
+      <tr><td class="muted">{{period}}</td><td>{{course}}</td><td class="muted">{{institution}}</td></tr>
+      {{/training}}
+    </table>
+  </section>
+  {{/has_training}}
+
+  {{#has_awards}}
+  <section class="compact">
+    <h2 class="sec-header">수상</h2>
+    <table class="list-table">
+      <thead><tr><th class="col-date">수상일</th><th>수상명</th><th class="col-sm">수여기관</th></tr></thead>
+      {{#awards}}
+      <tr><td class="muted">{{date}}</td><td>{{name}}</td><td class="muted">{{issuer}}</td></tr>
+      {{/awards}}
+    </table>
+  </section>
+  {{/has_awards}}
+
+  {{#has_activities}}
+  <section class="compact">
+    <h2 class="sec-header">대외활동</h2>
+    <table class="list-table">
+      <thead><tr><th class="col-date">기간</th><th>활동명</th><th class="col-sm">역할 · 내용</th></tr></thead>
+      {{#activities}}
+      <tr><td class="muted">{{period}}</td><td>{{name}}</td><td class="muted">{{detail}}</td></tr>
+      {{/activities}}
+    </table>
+  </section>
+  {{/has_activities}}
+
+  {{#has_overseas}}
+  <section class="compact">
+    <h2 class="sec-header">해외 경험</h2>
+    <table class="list-table">
+      <thead><tr><th class="col-date">기간</th><th>국가 · 도시</th><th class="col-sm">목적 · 내용</th></tr></thead>
+      {{#overseas}}
+      <tr><td class="muted">{{period}}</td><td>{{country}}</td><td class="muted">{{purpose}}</td></tr>
+      {{/overseas}}
+    </table>
+  </section>
+  {{/has_overseas}}
+
+  {{#has_publications}}
+  <section class="compact">
+    <h2 class="sec-header">논문 · 특허 · 출판</h2>
+    <table class="list-table">
+      <thead><tr><th class="col-date">발표일</th><th>제목</th><th class="col-sm">게재처 · 번호</th></tr></thead>
+      {{#publications}}
+      <tr><td class="muted">{{date}}</td><td>{{title}}</td><td class="muted">{{venue}}</td></tr>
+      {{/publications}}
+    </table>
+  </section>
+  {{/has_publications}}
+
+  {{#has_talks}}
+  <section class="compact">
+    <h2 class="sec-header">발표 · 강연</h2>
+    <table class="list-table">
+      <thead><tr><th class="col-date">일자</th><th>주제</th><th class="col-sm">행사 · 기관</th></tr></thead>
+      {{#talks}}
+      <tr><td class="muted">{{date}}</td><td>{{title}}</td><td class="muted">{{event}}</td></tr>
+      {{/talks}}
+    </table>
+  </section>
+  {{/has_talks}}
+
+  {{#has_military}}
+  <section class="compact">
+    <h2 class="sec-header">병역</h2>
+    <table class="list-table">
+      <thead><tr><th class="col-date">복무 기간</th><th>군별 · 계급</th><th class="col-sm">구분</th></tr></thead>
+      {{#military}}
+      <tr><td class="muted">{{period}}</td><td>{{detail}}</td><td>{{status}}</td></tr>
+      {{/military}}
+    </table>
+  </section>
+  {{/has_military}}
+
+  {{#has_preferences}}
+  <section class="compact">
+    <h2 class="sec-header">취업 우대</h2>
+    <table class="list-table">
+      <thead><tr><th class="col-date">구분</th><th>내용</th></tr></thead>
+      {{#preferences}}
+      <tr><td>{{category}}</td><td class="muted">{{detail}}</td></tr>
+      {{/preferences}}
+    </table>
+  </section>
+  {{/has_preferences}}
+
+  {{#show_attest}}
+  <p class="attest">
+    위 기재 사항은 사실과 다름없음을 확인합니다.<br>
+    {{generated_date}}<br>
+    <span class="sign">지원자 {{applicant_name}}</span>
+  </p>
+  {{/show_attest}}
 
 </body>
 </html>

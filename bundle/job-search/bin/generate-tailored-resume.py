@@ -164,8 +164,17 @@ def _usable(values: list[str]) -> list[str]:
 
 def parse_master_resume(text: str) -> dict:
     """Parse identity, experiences (with KPI bullets), and skill slots from master_resume.md."""
-    ident: dict = {"name": "", "email": "", "phone": "", "portfolio": "",
-                   "tracks": "", "competencies": []}
+    ident_keys = {"이름": "name", "영문 이름": "name_en", "한 줄 소개": "headline",
+                  "생년월일": "birth", "이메일": "email", "전화": "phone", "연락처": "phone",
+                  "거주지": "address", "포트폴리오": "portfolio", "LinkedIn": "linkedin",
+                  "블로그": "blog", "사진": "photo", "희망 연봉": "salary",
+                  "입사 가능일": "available", "희망 근무지": "work_location",
+                  "주요 트랙": "tracks", "숨길 항목": "hide"}
+    ident: dict = {v: "" for v in ident_keys.values()}
+    ident["competencies"] = []
+    exp_keys = {"직급/직책": "role", "담당 업무": "department", "회사 소개": "company_desc",
+                "고용 형태": "employment_type", "퇴사 사유": "leave_reason",
+                "사용 도구 & 기술": "tools"}
     experiences: list = []
     skills: dict = {}
     current_exp = None
@@ -188,7 +197,7 @@ def parse_master_resume(text: str) -> dict:
             m = re.match(r"^###\s+(.+?)\s*\(근무 기간[:：]\s*(.+?)\)\s*$", s)
             if m:
                 current_exp = {"company": m.group(1).strip(), "period": m.group(2).strip(),
-                               "role": "", "department": "", "kpis": [], "tools": ""}
+                               "kpis": [], **{v: "" for v in exp_keys.values()}}
                 experiences.append(current_exp)
             continue
         if s.startswith("#"):
@@ -202,28 +211,16 @@ def parse_master_resume(text: str) -> dict:
             in_competency = False
             if key in skill_keys:
                 skills[key] = _strip_md(val)
-            elif key == "이름":
-                ident["name"] = _strip_md(val)
-            elif key == "이메일":
-                ident["email"] = _strip_md(val)
-            elif key in ("전화", "연락처"):
-                ident["phone"] = _strip_md(val)
-            elif key == "포트폴리오":
-                ident["portfolio"] = _strip_md(val)
-            elif key == "주요 트랙":
-                ident["tracks"] = _strip_md(val)
+            elif key in ident_keys:
+                ident[ident_keys[key]] = _strip_md(val)
             elif key == "커리어 핵심 경쟁력":
                 in_competency = True
             elif key.startswith("주요 정량"):
                 in_kpi = True
                 if current_exp is not None:
                     current_exp["_kpi_mode"] = True
-            elif key == "직급/직책" and current_exp is not None:
-                current_exp["role"] = _strip_md(val)
-            elif key == "담당 업무" and current_exp is not None:
-                current_exp["department"] = _strip_md(val)
-            elif key == "사용 도구 & 기술" and current_exp is not None:
-                current_exp["tools"] = _strip_md(val)
+            elif key in exp_keys and current_exp is not None:
+                current_exp[exp_keys[key]] = _strip_md(val)
             continue
         if s.startswith("- ") and (line.startswith("  ") or line.startswith("\t")):
             item = _strip_md(s[2:].strip())
@@ -304,7 +301,7 @@ def parse_projects(text: str) -> list:
             if name.startswith("<"):
                 cur = None
             else:
-                cur = {"project_name": name, "description": "", "role": "",
+                cur = {"project_name": name, "period": "", "description": "", "role": "",
                        "tech_stack": "", "impact": "", "link": ""}
                 projects.append(cur)
             continue
@@ -313,8 +310,12 @@ def parse_projects(text: str) -> list:
         fm = re.match(r"^-\s*\*\*(.+?)\*\*\s*[:：]\s*(.*)$", s)
         if fm:
             key, val = fm.group(1).strip(), _strip_md(fm.group(2).strip())
+            if _is_placeholder(val):
+                continue
             if key in ("개요", "역할"):
                 cur["description" if key == "개요" else "role"] = val
+            elif key == "기간":
+                cur["period"] = val
             elif key == "기술 스택":
                 cur["tech_stack"] = val
             elif key == "성과":
@@ -322,6 +323,107 @@ def parse_projects(text: str) -> list:
             elif key in ("링크", "포트폴리오", "GitHub"):
                 cur["link"] = val
     return [p for p in projects if p["description"] or p["impact"]]
+
+
+# "### 학력" 등 표형 섹션: 한 줄 = `- 칸1 | 칸2 | 칸3 | 칸4`, 칸 이름은 섹션별 고정.
+RESUME_SECTIONS = {
+    "학력": ("education", ("period", "school", "major", "status")),
+    "자격증": ("certifications", ("date", "name", "issuer")),
+    "어학": ("languages", ("test", "score", "date")),
+    "교육 이수": ("training", ("period", "course", "institution")),
+    "수상": ("awards", ("date", "name", "issuer")),
+    "대외활동": ("activities", ("period", "name", "detail")),
+    "해외 경험": ("overseas", ("period", "country", "purpose")),
+    "논문·특허·출판": ("publications", ("date", "title", "venue")),
+    "발표·강연": ("talks", ("date", "title", "event")),
+    "병역": ("military", ("status", "detail", "period")),
+    "취업 우대": ("preferences", ("category", "detail")),
+}
+
+# 선택 항목 라벨 → 숨길 때 비울 컨텍스트 키 (master_resume.md `숨길 항목`에서 사용)
+OPTIONAL_FIELDS = {
+    "영문 이름": "applicant_name_en", "한 줄 소개": "headline", "생년월일": "birth",
+    "거주지": "address", "LinkedIn": "linkedin", "블로그": "blog", "사진": "photo",
+    "희망 연봉": "salary", "입사 가능일": "available", "희망 근무지": "work_location",
+    "총 경력": "total_career", "확인 문구": "show_attest",
+}
+EXP_OPTIONAL_FIELDS = {"회사 소개": "company_desc", "고용 형태": "employment_type",
+                       "재직 기간": "duration", "퇴사 사유": "leave_reason", "사용 기술": "tools"}
+
+
+def parse_resume_sections(text: str) -> dict:
+    """Parse pipe-delimited rows under ### 학력/자격증/어학/교육 이수/수상/대외활동/병역.
+    Rows whose cells are all placeholders are dropped, so an untouched template yields []."""
+    out: dict = {key: [] for key, _ in RESUME_SECTIONS.values()}
+    current = None
+    for raw in text.splitlines():
+        s = raw.strip()
+        mh = re.match(r"^###\s*(.+?)\s*$", s)
+        if mh:
+            current = RESUME_SECTIONS.get(mh.group(1))
+            continue
+        if s.startswith("## "):
+            current = None
+            continue
+        if not current or not (s.startswith("- ") or s.startswith("* ")):
+            continue
+        key, fields = current
+        cells = [_strip_md(c) for c in s[2:].split("|")]
+        cells = ["" if _is_placeholder(c) else c for c in cells]
+        if not any(cells):
+            continue
+        cells += [""] * (len(fields) - len(cells))
+        head = cells[: len(fields) - 1] + [" · ".join(c for c in cells[len(fields) - 1:] if c)]
+        out[key].append(dict(zip(fields, head)))
+    return out
+
+
+PERIOD_RE = re.compile(r"(\d{4})\s*[.\-/년]\s*(\d{1,2})")
+PRESENT_RE = re.compile(r"현재|재직|present|now|current", re.IGNORECASE)
+
+
+def period_span(period: str, today: dt.date | None = None) -> tuple | None:
+    """'2021.03 ~ 2024.05' / '2021.03 – 현재' → (start, end) as absolute month indexes."""
+    points = PERIOD_RE.findall(period or "")
+    if not points:
+        return None
+    start = int(points[0][0]) * 12 + int(points[0][1]) - 1
+    if len(points) >= 2:
+        end = int(points[1][0]) * 12 + int(points[1][1]) - 1
+    elif PRESENT_RE.search(period):
+        today = today or dt.date.today()
+        end = today.year * 12 + today.month - 1
+    else:
+        return None
+    return (start, end) if 0 <= end - start < 12 * 60 else None
+
+
+def period_months(period: str, today: dt.date | None = None) -> int:
+    """Inclusive month count of one period (0 if unparsable)."""
+    span = period_span(period, today)
+    return span[1] - span[0] + 1 if span else 0
+
+
+def total_months(periods: list, today: dt.date | None = None) -> int:
+    """Union of all periods in months — overlapping jobs are not double-counted."""
+    months: set = set()
+    for p in periods:
+        span = period_span(p, today)
+        if span:
+            months.update(range(span[0], span[1] + 1))
+    return len(months)
+
+
+def format_months(months: int, lang: str = "ko") -> str:
+    if months <= 0:
+        return ""
+    y, m = divmod(months, 12)
+    if lang == "en":
+        parts = ([f"{y} yr" + ("s" if y > 1 else "")] if y else []) + \
+                ([f"{m} mo" + ("s" if m > 1 else "")] if m else [])
+    else:
+        parts = ([f"{y}년"] if y else []) + ([f"{m}개월"] if m else [])
+    return " ".join(parts)
 
 
 def parse_fit_points(text: str) -> list:
@@ -400,9 +502,10 @@ def _first_filled(values: list, fallback: str) -> str:
 # ---------------------------------------------------------------------------
 
 def build_context(company: str, position: str, jd_text: str, sources: dict,
-                  is_senior: bool = True) -> dict:
+                  is_senior: bool = True, lang: str = "ko") -> dict:
     keywords = jd_keywords(f"{jd_text}\n{position}")
     master = parse_master_resume(sources.get("master_resume", ""))
+    sections = parse_resume_sections(sources.get("master_resume", ""))
     episodes = parse_episodes(sources.get("master_resume", ""))
     cover = parse_cover_blocks(sources.get("master_resume", ""))
     projects = parse_projects(sources.get("portfolios", ""))
@@ -422,8 +525,11 @@ def build_context(company: str, position: str, jd_text: str, sources: dict,
         experiences.append({
             "company": exp["company"],
             "period": exp["period"],
+            "duration": format_months(period_months(exp["period"]), lang),
             "role": _first_filled([exp["role"]], "직무"),
             "department": _first_filled([exp["department"]], "담당 업무"),
+            **{k: "" if _is_placeholder(exp[k]) else exp[k]
+               for k in ("company_desc", "employment_type", "leave_reason", "tools")},
             "accomplishments": [
                 {"tag": (t.split("·")[0].strip()[:14] if t else "KPI"), "description": t}
                 for t in kpis
@@ -463,6 +569,14 @@ def build_context(company: str, position: str, jd_text: str, sources: dict,
     result_line = " / ".join(_usable(top_results)) or (fit_top[0] if fit_top else "정량 성과를 master_resume.md에 등록해 주세요.")
     raw_summary = f"{company} {position} 지원 요약 — {comp_line}. 대표 성과: {result_line}."
     executive_summary = apply_recruiter_density_guard(raw_summary, is_senior=is_senior)
+    # 이력서 요약 불릿: JD 상위 역량 3 + 대표 성과 2 (중복 제거, 최대 4)
+    summary_points: list = []
+    for line in _usable(rank_by_jd(ident["competencies"], keywords, lambda t: t, limit=3)) + _usable(top_results):
+        if line not in summary_points:
+            summary_points.append(line)
+    summary_points = [{"text": t} for t in summary_points[:4]] or [
+        {"text": "경력·역량 자료를 master_resume.md에 등록해 주세요."}]
+    total_career = format_months(total_months([e["period"] for e in experiences]), lang)
 
     # --- cover letter: JD-ranked sentences from cover blocks + episodes + fit/role pools ---
     def top_lines(pool: list, n: int) -> list:
@@ -486,14 +600,22 @@ def build_context(company: str, position: str, jd_text: str, sources: dict,
     ]
     future_plan_text = "\n".join(vision_lines)
 
-    return {
+    opt = lambda key: "" if _is_placeholder(ident[key]) else ident[key]
+    ctx = {
         "applicant_name": _first_filled([ident["name"]], "지원자 이름"),
         "target_company": company,
         "target_position": position,
         "email": _first_filled([ident["email"]], "이메일 입력"),
         "phone": _first_filled([ident["phone"]], "연락처 입력"),
         "github_or_portfolio": _first_filled([ident["portfolio"]], "포트폴리오 URL"),
+        "applicant_name_en": opt("name_en"),
+        "headline": opt("headline"),
+        **{k: opt(k) for k in ("birth", "address", "linkedin", "blog", "photo",
+                               "salary", "available", "work_location")},
+        "total_career": total_career,
+        "show_attest": True,
         "executive_summary": executive_summary,
+        "summary_points": summary_points,
         "experiences": experiences,
         "projects": projects,
         "skills_ax": skills_ax,
@@ -504,7 +626,40 @@ def build_context(company: str, position: str, jd_text: str, sources: dict,
         "achievements_text": achievements_text,
         "future_plan_text": future_plan_text,
         "generated_date": dt.date.today().isoformat(),
+        **sections,
     }
+    return apply_output_options(ctx, ident["hide"], lang)
+
+
+def apply_output_options(ctx: dict, hide: str, lang: str = "ko") -> dict:
+    """Blank out optional fields/sections listed in `숨길 항목`, then derive the
+    has_* flags and the profile/contact lists the templates iterate over."""
+    hidden = {h.strip() for h in re.split(r"[,、/]", hide or "") if h.strip() and not _is_placeholder(h)}
+    for label in hidden:
+        if label in OPTIONAL_FIELDS:
+            ctx[OPTIONAL_FIELDS[label]] = "" if label != "확인 문구" else False
+        elif label in EXP_OPTIONAL_FIELDS:
+            for exp in ctx["experiences"]:
+                exp[EXP_OPTIONAL_FIELDS[label]] = ""
+        elif label in RESUME_SECTIONS:
+            ctx[RESUME_SECTIONS[label][0]] = []
+    for key, _ in RESUME_SECTIONS.values():
+        ctx[f"has_{key}"] = bool(ctx[key])
+    ctx["has_quals"] = bool(ctx["certifications"] or ctx["languages"])
+
+    # 인적사항 표(국문): 채워진 항목만 2열 격자로
+    profile = [("성명", ctx["applicant_name"] + (f" ({ctx['applicant_name_en']})" if ctx["applicant_name_en"] else "")),
+               ("생년월일", ctx["birth"]), ("연락처", ctx["phone"]), ("이메일", ctx["email"]),
+               ("거주지", ctx["address"]), ("포트폴리오", ctx["github_or_portfolio"]),
+               ("LinkedIn", ctx["linkedin"]), ("블로그", ctx["blog"]),
+               ("희망 연봉", ctx["salary"]), ("입사 가능일", ctx["available"]),
+               ("희망 근무지", ctx["work_location"])]
+    ctx["profile"] = [{"label": k, "value": v} for k, v in profile if v]
+    # 연락처 한 줄(영문·기본): 글로벌 표준은 생년월일·희망 연봉을 싣지 않는다
+    contact = [ctx["address"], ctx["email"], ctx["phone"], ctx["github_or_portfolio"],
+               ctx["linkedin"], ctx["blog"]]
+    ctx["contact_items"] = [{"value": v} for v in contact if v]
+    return ctx
 
 
 # ---------------------------------------------------------------------------
@@ -525,7 +680,7 @@ def build_tailored_html(company: str, position: str, jd_text: str, sources: dict
     res_tmpl = res_file.read_text(encoding="utf-8")
     cov_tmpl = (tmpl_dir / "cover_letter_template.html").read_text(encoding="utf-8")
 
-    ctx = build_context(company, position, jd_text, sources, is_senior=is_senior)
+    ctx = build_context(company, position, jd_text, sources, is_senior=is_senior, lang=lang)
     return render_template(res_tmpl, ctx), render_template(cov_tmpl, ctx)
 
 
@@ -620,6 +775,42 @@ def run_selftest() -> None:
     assert "&lt;회사명&gt;" not in r3 and "경력·역량 자료를 master_resume.md에 등록해 주세요." in r3, f"빈 볼트 폴백 실패: {r3[:300]}"
     assert "정량 성과와 문제 해결 사례를 master_resume.md에 등록" in c3, f"빈 볼트 커버 폴백 실패: {c3[:300]}"
     assert "FB Co" in r3, "회사명 미기입(폴백)"
+
+    # 5-1) 플레이스홀더뿐인 선택 섹션은 출력에서 숨김
+    assert not any(parse_resume_sections(sources["master_resume"]).values()), "플레이스홀더 선택 섹션이 파싱됨"
+    assert '<table class="list-table">' not in res_html, "빈 선택 섹션(학력 등)이 렌더링됨"
+    assert "생년월일" not in res_html, "빈 선택 항목(생년월일)이 렌더링됨"
+
+    # 5-2) 최대 표준 서식: 선택 항목·섹션 채움 → 출력, 숨길 항목 → 제외, 총 경력 합산(중복 기간 1회)
+    filled = (
+        "- **숨길 항목**: 희망 연봉, 퇴사 사유, 수상\n"
+        "- **이름**: 홍길동\n- **생년월일**: 1990.01.01\n- **희망 연봉**: 내규\n"
+        "- **LinkedIn**: linkedin.com/in/hong\n"
+        "- **커리어 핵심 경쟁력**:\n  - CRM 파이프라인 재설계로 예측 오차 절반\n\n"
+        "### 알파 (근무 기간: 2020.01 ~ 2021.12)\n- **직급/직책**: 매니저\n- **고용 형태**: 정규직\n"
+        "- **퇴사 사유**: 이직\n- **주요 정량 성과 (KPI)**:\n  - 전환율 10% 개선\n\n"
+        "### 베타 (근무 기간: 2021.07 ~ 2022.06)\n- **직급/직책**: 겸직\n- **주요 정량 성과 (KPI)**:\n  - 비용 5% 절감\n\n"
+        "## 4. 학력 · 자격 · 활동\n### 학력\n- 2010.03 ~ 2014.02 | 한국대 | 경영학 학사 | 졸업\n"
+        "### 자격증\n- 2020.05 | SQLD | 한국데이터산업진흥원\n### 수상\n- 2021.12 | 혁신상 | 알파\n"
+        "### 병역\n- 군필 | 육군 병장 | 2014.03 ~ 2015.12\n### 취업 우대\n- <보훈 대상> | <내용>\n"
+    )
+    fsrc = {**empty, "master_resume": filled}
+    sec = parse_resume_sections(filled)
+    assert sec["education"][0] == {"period": "2010.03 ~ 2014.02", "school": "한국대",
+                                   "major": "경영학 학사", "status": "졸업"}, f"학력 행 파싱 실패: {sec['education']}"
+    assert not sec["preferences"], "플레이스홀더 행이 파싱됨"
+    assert total_months(["2020.01 ~ 2021.12", "2021.07 ~ 2022.06"]) == 30, "총 경력 중복 합산"
+    assert period_months("2021.03 ~ 현재", dt.date(2021, 5, 1)) == 3, "재직 중 기간 계산 실패"
+    ko_doc, _ = build_tailored_html("T", "P", "CRM", fsrc)
+    en_doc, _ = build_tailored_html("T", "P", "CRM", fsrc, lang="en")
+    for label, doc in (("ko", ko_doc), ("en", en_doc)):
+        assert "{{" not in doc, f"{label}: 미처리 토큰 잔존"
+        _assert_balanced(doc, f"filled-{label}")
+        assert "한국대" in doc and "SQLD" in doc, f"{label}: 학력·자격 섹션 누락"
+        assert "혁신상" not in doc and "내규" not in doc and "이직" not in doc, f"{label}: 숨길 항목 노출"
+    assert "1990.01.01" in ko_doc and "군필" in ko_doc and "2년 6개월" in ko_doc, "국문 선택 항목 누락"
+    assert "1990.01.01" not in en_doc and "군필" not in en_doc, "영문에 국내 전용 항목 노출"
+    assert "linkedin.com/in/hong" in en_doc and "정규직" in ko_doc, "연락처·고용 형태 누락"
 
     # 6) PDF 렌더링(Chrome 있는 환경에서만 강제)
     html_file = tmp / "TestCo_Sales_Ops_Resume.html"
