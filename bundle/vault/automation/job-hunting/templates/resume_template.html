@@ -2,117 +2,72 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>{{applicant_name}} - 맞춤 이력서 ({{target_company}} {{target_position}})</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{applicant_name}} 이력서 · {{target_company}} {{target_position}}</title>
   <style>
-    @page {
-      size: A4;
-      margin: 15mm 18mm 15mm 18mm;
+    :root {
+      --ink: #1a1d21;
+      --ink-2: #3f4650;
+      --muted: #6b7280;
+      --rule: #dfe2e6;
     }
+    * { box-sizing: border-box; }
+    @page { size: A4; margin: 16mm 18mm; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      color: #2d3748;
-      line-height: 1.5;
       margin: 0;
-      padding: 0;
-      background-color: #ffffff;
-      font-size: 10.5pt;
+      color: var(--ink);
+      font-family: "Pretendard", "Pretendard Variable", "Noto Sans KR", "Noto Sans CJK KR", "Apple SD Gothic Neo", "Malgun Gothic", -apple-system, "Segoe UI", sans-serif;
+      font-size: 9.8pt;
+      line-height: 1.6;
+      word-break: keep-all;
+      overflow-wrap: anywhere;
+      font-variant-numeric: tabular-nums;
     }
-    header {
-      border-bottom: 2.5px solid #2b6cb0;
-      padding-bottom: 10px;
-      margin-bottom: 15px;
+    @media screen {
+      html { background: #eceef1; }
+      body { max-width: 210mm; margin: 24px auto; padding: 16mm 18mm; background: #fff; }
     }
-    .header-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
+    @media screen and (max-width: 640px) {
+      body { margin: 0; padding: 20px 16px; }
     }
-    h1 {
-      font-size: 20pt;
-      margin: 0;
-      color: #1a365d;
-      font-weight: 700;
-      letter-spacing: -0.5px;
-    }
-    .target-badge {
-      font-size: 11pt;
-      color: #2b6cb0;
-      font-weight: 600;
-    }
-    .contact-info {
-      font-size: 9pt;
-      color: #4a5568;
-      margin-top: 6px;
-    }
-    .contact-info span {
-      margin-right: 12px;
-    }
-    section {
-      margin-bottom: 16px;
-    }
-    h2 {
-      font-size: 12pt;
-      color: #2b6cb0;
-      border-bottom: 1px solid #e2e8f0;
-      padding-bottom: 4px;
-      margin-top: 0;
-      margin-bottom: 8px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .summary-box {
-      background-color: #f7fafc;
-      border-left: 4px solid #3182ce;
-      padding: 10px 14px;
-      border-radius: 4px;
-      font-size: 10pt;
-      margin-bottom: 14px;
-    }
-    .job-item {
-      margin-bottom: 12px;
-    }
-    .job-header {
-      display: flex;
-      justify-content: space-between;
-      font-weight: 700;
-      font-size: 11pt;
-      color: #2d3748;
-    }
-    .job-sub {
-      font-size: 9.5pt;
-      color: #4a5568;
-      margin-bottom: 4px;
-      font-weight: 600;
-    }
-    ul {
-      margin: 4px 0 8px 0;
-      padding-left: 18px;
-    }
-    li {
-      margin-bottom: 3px;
-    }
-    .kpi-tag {
-      display: inline-block;
-      background-color: #ebf8ff;
-      color: #2b6cb0;
-      font-size: 8.5pt;
-      padding: 1px 6px;
-      border-radius: 3px;
-      font-weight: 600;
-      margin-right: 4px;
-    }
-    .skills-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
-    .skill-cat {
-      font-size: 9.5pt;
-    }
-    .skill-cat strong {
-      color: #1a365d;
-    }
+
+    header { padding-bottom: 3mm; border-bottom: 1.5px solid var(--ink); }
+    .header-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8mm; }
+    h1 { margin: 0; font-size: 21pt; font-weight: 700; letter-spacing: -.02em; line-height: 1.2; }
+    .target { margin: 0; color: var(--ink-2); font-size: 9pt; text-align: right; }
+    .headline { margin: 1mm 0 0; color: var(--ink-2); }
+    .contact { margin: 1.5mm 0 0; color: var(--ink-2); font-size: 9pt; }
+    .contact span + span::before { content: "|"; margin: 0 2mm; color: var(--rule); }
+
+    section { margin-top: 6mm; }
+    section:has(.row) { break-inside: avoid; }
+    h2 { break-after: avoid; }
+    h2 { display: flex; justify-content: space-between; align-items: baseline; margin: 0 0 2.5mm; padding-bottom: 1.2mm; border-bottom: 1px solid var(--rule); font-size: 10.5pt; font-weight: 700; }
+    h2 .note { color: var(--muted); font-size: 9pt; font-weight: 500; }
+
+    .item { margin-bottom: 4mm; break-inside: avoid; }
+    .item:last-child { margin-bottom: 0; }
+    .item-header { display: flex; justify-content: space-between; align-items: baseline; gap: 6mm; }
+    .item-header h3 { margin: 0; font-size: 10.2pt; font-weight: 700; }
+    .item-header .desc { margin-left: 2mm; color: var(--muted); font-size: 8.8pt; font-weight: 400; }
+    .item-date { flex-shrink: 0; color: var(--ink-2); font-size: 9pt; white-space: nowrap; }
+    .item-sub { margin: .3mm 0 1.2mm; color: var(--muted); font-size: 9pt; }
+    .item-foot { margin: 1mm 0 0; color: var(--muted); font-size: 8.8pt; }
+    ul { margin: 0; padding-left: 4.2mm; }
+    li { margin-bottom: .8mm; padding-left: .5mm; }
+    li::marker { color: var(--muted); }
+    .label { font-weight: 600; }
+
+    /* 날짜 열 + 내용 행: 학력·자격·활동 */
+    .row { display: grid; grid-template-columns: 30mm 1fr; gap: 3mm; margin-bottom: 1.2mm; break-inside: avoid; }
+    .row:last-child { margin-bottom: 0; }
+    .row .when { color: var(--muted); font-size: 9pt; }
+    .row .what b { font-weight: 600; }
+    .row .what span { color: var(--ink-2); }
+
+    dl.skills { display: grid; grid-template-columns: 30mm 1fr; gap: 1mm 3mm; margin: 0; }
+    dl.skills dt { color: var(--muted); font-size: 9pt; font-weight: 600; }
+    dl.skills dd { margin: 0; }
   </style>
 </head>
 <body>
@@ -120,65 +75,139 @@
   <header>
     <div class="header-top">
       <h1>{{applicant_name}}</h1>
-      <div class="target-badge">지원 포지션: {{target_position}} ({{target_company}})</div>
+      <p class="target">{{target_company}} · {{target_position}}</p>
     </div>
-    <div class="contact-info">
-      <span>📧 {{email}}</span>
-      <span>📱 {{phone}}</span>
-      <span>🌐 {{github_or_portfolio}}</span>
-    </div>
+    {{#headline}}<p class="headline">{{headline}}</p>{{/headline}}
+    <p class="contact">{{#contact_items}}<span>{{value}}</span>{{/contact_items}}</p>
   </header>
 
   <section>
-    <h2>Core Summary &amp; Executive Alignment</h2>
-    <div class="summary-box">
-      {{executive_summary}}
-    </div>
+    <h2>요약</h2>
+    <ul>
+      {{#summary_points}}
+      <li>{{text}}</li>
+      {{/summary_points}}
+    </ul>
   </section>
 
   <section>
-    <h2>Work Experience &amp; Key Accomplishments</h2>
+    <h2>경력{{#total_career}}<span class="note">총 {{total_career}}</span>{{/total_career}}</h2>
     {{#experiences}}
-    <div class="job-item">
-      <div class="job-header">
-        <span>{{company}}</span>
-        <span>{{period}}</span>
+    <div class="item">
+      <div class="item-header">
+        <h3>{{company}}{{#company_desc}}<span class="desc">{{company_desc}}</span>{{/company_desc}}</h3>
+        <span class="item-date">{{period}}{{#duration}} ({{duration}}){{/duration}}</span>
       </div>
-      <div class="job-sub">{{role}} | {{department}}</div>
+      <p class="item-sub">{{role}} · {{department}}{{#employment_type}} · {{employment_type}}{{/employment_type}}</p>
       <ul>
         {{#accomplishments}}
-        <li><span class="kpi-tag">{{tag}}</span> {{description}}</li>
+        <li>{{description}}</li>
         {{/accomplishments}}
       </ul>
+      {{#tools}}<p class="item-foot">사용 기술 · {{tools}}</p>{{/tools}}
     </div>
     {{/experiences}}
   </section>
 
   <section>
-    <h2>Selected Projects &amp; Automation Workflows</h2>
+    <h2>프로젝트</h2>
     {{#projects}}
-    <div class="job-item">
-      <div class="job-header">
-        <span>{{project_name}}</span>
-        <span>{{tech_stack}}</span>
+    <div class="item">
+      <div class="item-header">
+        <h3>{{project_name}}</h3>
+        {{#period}}<span class="item-date">{{period}}</span>{{/period}}
       </div>
+      <p class="item-sub">{{tech_stack}}</p>
       <ul>
         <li>{{description}}</li>
-        <li><strong>성과:</strong> {{impact}}</li>
+        {{#role}}<li><span class="label">역할</span> {{role}}</li>{{/role}}
+        <li><span class="label">성과</span> {{impact}}</li>
       </ul>
     </div>
     {{/projects}}
   </section>
 
+  {{#has_education}}
   <section>
-    <h2>Skills &amp; Competencies</h2>
-    <div class="skills-grid">
-      <div class="skill-cat"><strong>AI &amp; Automation (AX):</strong> {{skills_ax}}</div>
-      <div class="skill-cat"><strong>Sales Operations:</strong> {{skills_sales_ops}}</div>
-      <div class="skill-cat"><strong>Languages &amp; Tools:</strong> {{skills_tools}}</div>
-      <div class="skill-cat"><strong>Domain &amp; Management:</strong> {{skills_domain}}</div>
-    </div>
+    <h2>학력</h2>
+    {{#education}}
+    <div class="row"><span class="when">{{period}}</span><span class="what"><b>{{school}}</b> {{major}} <span>{{status}}</span></span></div>
+    {{/education}}
   </section>
+  {{/has_education}}
+
+  <section>
+    <h2>보유 기술</h2>
+    <dl class="skills">
+      {{#skills}}<dt>{{label}}</dt><dd>{{value}}</dd>{{/skills}}
+    </dl>
+  </section>
+
+  {{#has_quals}}
+  <section>
+    <h2>자격 · 어학</h2>
+    {{#certifications}}
+    <div class="row"><span class="when">{{date}}</span><span class="what"><b>{{name}}</b> <span>{{issuer}}</span></span></div>
+    {{/certifications}}
+    {{#languages}}
+    <div class="row"><span class="when">{{date}}</span><span class="what"><b>{{test}}</b> {{score}}</span></div>
+    {{/languages}}
+  </section>
+  {{/has_quals}}
+
+  {{#has_training}}
+  <section>
+    <h2>교육 이수</h2>
+    {{#training}}
+    <div class="row"><span class="when">{{period}}</span><span class="what"><b>{{course}}</b> <span>{{institution}}</span></span></div>
+    {{/training}}
+  </section>
+  {{/has_training}}
+
+  {{#has_awards}}
+  <section>
+    <h2>수상</h2>
+    {{#awards}}
+    <div class="row"><span class="when">{{date}}</span><span class="what"><b>{{name}}</b> <span>{{issuer}}</span></span></div>
+    {{/awards}}
+  </section>
+  {{/has_awards}}
+
+  {{#has_activities}}
+  <section>
+    <h2>대외활동</h2>
+    {{#activities}}
+    <div class="row"><span class="when">{{period}}</span><span class="what"><b>{{name}}</b> <span>{{detail}}</span></span></div>
+    {{/activities}}
+  </section>
+  {{/has_activities}}
+
+  {{#has_overseas}}
+  <section>
+    <h2>해외 경험</h2>
+    {{#overseas}}
+    <div class="row"><span class="when">{{period}}</span><span class="what"><b>{{country}}</b> <span>{{purpose}}</span></span></div>
+    {{/overseas}}
+  </section>
+  {{/has_overseas}}
+
+  {{#has_publications}}
+  <section>
+    <h2>논문 · 특허 · 출판</h2>
+    {{#publications}}
+    <div class="row"><span class="when">{{date}}</span><span class="what"><b>{{title}}</b> <span>{{venue}}</span></span></div>
+    {{/publications}}
+  </section>
+  {{/has_publications}}
+
+  {{#has_talks}}
+  <section>
+    <h2>발표 · 강연</h2>
+    {{#talks}}
+    <div class="row"><span class="when">{{date}}</span><span class="what"><b>{{title}}</b> <span>{{event}}</span></span></div>
+    {{/talks}}
+  </section>
+  {{/has_talks}}
 
 </body>
 </html>

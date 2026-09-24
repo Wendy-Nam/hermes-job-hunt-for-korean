@@ -2,41 +2,80 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>{{applicant_name}} - 맞춤 자기소개서 ({{target_company}} {{target_position}})</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{applicant_name}} 자기소개서 · {{target_company}} {{target_position}}</title>
   <style>
-    :root { --ink:#202833; --accent:#234e70; --muted:#66717e; }
-    * { box-sizing:border-box; }
-    @page { size:A4; margin:18mm 20mm; }
-    body { font-family:"Noto Serif KR","Apple SD Gothic Neo","Malgun Gothic",serif; color:var(--ink); line-height:1.72; margin:0; font-size:10.3pt; }
-    header { border-bottom:1.5px solid var(--accent); padding-bottom:4mm; margin-bottom:8mm; }
-    h1 { font-size:19pt; color:var(--ink); margin:0 0 2mm; }
-    .sub-title { font-size:9pt; color:var(--muted); font-weight:500; }
-    .section-block { margin-bottom:8mm; }
-    .section-title { font-size:11pt; font-weight:700; color:var(--accent); margin-bottom:3mm; padding-bottom:1.5mm; border-bottom:1px solid #d8dee5; }
-    .section-body { text-align:justify; white-space:pre-line; line-height:1.85; }
+    :root {
+      --ink: #1a1d21;
+      --ink-2: #3f4650;
+      --muted: #6b7280;
+      --rule: #dfe2e6;
+    }
+    * { box-sizing: border-box; }
+    @page { size: A4; margin: 20mm 22mm; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: "Pretendard", "Pretendard Variable", "Noto Sans KR", "Noto Sans CJK KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+      font-size: 10.2pt;
+      line-height: 1.8;
+      word-break: keep-all;
+      overflow-wrap: anywhere;
+    }
+    @media screen {
+      html { background: #eceef1; }
+      body { max-width: 210mm; margin: 24px auto; padding: 20mm 22mm; background: #fff; }
+    }
+    @media screen and (max-width: 640px) {
+      body { margin: 0; padding: 20px 16px; }
+    }
+
+    header { padding-bottom: 3mm; border-bottom: 1.5px solid var(--ink); }
+    h1 { margin: 0 0 3mm; font-size: 20pt; font-weight: 700; letter-spacing: -.02em; line-height: 1.2; }
+    dl.meta { display: grid; grid-template-columns: repeat(3, auto); justify-content: start; gap: 0 8mm; margin: 0; font-size: 9pt; line-height: 1.5; }
+    dl.meta div { display: flex; gap: 2mm; }
+    dl.meta dt { color: var(--muted); }
+    dl.meta dd { margin: 0; font-weight: 600; }
+
+    .section-block { margin-top: 8mm; break-inside: avoid-page; }
+    h2.section-title { margin: 0 0 2.5mm; padding-bottom: 1.5mm; border-bottom: 1px solid var(--rule); font-size: 11pt; font-weight: 700; line-height: 1.5; }
+    h2.section-title .en { margin-left: 2mm; color: var(--muted); font-size: 8.5pt; font-weight: 400; }
+    .section-body { margin: 0; color: var(--ink-2); white-space: pre-line; }
+
+    footer { margin-top: 12mm; text-align: right; color: var(--ink-2); font-size: 9.5pt; line-height: 1.7; }
+    footer .sign { color: var(--ink); font-weight: 600; }
   </style>
 </head>
 <body>
 
   <header>
-    <h1>자기소개서 / Cover Letter</h1>
-    <div class="sub-title">지원자: {{applicant_name}} | 지원 회사: {{target_company}} | 지원 직무: {{target_position}}</div>
+    <h1>자기소개서</h1>
+    <dl class="meta">
+      <div><dt>지원자</dt><dd>{{applicant_name}}</dd></div>
+      <div><dt>지원 회사</dt><dd>{{target_company}}</dd></div>
+      <div><dt>지원 직무</dt><dd>{{target_position}}</dd></div>
+    </dl>
   </header>
 
-  <div class="section-block">
-    <div class="section-title">1. 지원 동기 및 포지션 적합성 (Motivation &amp; Fit Alignment)</div>
-    <div class="section-body">{{motivation_text}}</div>
-  </div>
+  <section class="section-block">
+    <h2 class="section-title">1. 지원 동기 및 직무 적합성<span class="en">Motivation &amp; Fit</span></h2>
+    <p class="section-body">{{motivation_text}}</p>
+  </section>
 
-  <div class="section-block">
-    <div class="section-title">2. 주요 직무 성과 및 문제 해결 사례 (Key Achievements)</div>
-    <div class="section-body">{{achievements_text}}</div>
-  </div>
+  <section class="section-block">
+    <h2 class="section-title">2. 주요 성과 및 문제 해결 사례<span class="en">Key Achievements</span></h2>
+    <p class="section-body">{{achievements_text}}</p>
+  </section>
 
-  <div class="section-block">
-    <div class="section-title">3. 입사 후 기여 계획 (Future Contribution)</div>
-    <div class="section-body">{{future_plan_text}}</div>
-  </div>
+  <section class="section-block">
+    <h2 class="section-title">3. 입사 후 기여 계획<span class="en">Future Contribution</span></h2>
+    <p class="section-body">{{future_plan_text}}</p>
+  </section>
+
+  <footer>
+    {{generated_date}}<br>
+    <span class="sign">지원자 {{applicant_name}}</span>
+  </footer>
 
 </body>
 </html>
