@@ -1,0 +1,31 @@
+# Hermes 구직 자동화 최소 설정 예시
+# 기존 config.yaml에 병합하세요. API 키와 채널 ID는 본인이 채웁니다.
+model:
+  default: "<YOUR_MODEL>"
+  provider: "<YOUR_PROVIDER>"
+agent:
+  service_tier: fast
+timezone: Asia/Seoul
+mcp_servers:
+  composio:
+    url: https://connect.composio.dev/mcp
+    headers:
+      x-consumer-api-key: "<YOUR_COMPOSIO_API_KEY>"
+WIKI_PATH: /opt/data/wiki
+OBSIDIAN_VAULT_PATH: /opt/data/wiki
+platform_toolsets:
+  cli:
+    - terminal
+    - file
+    - skills
+    - cronjob
+    - browser
+    - web
+    - vision
+    - code_execution
+known_plugin_toolsets:
+  cli:
+    - hermes
+approvals:
+  destructive_slash_confirm: true
+command_allowlist: []
