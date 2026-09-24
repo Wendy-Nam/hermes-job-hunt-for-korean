@@ -12,7 +12,8 @@ Material-warehouse driven renderer (소재 창고 → JD 스코어링 → 렌더
 4. Render HTML templates with a mini-mustache renderer: templates own ALL
    markup/CSS classes, this script only supplies escaped data. (No class
    injection → no class mismatch with template styles.)
-5. Optional: compile HTML to pixel-perfect A4 PDF using Headless Chrome.
+5. Optionally render a portfolio document from the same project material pool.
+6. Optionally compile rendered HTML to A4 PDF using Headless Chrome.
 
 Usage:
   python3 bin/generate-tailored-resume.py --company "Target" --position "Role" --jd-text "..." --pdf
@@ -30,7 +31,10 @@ import sys
 import tempfile
 from pathlib import Path
 
-KIT_DIR = Path(__file__).resolve().parents[2]
+# The generator lives at bundle/job-search/bin; the vault is a sibling directory.
+BUNDLE_DIR = Path(__file__).resolve().parents[1]
+REPO_BUNDLE_DIR = BUNDLE_DIR.parent
+VAULT_DIR = REPO_BUNDLE_DIR / "vault"
 
 # Mini-mustache: section blocks first ({{#name}}...{{/name}}), then plain vars.
 SECTION_RE = re.compile(r"\{\{#(\w+)\}\}(.*?)\{\{/\1\}\}", re.DOTALL)
@@ -63,7 +67,7 @@ def read_source_vault(wiki_root: Path) -> dict[str, str]:
     }
 
     resume_dir = wiki_root / "automation" / "job-hunting" / "resume"
-    template_dir = KIT_DIR / "vault" / "automation" / "job-hunting" / "resume"
+    template_dir = VAULT_DIR / "automation" / "job-hunting" / "resume"
 
     for key in sources.keys():
         f = resume_dir / f"{key}.md"
@@ -287,8 +291,9 @@ def parse_cover_blocks(text: str) -> dict:
 
 
 def parse_projects(text: str) -> list:
-    """Parse project entries (개요/기술 스택/성과) from portfolios.md.
-    Placeholder-only rows (name still '<프로젝트명>') are dropped."""
+    """Parse project entries (개요/역할/기술 스택/성과/링크) from portfolios.md.
+    Placeholder-only rows are dropped so generated documents never expose template guidance.
+    """
     projects: list = []
     cur = None
     for raw in text.splitlines():
@@ -299,7 +304,8 @@ def parse_projects(text: str) -> list:
             if name.startswith("<"):
                 cur = None
             else:
-                cur = {"project_name": name, "description": "", "tech_stack": "", "impact": ""}
+                cur = {"project_name": name, "description": "", "role": "",
+                       "tech_stack": "", "impact": "", "link": ""}
                 projects.append(cur)
             continue
         if cur is None:
@@ -307,12 +313,14 @@ def parse_projects(text: str) -> list:
         fm = re.match(r"^-\s*\*\*(.+?)\*\*\s*[:：]\s*(.*)$", s)
         if fm:
             key, val = fm.group(1).strip(), _strip_md(fm.group(2).strip())
-            if key == "개요":
-                cur["description"] = val
+            if key in ("개요", "역할"):
+                cur["description" if key == "개요" else "role"] = val
             elif key == "기술 스택":
                 cur["tech_stack"] = val
             elif key == "성과":
                 cur["impact"] = val
+            elif key in ("링크", "포트폴리오", "GitHub"):
+                cur["link"] = val
     return [p for p in projects if p["description"] or p["impact"]]
 
 
@@ -505,7 +513,7 @@ def build_context(company: str, position: str, jd_text: str, sources: dict,
 
 def build_tailored_html(company: str, position: str, jd_text: str, sources: dict,
                         is_senior: bool = True, lang: str = "ko") -> tuple:
-    tmpl_dir = KIT_DIR / "vault" / "automation" / "job-hunting" / "templates"
+    tmpl_dir = VAULT_DIR / "automation" / "job-hunting" / "templates"
 
     if lang == "en":
         res_file = tmpl_dir / "resume_en_classic.html"
@@ -519,6 +527,14 @@ def build_tailored_html(company: str, position: str, jd_text: str, sources: dict
 
     ctx = build_context(company, position, jd_text, sources, is_senior=is_senior)
     return render_template(res_tmpl, ctx), render_template(cov_tmpl, ctx)
+
+
+def build_portfolio_html(company: str, position: str, jd_text: str, sources: dict,
+                         is_senior: bool = True) -> str:
+    """Render the dedicated portfolio document from the same ranked project pool."""
+    tmpl = VAULT_DIR / "automation" / "job-hunting" / "templates" / "portfolio.html"
+    ctx = build_context(company, position, jd_text, sources, is_senior=is_senior)
+    return render_template(tmpl.read_text(encoding="utf-8"), ctx)
 
 
 # ---------------------------------------------------------------------------
@@ -571,7 +587,7 @@ def run_selftest() -> None:
     assert ranked[0].startswith("Salesforce"), f"JD 랭킹 실패: {ranked}"
 
     # 4) 전체 파이프라인: 소스 → HTML (ko/en) + 커버레터 소비 + 토큰 소거 + 클래스 일치
-    tmpl_dir = KIT_DIR / "vault" / "automation" / "job-hunting" / "templates"
+    tmpl_dir = VAULT_DIR / "automation" / "job-hunting" / "templates"
     res_html, cov_html = build_tailored_html("TestCo", "Sales Ops Lead",
                                              "Salesforce 파이프라인 CRM 분석", sources)
     for label, doc in (("resume", res_html), ("cover", cov_html)):
@@ -589,6 +605,14 @@ def run_selftest() -> None:
     assert "entry-header" in (tmpl_dir / "resume_en_classic.html").read_text(encoding="utf-8"), "EN 템플릿 마크업 미수용"
     assert "{{" not in res_en and "{{" not in cov_en, "EN 출력 미처리 토큰 잔존"
     _assert_balanced(res_en, "resume_en")
+
+    portfolio_html = build_portfolio_html("TestCo", "Sales Ops Lead",
+                                         "Salesforce 파이프라인 CRM 분석", sources)
+    assert "{{" not in portfolio_html, "portfolio: 미처리 토큰 잔존"
+    assert "주요 프로젝트" in portfolio_html, "portfolio: 프로젝트 섹션 없음"
+    _assert_balanced(portfolio_html, "portfolio")
+    portfolio_doc = portfolio_html.lower()
+    assert "<!doctype html" in portfolio_doc and "name=\"viewport\"" in portfolio_doc, "portfolio: 반응형 메타 누락"
 
     # 5) 빈 볼트 폴백: 하드코딩 없이 플레이스홀더만
     empty = {"master_resume": "", "fit_evidence": "", "role_contexts": "", "portfolios": ""}
@@ -622,6 +646,8 @@ def main() -> None:
     parser.add_argument("--jd-text")
     parser.add_argument("--output-dir", "--out", dest="output_dir")
     parser.add_argument("--lang", choices=("ko", "en"), default="ko")
+    parser.add_argument("--portfolio", action="store_true",
+                        help="포함: 맞춤 포트폴리오 HTML도 생성")
     parser.add_argument("--pdf", action="store_true")
     parser.add_argument("--selftest", action="store_true")
     args = parser.parse_args()
@@ -635,7 +661,11 @@ def main() -> None:
     resume, cover = build_tailored_html(args.company, args.position, jd, sources, lang=args.lang)
     safe = lambda s: re.sub(r"[^\w\-_]", "_", s, flags=re.UNICODE)
     paths = []
-    for suffix, body in (("Resume", resume), ("CoverLetter", cover)):
+    documents = [("Resume", resume), ("CoverLetter", cover)]
+    if args.portfolio:
+        documents.append(("Portfolio", build_portfolio_html(
+            args.company, args.position, jd, sources, is_senior=True)))
+    for suffix, body in documents:
         path = out / f"{safe(args.company)}_{safe(args.position)}_{suffix}.html"
         path.write_text(body, encoding="utf-8")
         paths.append(path)

@@ -4,26 +4,28 @@
   <meta charset="UTF-8">
   <title>{{applicant_name}} - 국문 표준 입사지원서 ({{target_company}} {{target_position}})</title>
   <style>
-    :root { --ink:#172033; --muted:#526071; --rule:#d9dee7; --accent:#173f5f; }
+    :root { --ink:#152238; --muted:#5e6b7d; --rule:#d9e0e8; --accent:#123f63; --accent-2:#2b6f9f; --soft:#f3f7fa; }
     * { box-sizing:border-box; }
-    @page { size:A4; margin:14mm 15mm; }
-    body { font-family:"Pretendard","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif; color:var(--ink); line-height:1.48; margin:0; font-size:9.6pt; -webkit-print-color-adjust:exact; }
-    .title-banner { display:flex; justify-content:space-between; align-items:flex-end; padding:0 0 7mm; border-bottom:1.5px solid var(--accent); margin-bottom:6mm; color:var(--ink); font-size:9pt; }
-    .title-banner>span:first-child { font-size:19pt; font-weight:800; letter-spacing:-.04em; }
-    .target-tag { color:var(--muted); font-size:8.5pt; text-align:right; }
-    table.grid-table { width:100%; border-collapse:collapse; margin-bottom:5mm; }
-    table.grid-table th,table.grid-table td { border:0; border-bottom:1px solid var(--rule); padding:3.2mm 2mm; font-size:9pt; }
-    table.grid-table th { background:transparent; color:var(--muted); font-weight:600; text-align:left; width:12%; white-space:nowrap; }
-    table.grid-table tr:last-child td { border-bottom:0; }
-    .sec-header { font-size:10.5pt; font-weight:750; color:var(--accent); border:0; border-bottom:1px solid var(--accent); padding:0 0 1.5mm; margin:5mm 0 3mm; }
-    .exp-card { border:0; border-bottom:1px solid var(--rule); border-radius:0; padding:0 0 3.5mm; margin:0 0 3.5mm; background:transparent; break-inside:avoid; }
-    .exp-title { display:flex; justify-content:space-between; gap:5mm; font-weight:750; font-size:10.2pt; color:var(--ink); }
+    @page { size:A4; margin:14mm 16mm 15mm; }
+    body { font-family:"Pretendard","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif; color:var(--ink); line-height:1.48; margin:0; font-size:9.4pt; -webkit-print-color-adjust:exact; }
+    .title-banner { display:flex; justify-content:space-between; align-items:flex-end; padding:0 0 4mm; border-bottom:2.2px solid var(--accent); margin-bottom:4.5mm; }
+    .title-banner>span:first-child { font-size:21pt; font-weight:800; letter-spacing:-.04em; color:var(--accent); }
+    .target-tag { color:var(--muted); font-size:8.3pt; text-align:right; line-height:1.5; }
+    table.grid-table { width:100%; border-collapse:collapse; margin-bottom:4.5mm; table-layout:fixed; }
+    table.grid-table th,table.grid-table td { border:0; border-bottom:1px solid var(--rule); padding:2.5mm 2.4mm; font-size:8.8pt; vertical-align:top; }
+    table.grid-table th { background:var(--soft); color:var(--accent); font-weight:750; text-align:left; width:15%; white-space:nowrap; }
+    table.grid-table td { overflow-wrap:anywhere; }
+    .sec-header { font-size:10.3pt; font-weight:800; color:var(--accent); border:0; border-bottom:1px solid var(--accent-2); padding:0 0 1.5mm; margin:4.5mm 0 2.6mm; letter-spacing:-.01em; }
+    .sec-header::before { content:""; display:inline-block; width:4px; height:1.1em; background:var(--accent-2); margin:0 2mm 0 0; vertical-align:-.08em; }
+    .exp-card { border:0; border-bottom:1px solid var(--rule); padding:0 0 3mm; margin:0 0 3mm; break-inside:avoid; }
+    .exp-title { display:flex; justify-content:space-between; gap:5mm; font-weight:800; font-size:9.9pt; color:var(--ink); }
+    .exp-title span:first-child { overflow-wrap:anywhere; }
     .exp-title span:last-child,.exp-dept { white-space:nowrap; }
-    .exp-dept { color:var(--muted); font-size:8.7pt; margin:1mm 0 1.5mm; }
+    .exp-dept { color:var(--accent-2); font-size:8.4pt; font-weight:650; margin:1mm 0 1.5mm; }
     ul.kpi-bullets { margin:0; padding-left:4.5mm; }
-    ul.kpi-bullets li { margin-bottom:1mm; padding-left:1mm; }
-    .badge-kpi { color:var(--accent); font-weight:700; }
-    .summary { background:#f6f8fa; border-left:3px solid var(--accent); padding:3mm 4mm; margin-bottom:4mm; }
+    ul.kpi-bullets li { margin-bottom:1mm; padding-left:1mm; overflow-wrap:anywhere; }
+    .badge-kpi { color:var(--accent-2); font-weight:800; }
+    .summary { background:var(--soft); border-left:3px solid var(--accent-2); padding:3mm 4mm; margin-bottom:3.5mm; overflow-wrap:anywhere; }
   </style>
 </head>
 <body>
@@ -54,11 +56,11 @@
   </table>
 
   <!-- 2. 핵심 역량 및 지원 요약 -->
-  <div class="sec-header">1. 핵심 역량 및 요약 (Executive Summary)</div>
+  <div class="sec-header">1. 핵심 역량 및 요약</div>
   <div class="summary">{{executive_summary}}</div>
 
   <!-- 3. 경력 사항 (사람인/잡코리아 블록) -->
-  <div class="sec-header">2. 경력 사항 (Work Experience)</div>
+  <div class="sec-header">2. 경력 사항</div>
   {{#experiences}}
   <div class="exp-card">
     <div class="exp-title">
@@ -75,7 +77,7 @@
   {{/experiences}}
 
   <!-- 4. 주요 프로젝트 및 포트폴리오 -->
-  <div class="sec-header">3. 주요 프로젝트 및 성과 (Key Projects)</div>
+  <div class="sec-header">3. 주요 프로젝트 및 성과</div>
   {{#projects}}
   <div class="exp-card">
     <div class="exp-title">
@@ -90,7 +92,7 @@
   {{/projects}}
 
   <!-- 5. 보유 기술 및 자격 -->
-  <div class="sec-header">4. 보유 기술 및 스킬 (Skills)</div>
+  <div class="sec-header">4. 보유 기술 및 스킬</div>
   <table class="grid-table">
     <tr>
       <th>AI &amp; AX</th>

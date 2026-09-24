@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{applicant_name}} - 포트폴리오 ({{target_company}} {{target_position}})</title>
+  <style>
+    :root { --ink:#152238; --muted:#617085; --rule:#d8e0e8; --accent:#123f63; --soft:#f3f7fa; }
+    * { box-sizing:border-box; }
+    @page { size:A4; margin:15mm 16mm; }
+    body { margin:0; color:var(--ink); font-family:"Pretendard","Noto Sans KR","Apple SD Gothic Neo",sans-serif; font-size:10pt; line-height:1.5; -webkit-print-color-adjust:exact; }
+    header { border-bottom:2px solid var(--accent); padding-bottom:5mm; margin-bottom:5mm; }
+    h1 { margin:0; color:var(--accent); font-size:23pt; letter-spacing:-.04em; }
+    .meta { margin-top:2mm; color:var(--muted); font-size:8.8pt; }
+    .section { margin:0 0 5mm; }
+    .section h2 { font-size:11pt; color:var(--accent); border-bottom:1px solid var(--rule); padding-bottom:1.5mm; margin:0 0 3mm; }
+    .project { border-left:3px solid var(--accent); background:var(--soft); padding:3.5mm 4mm; margin:0 0 4mm; break-inside:avoid; }
+    .project h3 { margin:0 0 1.5mm; font-size:11pt; color:var(--accent); }
+    .project p { margin:1mm 0; }
+    .project a { color:var(--accent); text-decoration:none; overflow-wrap:anywhere; }
+    .label { display:inline-block; min-width:18mm; color:var(--muted); font-size:8.5pt; font-weight:700; }
+    .empty { color:var(--muted); font-style:italic; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>{{applicant_name}}</h1>
+    <div class="meta">{{target_company}} · {{target_position}} · {{email}} · {{github_or_portfolio}}</div>
+  </header>
+  <div class="section">
+    <h2>주요 프로젝트</h2>
+    {{#projects}}
+    <article class="project">
+      <h3>{{project_name}}</h3>
+      <p><span class="label">개요</span>{{description}}</p>
+      {{#role}}<p><span class="label">역할</span>{{role}}</p>{{/role}}
+      <p><span class="label">기술 스택</span>{{tech_stack}}</p>
+      <p><span class="label">성과</span>{{impact}}</p>
+      {{#link}}<p><span class="label">링크</span><a href="{{link}}">{{link}}</a></p>{{/link}}
+    </article>
+    {{/projects}}
+  </div>
+  <div class="section">
+    <h2>보유 기술</h2>
+    <p><span class="label">AI · 자동화</span>{{skills_ax}}</p>
+    <p><span class="label">운영 · 그로스</span>{{skills_sales_ops}}</p>
+    <p><span class="label">기술 도구</span>{{skills_tools}}</p>
+    <p><span class="label">도메인</span>{{skills_domain}}</p>
+  </div>
+</body>
+</html>
