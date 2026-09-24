@@ -1,9 +1,0 @@
-name: shared-music
-version: 1.0.0
-description: "함께 듣는 음악 — YouTube/Spotify 음악 링크를 로컬 DSP(HTF 아이디어 기반)로 분석해 압축된 Music Perception Object를 만들고, 재림이 실제로 들어본 것처럼 자연스러운 감상을 나누게 한다. 후속 대화는 구간 단위 retrieval, 악기/코드 등 확신 없는 질문은 lazy deep analysis로 escalate. Obsidian Music/Tracks·Sessions에 대화와 감상을 누적 아카이빙."
-author: USER
-provides_hooks:
-  - pre_llm_call
-  - post_llm_call
-provides_tools:
-  - music_deep_dive

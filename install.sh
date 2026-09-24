@@ -26,14 +26,14 @@ echo "== hermes-agent-kit 설치 → $DATA"
 [ -d "$DATA" ] || { echo "❌ $DATA 없음 — Hermes 데이터 볼륨 경로를 인자로 지정하라"; exit 1; }
 
 # 대상이 디렉터리가 아닌데 존재하면 즉시 실패 (조용한 무설치 방지)
-for d in skills plugins scripts bin; do
+for d in skills scripts bin; do
   if [ -e "$DATA/$d" ] && [ ! -d "$DATA/$d" ]; then
     echo "❌ $DATA/$d 가 디렉터리가 아님 — 정리 후 재시도"; exit 1
   fi
 done
 
 # 설치 루트 안의 주요 디렉터리가 심볼릭 링크면 파일이 볼트 밖에 써진다 → 중단
-for d in skills plugins scripts bin tmp wiki; do
+for d in skills scripts bin tmp wiki; do
   if [ -L "$DATA/$d" ]; then
     echo "❌ $DATA/$d 가 심볼릭 링크다 — 설치 파일이 $DATA 밖에 써질 수 있어 중단한다."
     echo "   (링크를 풀고 실제 디렉터리로 만든 뒤 재시도)"; exit 1
@@ -83,7 +83,7 @@ copy_missing() {  # $1=src_dir $2=dst_dir $3=managed(0/1)
     fi
     cp "$1/${f#./}" "$dst"
     own "$dst"
-    # managed=1(코드: skills/plugins/scripts/bin)만 기록 — wiki-template(managed=0)은
+    # managed=1(코드: skills/scripts/bin)만 기록 — wiki-template(managed=0)은
     # 설치 후 사용자가 실제 노트로 채우므로 uninstall이 지우면 안 된다.
     [ "$managed" = "1" ] && echo "${dst#"$DATA"/}" >> "$DATA/.kit-manifest.txt"
     n=$((n+1))
@@ -93,10 +93,9 @@ copy_missing() {  # $1=src_dir $2=dst_dir $3=managed(0/1)
 }
 
 # 1) 코드/스킬 복사
-for d in skills plugins scripts bin tmp; do mkown "$DATA/$d"; done
+for d in skills scripts bin tmp; do mkown "$DATA/$d"; done
 copy_missing "$HERE/skills"  "$DATA/skills"  1
-copy_missing "$HERE/plugins" "$DATA/plugins" 1
-copy_missing "$HERE/scripts" "$DATA/scripts" 1
+copy_missing "$HERE/scripts"  "$DATA/scripts" 1
 copy_missing "$HERE/bin"     "$DATA/bin"     1
 if [ -e "$DATA/search-profile.yaml" ]; then say "search-profile.yaml 이미 존재 — 보존"
 else cp "$HERE/search-profile.yaml" "$DATA/search-profile.yaml"; own "$DATA/search-profile.yaml"; fi
@@ -175,7 +174,9 @@ done
 echo "== 설치 검증"
 for f in "bin/job-stage-commit.py" "bin/note-set-field.py" "bin/priority-recalc.py" "bin/noteio.py" \
          "scripts/job-collect.py" "skills/job-search/jobfilter.py" "search-profile.yaml" \
-         "wiki/SCHEMA.md" "wiki/index.md" "wiki/automation/job-hunting/Rules.md" "wiki/log.md"; do
+         "wiki/automation/job-hunting/Rules.md" "wiki/automation/job-hunting/Dashboard.base" \
+         "wiki/automation/job-hunting/README.md" "wiki/automation/job-hunting/resume/master_resume.md" \
+         "wiki/automation/job-hunting/research/면접-리서치-템플릿.md"; do
   [ -e "$DATA/$f" ] && say "OK  $f" || fail "누락 $f"
 done
 [ -d "$DATA/wiki/automation/job-hunting/postings" ] && say "OK  wiki/automation/job-hunting/postings/" || fail "누락 wiki/automation/job-hunting/postings/"

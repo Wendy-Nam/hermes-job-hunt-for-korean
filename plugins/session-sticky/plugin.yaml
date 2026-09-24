@@ -1,5 +1,0 @@
-name: session-sticky
-version: 1.0.0
-description: Session affinity and difficulty-aware auto-escalation with Jev System One classifier.
-provides_middleware:
-  - llm_request
