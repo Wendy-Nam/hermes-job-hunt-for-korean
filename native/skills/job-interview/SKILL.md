@@ -8,7 +8,7 @@ metadata:
 
 # 회사 조사·면접
 
-`@JOB_ROOT@/Rules.md`, 해당 공고 노트와 기존 `research/`, `interviews/`, `interview-reviews/`, `resume/`를 먼저 확인한다. 이미 있는 조사와 질문은 재사용하고 변화한 정보만 확인한다. 웹 읽기는 기존 `web-reader` 스킬을 재사용한다.
+`@JOB_ROOT@/Rules.md`, 해당 공고 노트와 기존 `research/`, `interviews/`, `interview-reviews/`, `resume/`를 먼저 확인한다. 이미 있는 조사와 질문은 재사용하고 변화한 정보만 확인한다. `resume/career_master.md`가 있으면 `@APP@/job-hunt career-sync --check`로 파생 자료를 확인하고 `resume/matching_profile.md`와 현재 언어별 경력·사례집을 우선한다. 원문 초안·과거 변형본을 현재 경력 정본으로 사용하지 않는다. 웹 읽기는 기존 `web-reader` 스킬을 재사용한다.
 
 공식 회사·제품·채용 페이지를 우선 조사한다. 사실에는 출처 URL과 확인 날짜를 붙이고 추론은 구분한다. 팀 과제, 주니어에게 기대하는 범위, 교육 대상·형식 또는 자동화 대상 업무를 확인한다.
 

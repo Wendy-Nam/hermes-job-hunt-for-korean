@@ -36,7 +36,7 @@ def configure(app, channel, activate=False):
         dict(name="job-hunt · 수집", schedule="10 8,20 * * *", prompt="",
              script=str(scripts / "collect.sh"), no_agent=True, deliver="local", failure_deliver="origin"),
         dict(name="job-hunt · 공고 판정", schedule="40 8,20 * * *",
-             prompt="job-match 스킬로 새 대기열을 최대 12건 검증하라. Rules와 검색 프로필을 먼저 읽어라. 신규 판정 결과만 한국어로 간결하게 보고하고 대기열이 비었으면 [SILENT]. 메일은 확인하지 않는다.",
+             prompt="job-match 스킬로 새 대기열을 최대 12건 검증하라. Rules와 검색 프로필을 먼저 읽어라. career_master.md가 있으면 career-sync --check로 일치 여부를 검증하고 matching_profile.md와 사례 근거로 비교하라. 신규 판정 결과만 한국어로 간결하게 보고하고 대기열이 비었으면 [SILENT]. 메일은 확인하지 않는다.",
              skills=["job-match"], monitor_script=str(scripts / "queue-monitor.sh"), deliver="origin",
              model=models["private_model"], provider=models["private_provider"]),
         dict(name="job-hunt · 메일과 리마인더", schedule="0 10 * * *",

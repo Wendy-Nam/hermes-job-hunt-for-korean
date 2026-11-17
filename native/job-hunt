@@ -18,7 +18,7 @@ from noteio import DRY_RUN
 
 def main():
     if len(sys.argv) < 2:
-        print("Usage: job-hunt status|collect|queue|stage|commit|note|rank|documents|jd|search|monitor [arguments]")
+        print("Usage: job-hunt status|collect|queue|stage|commit|note|rank|documents|career-sync|jd|search|monitor [arguments]")
         return 2
     command, args = sys.argv[1], sys.argv[2:]
     if command == "mail-check":
@@ -56,6 +56,7 @@ def main():
               "note": (APP / "bin/note-set-field.py", []),
               "rank": (APP / "bin/priority-recalc.py", []),
               "documents": (APP / "bin/generate-tailored-resume.py", []),
+              "career-sync": (APP / "bin/sync-career-materials.py", []),
               "jd": (ADAPTERS / "job-match/scripts/fetch_jd.py", [])}
     if command == "search":
         if not args:

@@ -8,7 +8,7 @@ metadata:
 
 # 구직 검색·수집
 
-검색 기준은 `@APP@/config/search-profile.yaml`, 판단 원칙은 `@JOB_ROOT@/Rules.md`에서 읽는다. 기준을 스킬이나 크론에 복제하지 않는다.
+검색 기준은 `@APP@/config/search-profile.yaml`, 판단 원칙은 `@JOB_ROOT@/Rules.md`에서 읽는다. 기준을 스킬이나 크론에 복제하지 않는다. 통합 경력 마스터를 쓰는 설치는 `career-sync`가 내보낸 검색 조건을 사용한다. 이 무료·공개 단계는 경력 마스터·매칭 프로필·메모리를 읽거나 모델에 전달하지 않는다.
 
 ```bash
 @APP@/job-hunt search wanted "AI 교육" --limit 5
