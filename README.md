@@ -78,7 +78,7 @@ Hermes의 Python 환경에서 `native/cron-jobs.py --app "$HERMES_HOME/apps/job-
   --jd-text "AI 교육 실습 워크숍 교육자료 콘텐츠 설계" --lang ko
 ```
 
-기본 출력은 HTML이며, PDF가 필요할 때만 `--pdf`를 붙입니다. PDF 변환은 설치된 Chrome/Chromium을 사용하고 한 번에 한 문서씩 처리합니다. PDF 실패 시에도 HTML 파일과 경로는 남깁니다. 외부 렌더링 SaaS는 필수가 아닙니다.
+기본 출력은 HTML이며, PDF가 필요할 때만 `--pdf`를 붙입니다. PDF 변환은 설치된 Chrome/Chromium을 사용하고 한 번에 한 문서씩 처리합니다. 문서별 60초 기한을 넘기면 브라우저 자식 프로세스까지 정리합니다. PDF 실패 시에도 HTML 파일과 경로는 남깁니다. 외부 렌더링 SaaS는 필수가 아닙니다.
 
 Debian 컨테이너의 이미지 빌드 단계 또는 컨테이너 내부 root에서 실행할 설치 명령:
 

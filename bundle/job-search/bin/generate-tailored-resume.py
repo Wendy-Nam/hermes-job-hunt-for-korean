@@ -26,6 +26,7 @@ import datetime as dt
 import html
 import os
 import re
+import signal
 import subprocess
 import sys
 import tempfile
@@ -119,10 +120,24 @@ def render_pdf(html_path: Path, pdf_path: Path) -> bool:
                     f"--print-to-pdf={rendered}",
                     html_path.resolve().as_uri(),
                 ]
-                r = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
-                if r.returncode == 0 and rendered.is_file() and rendered.read_bytes().startswith(b"%PDF-"):
+                with subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                      text=True, start_new_session=True) as process:
+                    try:
+                        process.communicate(timeout=60)
+                    finally:
+                        if os.name == "posix":
+                            try:
+                                os.killpg(process.pid, signal.SIGKILL)
+                            except ProcessLookupError:
+                                pass
+                        elif process.poll() is None:
+                            process.kill()
+                        process.communicate()
+                if process.returncode == 0 and rendered.is_file() and rendered.read_bytes().startswith(b"%PDF-"):
                     rendered.replace(pdf_path)
                     return True
+        except subprocess.TimeoutExpired:
+            sys.stderr.write("Chrome PDF render warning: 60 second deadline exceeded; browser processes stopped.\n")
         except Exception as e:
             sys.stderr.write(f"Chrome PDF render warning: {e}\n")
 

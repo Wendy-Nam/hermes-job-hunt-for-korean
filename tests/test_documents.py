@@ -2,12 +2,13 @@
 import importlib.util
 from contextlib import redirect_stdout
 import io
+import signal
 from pathlib import Path
 import subprocess
 import sys
 import tempfile
 import unittest
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -57,14 +58,21 @@ class DocumentTest(unittest.TestCase):
                 self.assertIn('--disable-dev-shm-usage', command)
                 target = Path(next(x.split('=', 1)[1] for x in command if x.startswith('--print-to-pdf=')))
                 target.write_bytes(b'%PDF-new')
-                return subprocess.CompletedProcess(command, 0)
-            with patch.object(self.renderer, 'find_chrome_binary', return_value='/chrome'), patch.object(self.renderer.subprocess, 'run', side_effect=run):
+                process = MagicMock()
+                process.returncode = 0
+                process.pid = 987654321
+                process.__enter__.return_value = process
+                return process
+            with patch.object(self.renderer, 'find_chrome_binary', return_value='/chrome'), patch.object(self.renderer.subprocess, 'Popen', side_effect=run), patch.object(self.renderer.os, 'killpg'):
                 self.assertTrue(self.renderer.render_pdf(html, pdf))
                 self.assertTrue(self.renderer.render_pdf(html, pdf))
             self.assertNotEqual(*profiles)
             self.assertTrue(all(not Path(p).exists() for p in profiles))
             self.assertEqual(pdf.read_bytes(), b'%PDF-new')
-            with patch.object(self.renderer, 'find_chrome_binary', return_value='/chrome'), patch.object(self.renderer.subprocess, 'run', return_value=subprocess.CompletedProcess([], 0)):
+            process = MagicMock()
+            process.returncode = 0
+            process.__enter__.return_value = process
+            with patch.object(self.renderer, 'find_chrome_binary', return_value='/chrome'), patch.object(self.renderer.subprocess, 'Popen', return_value=process), patch.object(self.renderer.os, 'killpg'):
                 self.assertFalse(self.renderer.render_pdf(html, pdf))
             self.assertEqual(pdf.read_bytes(), b'%PDF-new')
 
@@ -80,6 +88,21 @@ class DocumentTest(unittest.TestCase):
             self.assertEqual(len(paths), 2)
             self.assertTrue(all(p.is_file() and p.suffix == '.html' for p in paths))
             self.assertEqual(facts['master_resume'], '- **이름**: Example\n')
+
+    def test_pdf_deadline_stops_browser_group_and_preserves_previous_pdf(self):
+        with tempfile.TemporaryDirectory() as directory:
+            html = Path(directory) / 'resume.html'
+            pdf = html.with_suffix('.pdf')
+            html.write_text('<html>Example</html>')
+            pdf.write_bytes(b'%PDF-previous')
+            process = MagicMock()
+            process.pid = 987654321
+            process.__enter__.return_value = process
+            process.communicate.side_effect = [subprocess.TimeoutExpired('chrome', 60), ('', '')]
+            with patch.object(self.renderer, 'find_chrome_binary', return_value='/chrome'), patch.object(self.renderer.subprocess, 'Popen', return_value=process), patch.object(self.renderer.os, 'killpg') as kill:
+                self.assertFalse(self.renderer.render_pdf(html, pdf))
+            kill.assert_called_once_with(process.pid, signal.SIGKILL)
+            self.assertEqual(pdf.read_bytes(), b'%PDF-previous')
 
 
 if __name__ == '__main__':
