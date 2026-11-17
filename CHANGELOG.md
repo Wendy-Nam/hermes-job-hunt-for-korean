@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.0.0 — release candidate
+## 2.0.0 — 2026-11-17
 
 - Native 앱·상태·표준 스킬 분리와 프로필별 경로 계약.
 - google-workspace / Composio / 메일 미사용을 명시적으로 선택.
