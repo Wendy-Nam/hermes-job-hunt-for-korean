@@ -32,6 +32,7 @@ import sys
 import tempfile
 from pathlib import Path
 from jobpaths import JOB_ROOT, NATIVE, APP
+from jobprofiles import resolve_profile, select_projects
 
 # The generator lives at bundle/job-search/bin; the vault is a sibling directory.
 BUNDLE_DIR = Path(__file__).resolve().parents[1]
@@ -308,7 +309,7 @@ def parse_episodes(text: str) -> list:
     """Parse the episode pool (상황/행동/정량결과/역량태그) from master_resume.md."""
     episodes: list = []
     cur = None
-    field_map = {"상황": "situation", "행동": "action", "정량결과": "result", "결과": "result", "역량태그": "tags"}
+    field_map = {"상황": "situation", "행동": "action", "정량결과": "result", "결과": "result", "임팩트": "result", "문제": "problem", "해결": "action", "역량태그": "tags"}
     for raw in text.splitlines():
         s = raw.strip()
         m = re.match(r"^###\s*에피소드\s*\d+\s*[:：]\s*(.+)$", s)
@@ -410,7 +411,7 @@ def _sentence(text: str) -> str:
 
 def episode_paragraph(ep: dict) -> str:
     """상황 → 행동 → 정량결과를 한 문단으로."""
-    parts = [_sentence(ep["situation"]), _sentence(ep["action"])]
+    parts = [_sentence(ep["situation"]), _sentence(ep.get("problem", "")), _sentence(ep["action"])]
     if ep["result"]:
         parts.append(_sentence("그 결과 " + ep["result"]))
     return " ".join(p for p in parts if p and not _is_placeholder(p))
@@ -433,7 +434,7 @@ PROJECT_FIELDS = {
     "기간": "period", "유형": "type", "팀 구성": "team", "역할": "role", "기여도": "contribution",
     "개요": "description", "배경·문제": "problem", "배경": "problem", "문제": "problem",
     "해결": "approach", "해결 방법": "approach", "접근": "approach",
-    "성과": "impact", "배운 점": "learning", "회고": "learning", "기술 스택": "tech_stack",
+    "성과": "impact", "임팩트": "impact", "상황": "situation", "배운 점": "learning", "회고": "learning", "기술 스택": "tech_stack",
     "성과 근거": "evidence_note",
 }
 PROJECT_LINK_KEYS = {"링크": "링크", "GitHub": "GitHub", "데모": "데모", "문서": "문서",
@@ -692,8 +693,14 @@ def _first_filled(values: list, fallback: str) -> str:
 # ---------------------------------------------------------------------------
 
 def build_context(company: str, position: str, jd_text: str, sources: dict,
-                  is_senior: bool = True, lang: str = "ko") -> dict:
+                  is_senior: bool = True, lang: str = "ko", profile: dict | None = None) -> dict:
+    profile = profile or {}
     keywords = jd_keywords(f"{jd_text}\n{position}")
+    def rank(items, words, text_of, limit=0):
+        if profile.get("preserve_order"):
+            return items[:limit] if limit else items
+        return rank_by_jd(items, words, text_of, limit)
+
     master = parse_master_resume(sources.get("master_resume", ""))
     sections = parse_resume_sections(sources.get("master_resume", ""))
     episodes = parse_episodes(sources.get("master_resume", ""))
@@ -709,7 +716,7 @@ def build_context(company: str, position: str, jd_text: str, sources: dict,
     for exp in master["experiences"]:
         if _is_placeholder(exp["company"]):
             continue
-        kpis = _usable(rank_by_jd(exp["kpis"], keywords, lambda t: t, limit=4) or exp["kpis"])
+        kpis = _usable(rank(exp["kpis"], keywords, lambda t: t, limit=0 if profile.get("preserve_order") else 4) or exp["kpis"])
         if not kpis:
             continue
         experiences.append({
@@ -725,18 +732,21 @@ def build_context(company: str, position: str, jd_text: str, sources: dict,
                 for t in kpis
             ],
         })
-    experiences = rank_by_jd(
+    experiences = rank(
         experiences, keywords,
         lambda e: e["company"] + " " + " ".join(a["description"] for a in e["accomplishments"]))
     if not experiences:
         experiences = []
 
     # --- projects ranked by JD fit: 이력서엔 상위 3, 포트폴리오엔 전체(옵션 상한) ---
-    all_projects = rank_by_jd(
+    all_projects = rank(
         projects, keywords,
         lambda p: " ".join([p["project_name"], p["description"], p["problem"], p["approach"],
                             p["tech_stack"], p["impact"]]))
-    projects = all_projects[:3]
+    for project in all_projects:
+        project["problem_label"] = ("Problem" if lang == "en" else "문제") if project.get("situation") else ("Context & Problem" if lang == "en" else "배경 · 문제")
+    projects = select_projects(all_projects, profile.get("resume_projects")) if "resume_projects" in profile else all_projects[:3]
+    all_projects = select_projects(all_projects, profile.get("portfolio_projects"))
 
     # --- skills: 라벨·순서 모두 master_resume.md가 결정 (언어별 라벨 선택) ---
     skills = [{"label": row["label_en" if lang == "en" else "label_ko"], "value": row["value"]}
@@ -744,33 +754,33 @@ def build_context(company: str, position: str, jd_text: str, sources: dict,
         {"label": "보유 기술", "value": "보유 기술을 master_resume.md에 `- **분야**: 기술` 형식으로 등록해 주세요."}]
 
     # --- episodes: JD-ranked pool feeds summary + cover achievements ---
-    episodes = rank_by_jd(
+    episodes = rank(
         episodes, keywords,
         lambda e: " ".join([e["title"], e["situation"], e["action"], e["result"], " ".join(e["tags"])]))
 
     # --- executive summary: competencies + top episode results (density-guarded) ---
-    comps = rank_by_jd(ident["competencies"], keywords, lambda t: t, limit=2) or ident["competencies"][:2]
+    comps = rank(ident["competencies"], keywords, lambda t: t, limit=2) or ident["competencies"][:2]
     top_results = [e["result"] for e in episodes[:2] if e["result"]]
-    fit_top = rank_by_jd(fit_points, keywords, lambda t: t, limit=2)
+    fit_top = rank(fit_points, keywords, lambda t: t, limit=2)
     comp_line = " · ".join(_usable(comps)) or "경력·역량 자료를 master_resume.md에 등록해 주세요."
     result_line = " / ".join(_usable(top_results)) or (fit_top[0] if fit_top else "정량 성과를 master_resume.md에 등록해 주세요.")
     raw_summary = f"{company} {position} 지원 요약 — {comp_line}. 대표 성과: {result_line}."
     executive_summary = apply_recruiter_density_guard(raw_summary, is_senior=is_senior)
     # 이력서 요약 불릿: JD 상위 역량 3 + 대표 성과 2 (중복 제거, 최대 4)
     summary_points: list = []
-    for line in _usable(rank_by_jd(ident["competencies"], keywords, lambda t: t, limit=3)) + _usable(top_results):
+    for line in _usable(rank(ident["competencies"], keywords, lambda t: t, limit=3)) + _usable(top_results):
         if line not in summary_points:
             summary_points.append(line)
     summary_points = [{"text": t} for t in summary_points[:4]] or [
         {"text": "경력·역량 자료를 master_resume.md에 등록해 주세요."}]
     if ident["summary_style"] == "역량":
-        summary_points = [{"text": t} for t in _usable(rank_by_jd(
+        summary_points = [{"text": t} for t in _usable(rank(
             ident["competencies"], keywords, lambda t: t, limit=5))] or summary_points
     total_career = format_months(total_months([e["period"] for e in experiences]), lang)
 
     # --- cover letter: 문항별로 소재 블록·에피소드를 JD 순으로 골라 조립 ---
     def top_lines(pool: list, n: int) -> list:
-        return _usable(rank_by_jd([x for x in pool if x], keywords, lambda t: t, limit=n))
+        return _usable(rank([x for x in pool if x], keywords, lambda t: t, limit=n))
 
     pools = {**cover, "role": role_msgs, "competencies": ident["competencies"],
              "fit": fit_top, "results": [e["result"] for e in episodes if e["result"]]}
@@ -842,7 +852,7 @@ def build_context(company: str, position: str, jd_text: str, sources: dict,
         "generated_date": dt.date.today().isoformat(),
         **sections,
     }
-    return apply_output_options(ctx, ident["hide"], lang)
+    return apply_output_options(ctx, ident["hide"] + "," + ",".join(profile.get("hide_sections", [])), lang)
 
 
 def apply_output_options(ctx: dict, hide: str, lang: str = "ko") -> dict:
@@ -893,7 +903,7 @@ def apply_output_options(ctx: dict, hide: str, lang: str = "ko") -> dict:
 # ---------------------------------------------------------------------------
 
 def build_tailored_html(company: str, position: str, jd_text: str, sources: dict,
-                        is_senior: bool = True, lang: str = "ko") -> tuple:
+                        is_senior: bool = True, lang: str = "ko", profile: dict | None = None) -> tuple:
     tmpl_dir = VAULT_DIR / "automation" / "job-hunting" / "templates"
 
     if lang == "en":
@@ -906,23 +916,28 @@ def build_tailored_html(company: str, position: str, jd_text: str, sources: dict
     res_tmpl = res_file.read_text(encoding="utf-8")
     cov_tmpl = (tmpl_dir / "cover_letter_template.html").read_text(encoding="utf-8")
 
-    ctx = build_context(company, position, jd_text, sources, is_senior=is_senior, lang=lang)
+    ctx = build_context(company, position, jd_text, sources, is_senior=is_senior, lang=lang, profile=profile)
     return render_template(res_tmpl, ctx), render_template(cov_tmpl, ctx)
 
 
 def build_portfolio_html(company: str, position: str, jd_text: str, sources: dict,
-                         is_senior: bool = True) -> str:
+                         is_senior: bool = True, lang: str = "ko", profile: dict | None = None) -> str:
     """Render the dedicated portfolio document from the same ranked project pool."""
     tmpl = VAULT_DIR / "automation" / "job-hunting" / "templates" / "portfolio.html"
-    ctx = build_context(company, position, jd_text, sources, is_senior=is_senior)
+    ctx = build_context(company, position, jd_text, sources, is_senior=is_senior, lang=lang, profile=profile)
     opts = parse_portfolio_options(sources.get("portfolios", ""))
     chosen = ctx["all_projects"][: opts["max_projects"]]
     ctx["portfolio_projects"] = [
-        {**p, "no": f"{i:02d}", "has_images": bool(p["images"]), "has_links": bool(p["links"]),
+        {**p, "problem_label": ("Problem" if lang == "en" else "문제") if p.get("situation") else ("Context & Problem" if lang == "en" else "배경 · 문제"), "no": f"{i:02d}", "has_images": bool(p["images"]), "has_links": bool(p["links"]),
          "meta": " · ".join(x for x in (p["type"], p["team"],
-                                         f"기여도 {p['contribution']}" if p["contribution"] else "") if x)}
+                                         ("Contribution " if lang == "en" else "기여도 ") + p['contribution'] if p["contribution"] else "") if x)}
         for i, p in enumerate(chosen, 1)]
+    ctx.update(dict(zip(
+        ["pf_language", "pf_target", "pf_position", "pf_projects", "pf_period", "pf_role", "pf_overview", "pf_situation", "pf_solution", "pf_impact", "pf_evidence", "pf_learning"],
+        ["en", "Company", "Position", "Projects", "Period", "Role", "Overview", "Situation", "Solution", "Impact", "Evidence", "Learning"] if lang == "en" else
+        ["ko", "지원 회사", "지원 직무", "프로젝트 목록", "기간", "역할", "개요", "상황", "해결", "임팩트", "성과 근거", "배운 점"])))
     ctx["has_overview"] = len(chosen) >= 2
+    ctx.update({"pf_title": "Portfolio" if lang == "en" else "포트폴리오", "pf_intro": "Introduction" if lang == "en" else "소개", "pf_skills": "Technical Skills" if lang == "en" else "보유 기술", "pf_selected": "Selected Projects" if lang == "en" else "주요 프로젝트", "pf_project": "Project" if lang == "en" else "프로젝트"})
     ctx["portfolio_intro"] = opts["intro"]
     ctx["page_per_project"] = opts["page_per_project"]
     return render_template(tmpl.read_text(encoding="utf-8"), ctx)
@@ -1116,7 +1131,8 @@ def main() -> None:
     parser.add_argument("--jd-file")
     parser.add_argument("--jd-text")
     parser.add_argument("--output-dir", "--out", dest="output_dir")
-    parser.add_argument("--lang", choices=("ko", "en"), default="ko")
+    parser.add_argument("--lang", choices=("ko", "en"))
+    parser.add_argument("--profile", help="resume/document_profiles.yaml의 직무·언어 프로필 ID")
     parser.add_argument("--materials-dir", type=Path,
                         help="직무·언어별 경력 자료 4종이 있는 폴더; 누락 시 다른 이력서로 대체하지 않음")
     parser.add_argument("--only", choices=("resume", "cover-letter", "portfolio"),
@@ -1133,17 +1149,22 @@ def main() -> None:
     default_out = JOB_ROOT / "outputs" if NATIVE else get_wiki_root() / "automation/job-hunting/resumes"
     out = Path(args.output_dir).expanduser().resolve() if args.output_dir else default_out
     try:
-        sources = read_source_vault(get_wiki_root(), materials_dir=args.materials_dir)
-    except OSError as e:
+        profile_root = JOB_ROOT if NATIVE else get_wiki_root() / "automation/job-hunting"
+        materials, args.lang, profile = resolve_profile(profile_root, args.profile, args.lang, args.materials_dir)
+        sources = read_source_vault(get_wiki_root(), materials_dir=materials)
+    except (OSError, ValueError) as e:
         parser.error(f"경력 자료를 읽을 수 없습니다: {e}")
     out.mkdir(parents=True, exist_ok=True)
-    resume, cover = build_tailored_html(args.company, args.position, jd, sources, lang=args.lang)
+    try:
+        resume, cover = build_tailored_html(args.company, args.position, jd, sources, lang=args.lang, profile=profile)
+    except ValueError as e:
+        parser.error(str(e))
     safe = lambda s: re.sub(r"[^\w\-_]", "_", s, flags=re.UNICODE)
     paths = []
     documents = [("Resume", resume), ("CoverLetter", cover)]
     if args.portfolio or args.only == "portfolio":
         documents.append(("Portfolio", build_portfolio_html(
-            args.company, args.position, jd, sources, is_senior=True)))
+            args.company, args.position, jd, sources, is_senior=True, lang=args.lang, profile=profile)))
     if args.only:
         kind = {"resume": "Resume", "cover-letter": "CoverLetter", "portfolio": "Portfolio"}[args.only]
         documents = [(suffix, body) for suffix, body in documents if suffix == kind]

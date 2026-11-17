@@ -111,6 +111,9 @@
       <p class="entry-sub">{{tech_stack}}</p>
       <ul>
         <li>{{description}}</li>
+        {{#situation}}<li><strong>Situation:</strong> {{situation}}</li>{{/situation}}
+        {{#problem}}<li><strong>{{problem_label}}:</strong> {{problem}}</li>{{/problem}}
+        {{#approach}}<li><strong>Solution:</strong> {{approach}}</li>{{/approach}}
         {{#role}}<li><strong>Role:</strong> {{role}}</li>{{/role}}
         <li><strong>Impact:</strong> {{impact}}</li>
       </ul>

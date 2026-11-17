@@ -186,8 +186,11 @@
       <p class="exp-dept">{{tech_stack}}</p>
       <ul>
         <li>{{description}}</li>
+        {{#situation}}<li><span class="label">상황</span> {{situation}}</li>{{/situation}}
+        {{#problem}}<li><span class="label">{{problem_label}}</span> {{problem}}</li>{{/problem}}
+        {{#approach}}<li><span class="label">해결</span> {{approach}}</li>{{/approach}}
         {{#role}}<li><span class="label">역할</span> {{role}}</li>{{/role}}
-        <li><span class="label">성과</span> {{impact}}</li>
+        <li><span class="label">임팩트</span> {{impact}}</li>
       </ul>
     </div>
     {{/projects}}

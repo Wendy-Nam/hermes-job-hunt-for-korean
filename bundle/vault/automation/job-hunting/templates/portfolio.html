@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="{{pf_language}}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{{applicant_name}} 포트폴리오 · {{target_company}} {{target_position}}</title>
+  <title>{{applicant_name}} {{pf_title}} · {{target_company}} {{target_position}}</title>
   <style>
     :root {
       --ink: #1a1d21;
@@ -50,7 +50,7 @@
     li { margin-bottom: .6mm; }
     li::marker { color: var(--muted); }
 
-    /* 프로젝트 목록 */
+    /* {{pf_projects}} */
     table.overview { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 9pt; }
     table.overview th, table.overview td { padding: 1.4mm 2.5mm; border-bottom: 1px solid var(--rule); text-align: left; vertical-align: top; }
     table.overview thead th { background: var(--fill); color: var(--ink-2); font-weight: 600; border-bottom-color: var(--ink-2); }
@@ -89,7 +89,7 @@
 <body>
   <header>
     <div>
-      <p class="doc-type">포트폴리오</p>
+      <p class="doc-type">{{pf_title}}</p>
       <h1>{{applicant_name}}</h1>
       {{#headline}}<p class="headline">{{headline}}</p>{{/headline}}
     </div>
@@ -97,7 +97,7 @@
   </header>
 
   <section>
-    <h2>소개</h2>
+    <h2>{{pf_intro}}</h2>
     {{#portfolio_intro}}<p class="intro">{{portfolio_intro}}</p>{{/portfolio_intro}}
     <ul>
       {{#summary_points}}
@@ -108,9 +108,9 @@
 
   {{#has_overview}}
   <section>
-    <h2>프로젝트 목록</h2>
+    <h2>{{pf_projects}}</h2>
     <table class="overview">
-      <thead><tr><th class="c-no">No.</th><th>프로젝트</th><th class="c-period">기간</th><th class="c-role">역할</th></tr></thead>
+      <thead><tr><th class="c-no">No.</th><th>{{pf_project}}</th><th class="c-period">{{pf_period}}</th><th class="c-role">{{pf_role}}</th></tr></thead>
       {{#portfolio_projects}}
       <tr><td class="c-no">{{no}}</td><td>{{project_name}}</td><td class="c-period">{{period}}</td><td class="c-role">{{role}}</td></tr>
       {{/portfolio_projects}}
@@ -119,14 +119,14 @@
   {{/has_overview}}
 
   <section>
-    <h2>보유 기술</h2>
+    <h2>{{pf_skills}}</h2>
     <dl class="rows">
       {{#skills}}<dt>{{label}}</dt><dd>{{value}}</dd>{{/skills}}
     </dl>
   </section>
 
   <section class="{{#page_per_project}}page-each{{/page_per_project}}">
-    <h2>주요 프로젝트</h2>
+    <h2>{{pf_selected}}</h2>
     {{#portfolio_projects}}
     <article class="project">
       <div class="project-head">
@@ -135,13 +135,14 @@
       </div>
       <p class="sub">{{#meta}}<b>{{meta}}</b> · {{/meta}}{{tech_stack}}</p>
       <dl class="rows">
-        <dt>개요</dt><dd>{{description}}</dd>
-        {{#problem}}<dt>배경 · 문제</dt><dd>{{problem}}</dd>{{/problem}}
-        {{#approach}}<dt>해결</dt><dd>{{approach}}</dd>{{/approach}}
-        {{#role}}<dt>역할</dt><dd>{{role}}</dd>{{/role}}
-        <dt>성과</dt><dd class="impact">{{impact}}</dd>
-        {{#evidence_note}}<dt>성과 근거</dt><dd>{{evidence_note}}</dd>{{/evidence_note}}
-        {{#learning}}<dt>배운 점</dt><dd>{{learning}}</dd>{{/learning}}
+        <dt>{{pf_overview}}</dt><dd>{{description}}</dd>
+        {{#situation}}<dt>{{pf_situation}}</dt><dd>{{situation}}</dd>{{/situation}}
+        {{#problem}}<dt>{{problem_label}}</dt><dd>{{problem}}</dd>{{/problem}}
+        {{#approach}}<dt>{{pf_solution}}</dt><dd>{{approach}}</dd>{{/approach}}
+        {{#role}}<dt>{{pf_role}}</dt><dd>{{role}}</dd>{{/role}}
+        <dt>{{pf_impact}}</dt><dd class="impact">{{impact}}</dd>
+        {{#evidence_note}}<dt>{{pf_evidence}}</dt><dd>{{evidence_note}}</dd>{{/evidence_note}}
+        {{#learning}}<dt>{{pf_learning}}</dt><dd>{{learning}}</dd>{{/learning}}
       </dl>
       {{#has_images}}
       <div class="figures">

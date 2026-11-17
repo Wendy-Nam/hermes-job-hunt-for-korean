@@ -8,7 +8,7 @@ metadata:
 
 # 지원 문서
 
-출력은 설치된 `job-hunt documents`를 사용한다. `resume/variants/index.md`가 있으면 직무·언어에 맞는 자료 폴더를 선택하고 [직무별 자료·확장 서식](references/role-adaptation.md)의 `--materials-dir` 방식으로 실행한다. 없으면 아래 기본 명령을 사용한다. `work/` 아래 staging 사본을 실행하거나 생성기·jobpaths 소스를 찾아 읽지 않는다. 구체적인 공고가 없는 예시는 직무 키워드를 `--jd-text`로 전달한다.
+출력은 설치된 `job-hunt documents`를 사용한다. `resume/document_profiles.yaml`이 있으면 직무·언어 ID를 확인해 `--profile ID`를 우선 사용한다. 원문 핵심역량의 이름과 설명을 보존한다. 경력·사례는 상황·문제·본인의 해결·임팩트를 연결하고, 요약은 그 흐름을 유지하는 발췌로 만든다. 원문에 없는 맥락·수치를 채우지 않는다. `resume/variants/index.md`가 있으면 직무·언어에 맞는 자료 폴더를 선택하고 [직무별 자료·확장 서식](references/role-adaptation.md)의 `--materials-dir` 방식으로 실행한다. 없으면 아래 기본 명령을 사용한다. `work/` 아래 staging 사본을 실행하거나 생성기·jobpaths 소스를 찾아 읽지 않는다. 구체적인 공고가 없는 예시는 직무 키워드를 `--jd-text`로 전달한다.
 
 일반 문서 출력은 원본 경력 자료·설치 코드·서식을 수정하거나 테스트 묶음을 실행하는 작업이 아니다. 오류가 나면 짧은 오류와 보존된 출력 경로를 보고한다. 사용자가 별도로 데이터 수정·개발을 요청했을 때만 그 작업을 수행한다.
 
