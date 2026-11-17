@@ -4,6 +4,10 @@
 # 절대 건드리지 않는 것(직접 확인하고 지울 것): wiki/(실제 노트가 쌓임), SOUL.md(캐릭터),
 # search-profile.yaml(구직 설정), cron/jobs.json(본인이 병합한 자동화 설정), config.yaml.
 set -euo pipefail
+if [ "${1:-}" = "--native" ]; then
+  shift
+  exec "${HERMES_PYTHON:-python3}" "$(dirname "$0")/native/uninstall.py" "$@"
+fi
 DRY=0; DATA=""
 for arg in "$@"; do
   case "$arg" in

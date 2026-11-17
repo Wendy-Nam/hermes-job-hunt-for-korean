@@ -1,0 +1,4 @@
+endpoint: http://omniroute:20128/v1
+public_model: pub-role-free-validated
+private_model: hermes-private
+private_provider: omniroute

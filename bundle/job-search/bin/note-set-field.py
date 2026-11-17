@@ -21,6 +21,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from noteio import DATA, DRY_RUN, note_lock, why_dry, write_atomic   # 잠금·원자성·쓰기스위치 = 단일 계층
+from jobpaths import NOTE_ROOT, NATIVE
 
 
 def main():
@@ -30,7 +31,7 @@ def main():
     path = sys.argv[1]
     # 경로 가드 — 이 도구는 '위키 노트'만 고친다. 에이전트가 외부 입력(메일·공고)에 휘둘려
     # 엉뚱한 경로를 넘겨도 볼트 밖 파일이나 심볼릭 링크 대상을 건드리지 못하게 한다.
-    wiki = os.path.realpath(f"{DATA}/wiki")
+    wiki = os.path.realpath(NOTE_ROOT)
     real = os.path.realpath(path)
     if os.path.islink(path):
         print(f"거부(심볼릭 링크): {path}", file=sys.stderr); return 1
@@ -44,6 +45,23 @@ def main():
             print(f"무시(형식오류): {a}", file=sys.stderr); continue
         k, v = a.split("=", 1)
         pairs.append((k.strip(), v.strip()))
+
+    state_for_detail = {"발견": "open", "준비": "open", "지원": "waiting",
+                        "서류합격": "in-progress", "면접": "in-progress", "과제": "in-progress", "오퍼": "in-progress",
+                        "탈락": "done", "면접포기": "done", "보류": "done", "마감": "done"}
+    detail = dict(pairs).get("세부")
+    if NATIVE and "상태" in dict(pairs) and detail is None:
+        print("거부(상태 변경은 세부를 지정하세요)", file=sys.stderr)
+        return 2
+    if detail is not None:
+        if detail not in state_for_detail:
+            print(f"거부(알 수 없는 세부 상태): {detail}", file=sys.stderr)
+            return 2
+        state = state_for_detail[detail]
+        if "상태" in dict(pairs) and dict(pairs)["상태"] != state:
+            print("거부(상태와 세부가 충돌함)", file=sys.stderr)
+            return 2
+        pairs = [(k, v) for k, v in pairs if k != "상태"] + [("상태", state)]
 
     # 읽기~쓰기 전체를 잠금 안에서 — 원자적 쓰기만으론 동시 갱신 시 한쪽 변경이 사라진다(lost update).
     lk = note_lock()

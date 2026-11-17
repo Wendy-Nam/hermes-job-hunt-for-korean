@@ -7,22 +7,23 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "bin"))
 from noteio import DRY_RUN, note_lock, write_atomic, move, why_dry   # 잠금·원자성·쓰기스위치 단일 계층  # noqa: E402
+from jobpaths import POSTINGS as _POSTINGS, STATE_DIR, ADAPTERS, PROFILE_PATH as _PROFILE, BIN_DIR, NATIVE
 
 DATA = os.environ.get("HERMES_DATA") or "/opt/data"   # 명시 env 우선(테스트·호스트 격리), 없으면 컨테이너 기본
 _VENDOR = os.environ.get("HERMES_PLUGIN_VENDOR", f"{DATA}/python-site")
 if _VENDOR and os.path.isdir(_VENDOR) and _VENDOR not in sys.path:
     sys.path.insert(0, _VENDOR)
 
-POSTINGS = f"{DATA}/wiki/automation/job-hunting/postings"
-LEDGER = f"{DATA}/.job-seen.json"
-REJECTED = f"{DATA}/.job-rejected.json"
-STAGING = f"{DATA}/.job-staging.json"
-ROTATION = f"{DATA}/.job-rotation.json"
-S = f"{DATA}/skills/job-search"
+POSTINGS = str(_POSTINGS)
+LEDGER = str(STATE_DIR / ".job-seen.json")
+REJECTED = str(STATE_DIR / ".job-rejected.json")
+STAGING = str(STATE_DIR / ".job-staging.json")
+ROTATION = str(STATE_DIR / ".job-rotation.json")
+S = str(ADAPTERS)
 FJ = f"{S}/job-match/scripts/fetch_jd.py"
 KST = timezone(timedelta(hours=9))
 FETCH_TIMEOUT = 25
-PROFILE_PATH = f"{DATA}/search-profile.yaml"
+PROFILE_PATH = str(_PROFILE)
 PUBLIC_KEYS = ("url", "title", "company", "jd_text", "location", "employment", "fetched_at", "provenance")
 PUBLIC_MAX_RECORDS = 1000
 PUBLIC_MAX_BYTES = 2_000_000

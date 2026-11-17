@@ -32,3 +32,7 @@ skills/.*
 # OMC(oh-my-claudecode) 세션 상태 — 로컬 도구 산물
 .omc/
 .DS_Store
+*.sqlite
+*.sqlite-*
+application-policy.json
+application-results.json

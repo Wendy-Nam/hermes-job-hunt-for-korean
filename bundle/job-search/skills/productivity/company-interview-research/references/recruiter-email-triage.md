@@ -4,15 +4,15 @@
 
 This walkthrough follows the Step 1.5-B pattern for hydrating interview scheduling details from Gmail.
 
-### Step 1: Search both connected accounts
+### Step 1: Search the selected account
 
-The user has two Gmail accounts: a personal one and a job-search one. Always check both.
+Use only the account selected by the user. A second account requires explicit scope.
 
 ```bash
-# Account 1 (personal): user@example.com — searched as GMAIL_FETCH_EMAILS with account="gmail_hulk-maty"
+# Account 1 (personal): user@example.com — searched as GMAIL_FETCH_EMAILS with account="SELECTED_GMAIL_CONNECTION"
 query = '"OO테크" interview OR screening OR recruiter'
 
-# Account 2 (job-search): user@example.com — searched as GMAIL_FETCH_EMAILS with account="gmail_odin-apoda"
+# Account 2 (job-search): user@example.com — searched as GMAIL_FETCH_EMAILS with account="OPTIONAL_SECOND_GMAIL_CONNECTION"
 query = '"OO테크" interview OR screening OR recruiter'
 ```
 
@@ -56,14 +56,14 @@ Note: the scheduling link points to Google Calendar appointment slots (calendar.
 ### Step 4: Update wiki records in order
 
 1. **Create** `entities/companies/<company>.md` with full frontmatter and interview details table
-2. **Update** the matching posting note in `automation/job-hunting/postings/` via `bin/note-set-field.py` — e.g. `세부="1차 리크루터 스크리닝콜 예정"`, `메모="J. Doe, 30min Zoom, 스케줄링 링크 도착"`
+2. **Update** the matching posting note in `automation/job-hunting/postings/` via `bin/note-set-field.py` — e.g. `세부="면접"`, `메모="J. Doe, 30min Zoom, 스케줄링 링크 도착"`
 3. **Append** to `log.md` with timestamp, email subjects, and key info extracted
 4. **Update** `index.md` — add the new entity link under `entities/companies/`
 
 ### Common pitfalls for this pattern
 
 - **Narrow query fails first time**: The combined query `"OO테크" interview OR screening OR recruiter` returned 0 results. The broad `"OO테크"` query returned 7 — the interview email's body didn't contain the keywords "screening" or "recruiter". Always fall back to a plain company-name query when narrow fails.
-- **Two-account blind spot**: The interview email was in the job-search account (`user@example.com`), not the primary personal account. Always search all connected accounts.
+- **Two-account blind spot**: The interview email was in the job-search account (`user@example.com`), not the primary personal account. Do not widen account scope automatically.
 - **HTML body needs stripping**: The full messageText is HTML. Extract URLs with regex `https?://[^\s"'<>]+`, and strip tags/replace entities for human-readable body text.
 - **Scheduling email is not the same as confirmation**: The email says "choose a 30 min slot" — the interview is NOT yet scheduled. The wiki status reflects "예정" but the slot still needs picking. Don't mark a calendar event as confirmed until the user has actually chosen and the recruiter confirmed the time.
 - **Companion task email is easy to overlook**: The questionnaire task arrived 10 minutes *before* the scheduling email. Check adjacent timestamps (same date, similar subject) so you don't miss pending pre-interview work.

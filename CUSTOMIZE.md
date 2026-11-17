@@ -1,110 +1,50 @@
 # 사용자 설정
 
-기본값은 한국 구직 검색 예시입니다. 아래 순서대로 바꾸면 공고 수집부터 맞춤 이력서 생성까지 같은 기준을 사용합니다.
+## 검색과 판단
 
-## 1. 검색 프로필
+처음 설치할 때 `--profile-file`로 YAML을 선택합니다. 설치 후에는 앱의 `config/search-profile.yaml`을 직접 조정합니다. 재설치 때 원본 예제로 되돌리지 않습니다.
 
-원본: `bundle/config/search-profile.yaml`
-설치본: `/opt/data/search-profile.yaml`
+- `keyword_blocks`: 회차별 검색어
+- `boards`: 사용하는 보드
+- `filters`: 제목·연차·제외 직군 기준
+- `track_bonus`: 직무별 우선순위
+- `company_aliases`: 검증된 회사 별칭
 
-- `keyword_blocks`: 검색어와 시노님
-- `title_must_match`: 지원 직군 제목 게이트
-- `senior_signals`, `title_exp_min_years`, `body_exp_min_years`: 연차 기준
-- `exclude_roles`: 제외 직군
-- `track_bonus`: 선호 직군별 우선순위 가중치
-- `boards`: 사용할 수집 보드
-- `company_aliases`: 같은 회사의 법인명·브랜드 중복 제거
+개인 지원 조건과 판단 원칙은 구직 폴더의 Rules.md에 둡니다. 본문 필수 경력과 우대 경력을 구별하고 모르는 값을 추정하지 않습니다.
 
-기본 복사본은 첫 설치 때만 만들어집니다. 업그레이드해도 덮어쓰지 않습니다.
+## 메일 백엔드
 
-## 2. 공고 판정
+앱의 `config/mail.yaml`에서 하나를 고릅니다.
 
-원본: `bundle/vault/automation/job-hunting/Rules.md`
-설치본: `/opt/data/wiki/automation/job-hunting/Rules.md`
-
-지원 가능·보완 후 지원·제외 기준과 회사 등급을 정합니다. 공고는 AI 판정 전에는 볼트에 들어가지 않고, 판정 대기열에서 신원을 확인한 뒤 생성됩니다.
-
-## 3. 수집기·보드
-
-코드: `bundle/job-search/scripts/`, `bundle/job-search/skills/job-search/`
-
-- `wanted-search`: 원티드
-- `kr-search`: 사람인·잡코리아
-- `linkedin-search`: LinkedIn
-- `ats-search`: Greenhouse·Lever·Ashby
-- `web-search`: 일반 웹 검색
-- `job-hunter-kit`: 독립 설치형 수집 다이제스트
-
-보드 스크립트는 `--json`으로 `title`, `company`, `url`을 반환해야 합니다. 다른 지역으로 옮길 때는 해당 보드와 `boards` 설정을 교체합니다.
-
-## 4. 맞춤 이력서·자소서 재료
-
-설치 후 다음 파일을 채웁니다.
-
-```text
-wiki/automation/job-hunting/resume/
-├── master_resume.md       경력·역할·성과
-├── fit_evidence.md        공고 요구사항별 근거
-├── role_contexts.md       직무별 강조점
-└── portfolios.md          프로젝트·링크
+```yaml
+backend: google-workspace
 ```
 
-공고 URL과 `role_contexts.md`를 지정해 생성합니다.
+- `google-workspace`: 설치된 동일 이름 스킬의 setup.py와 google_api.py를 사용합니다. gws 실행과 Python 폴백은 해당 래퍼가 관리합니다. 크론이 google-workspace와 job-application을 함께 로드합니다.
+- `composio`: Hermes에 설정한 Composio MCP의 선택 계정으로 검색·읽기합니다. 모든 연결 계정을 무조건 순회하지 않습니다.
+- `none`: 메일에 접근하지 않고 노트 기반 리마인더만 만듭니다.
+
+인증 실패 시 다른 백엔드나 계정으로 바꾸지 않습니다. 메일 발송·회신·읽음·라벨·보관·휴지통·삭제는 이 워크플로에 포함하지 않습니다. 선택을 바꾼 뒤 `job-hunt mail-check`를 실행하고 크론 등록기를 다시 실행해 로드할 스킬을 반영합니다.
+
+## 모델
+
+`config/models.yaml`의 공개 경로는 선택 사항입니다. 미설정이면 Python 수집만 수행합니다. 공개 분석에는 공개 공고 필드만 전송합니다. 개인 판정용 모델·provider를 지정하기 전에는 크론 활성화를 거부합니다. 모델·채널 변경 후 크론 등록기를 다시 실행하세요.
+
+## 자료와 문서
+
+구직 폴더의 resume/에 master_resume.md, fit_evidence.md, role_contexts.md, portfolios.md를 채웁니다. 기존 경력 원문도 참고할 수 있지만 확인하지 않은 수치나 최신 경력을 만들지 않습니다.
 
 ```bash
-python3 /opt/data/bin/generate-tailored-resume.py \
-  --job-file /path/to/job.md \
-  --out /path/to/output \
-  --lang ko
+job-hunt documents --company "지원회사" --position "직무" \
+  --jd-file "/path/to/job.md" --out "/path/to/output" --lang ko --portfolio
 ```
 
-`master_resume.md`는 한국 표준 이력서(인적사항·경력기술서)와 영문 레주메 항목을 합친 최대 표준 서식입니다. 항목마다 [필수]·[권장]·[선택] 등급이 붙어 있습니다.
+`--pdf`는 로컬 Chrome/Chromium이 있을 때 사용합니다. 제출 전 페이지 나눔과 잘림을 확인하세요. 앱의 assets/ 문서 서식은 관리 코드이며 업그레이드 시 갱신되므로 변경 사항은 소스에서 관리하거나 백업에서 보존하세요.
 
-- `<...>` 그대로 둔 항목·섹션은 출력에서 자동으로 빠집니다.
-- 채워 둔 항목을 특정 지원에서만 빼려면 `## 0. 출력 옵션`의 `숨길 항목`에 라벨을 적습니다. 예: `생년월일, 사진, 희망 연봉`
-- 학력·자격증·어학·교육 이수·수상·대외활동·해외 경험·논문·특허·출판·발표·강연·병역·취업 우대는 `- 칸1 | 칸2 | 칸3` 한 줄 형식입니다.
-- 생년월일·사진·희망 연봉·병역·취업 우대·퇴사 사유는 국문 이력서에만 나옵니다.
-- 재직 기간과 총 경력은 근무 기간에서 자동 계산됩니다.
-- 보유 기술 표는 `## 3. 보유 기술`에 적은 `- **국문 라벨 / English Label**: 기술` 줄이 순서대로 한 행씩 됩니다. 라벨과 행 수를 직군에 맞게 정하면 되고, 예전 `ax`·`sales_ops`·`tools`·`domain` 키도 그대로 읽힙니다.
+## TaskNotes
 
-자기소개서는 `master_resume.md`의 `## 7. 자기소개서 문항`에 `- 유형 | 문항 제목 | 글자수 제한` 줄을 적어 구성합니다.
+Dashboard.base에 TaskNotes 칸반을 포함합니다. 기존 대시보드는 업그레이드로 교체하지 않습니다. 상태는 open / waiting / in-progress / done이며, 세부를 지정하면 코드가 상태를 유도합니다. 기존 기록의 일괄 삭제·정규화는 설치에 포함하지 않습니다.
 
-- 유형은 지원동기·성장과정·성격장단점·직무역량·성과·협업경험·실패극복·포부 중 하나이고, `## 6. 자기소개서 소재`의 같은 이름 블록과 연결됩니다.
-- 문항 제목에 회사 문항을 그대로 붙여 넣으면 그 제목으로 나가고, 비우면 표준 제목이 쓰입니다.
-- 글자수 제한(공백 포함)을 넘으면 문장 단위로 잘라 맞추고, 문항마다 글자수가 표시됩니다.
-- 사례형 문항(직무역량·성과·협업경험·실패극복)은 태그가 맞는 에피소드를 상황 → 행동 → 결과 문단으로 먼저 넣습니다.
+## Aside
 
-포트폴리오는 `portfolios.md`의 프로젝트마다 배경·문제, 해결, 성과, 배운 점, 팀 구성·기여도, 여러 링크(GitHub·데모·문서…), 이미지(`경로 | 캡션`)를 적을 수 있습니다. `## 0. 포트폴리오 옵션`에서 소개 문단, 프로젝트마다 새 페이지, 최대 프로젝트 수를 정합니다. 채운 예시는 `docs/examples/`에 있습니다.
-
-생성기는 마스터 자료의 모든 내용을 복사하지 않고 공고와 맞는 프로젝트·역량·달성 지표만 골라 국문 또는 영문 HTML로 구성합니다. 웹서치와 회사 리서치는 `web-reader`, `company-interview-research`로 진행합니다.
-
-## 5. 메일과 지원 상태
-
-`bundle/cron/jobs.json`에서 필요한 작업만 골라 `/opt/data/cron/jobs.json`에 병합합니다. 예시는 모두 `enabled: false`입니다.
-
-- 지원 접수: 공고 노트 상태를 지원완료로 변경
-- 면접·과제: 진행중으로 변경하고 일정 리마인더
-- 불합격: 완료로 변경하고 결과 요약
-- 회사명이 모호하면 자동 변경하지 않고 확인 알림만 생성
-
-## 6. 크론·모델·채널
-
-원본 예시:
-
-- `bundle/cron/jobs.json`
-- `bundle/config/config.example.yaml`
-
-채널 ID, 모델, API 키,vision 지원 여부를 본인 값으로 바꾸세요. 외부 서비스 쓰기 권한은 DRY-RUN 관찰이 끝난 뒤에만 활성화합니다.
-
-## 검증
-
-```bash
-python3 tests/smoke_test.py
-python3 bundle/job-search/skills/job-search/job-hunter-kit/tests/test_hunt.py
-python3 /opt/data/bin/generate-tailored-resume.py --selftest
-python3 /opt/data/bin/kit-doctor.py /opt/data
-```
-
-## Obsidian 대시보드
-
-볼트 템플릿은 TaskNotes·Dataview·Tasks 플러그인 설정을 포함합니다. 공고 노트에 `공고` 또는 `posting` 태그를 붙이면 `Dashboard.base`의 보드와 테이블에 나타납니다.
+별도 Aside 스킬의 로컬 정책으로 계정·지원 범위·이력서 선택·문항 답변·제출 한도를 정합니다. 플랫폼 저장 이력서를 우선 사용합니다. 과거 지원 내역이나 확인되지 않은 제출을 반복하지 않습니다. 이 정책과 실제 이력서는 공개 레포에 추가하지 마세요.
