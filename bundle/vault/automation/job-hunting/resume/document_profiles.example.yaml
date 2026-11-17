@@ -1,0 +1,32 @@
+schema_version: 1
+# resume/ 기준 상대 경로. 각 폴더에 경력 자료 4종을 작성합니다.
+# 프로젝트 이름은 각 언어 portfolios.md의 제목과 정확히 맞춰 추가합니다.
+profiles:
+  ai-education-ko:
+    language: ko
+    materials: materials/ko
+    preserve_order: true
+    hide_sections: []
+  automation-pm-ko:
+    language: ko
+    materials: materials/ko
+    preserve_order: true
+  gtm-revops-ko:
+    language: ko
+    materials: materials/ko
+    preserve_order: true
+  ai-education-en:
+    language: en
+    materials: materials/en
+    preserve_order: true
+  automation-pm-en:
+    language: en
+    materials: materials/en
+    preserve_order: true
+  gtm-revops-en:
+    language: en
+    materials: materials/en
+    preserve_order: true
+# 원하는 프로필에 추가:
+# resume_projects: ["원문 프로젝트 제목"]
+# portfolio_projects: ["원문 프로젝트 제목"]

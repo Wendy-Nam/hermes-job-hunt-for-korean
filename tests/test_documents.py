@@ -26,6 +26,30 @@ class DocumentTest(unittest.TestCase):
         finally:
             sys.path[:] = old
 
+    def test_profile_keeps_original_competencies_bullets_and_narrative(self):
+        original = ['Original CRM wording', 'Original communication wording', 'Original third', 'Original fourth', 'Original fifth']
+        master = '- **요약 방식**: 역량\n- **커리어 핵심 경쟁력**:\n' + ''.join('  - ' + value + '\n' for value in original)
+        master += '### Company (2025.01 ~ 2025.06)\n- **주요 업무**:\n' + ''.join('  - Original task ' + str(i) + '\n' for i in range(6))
+        projects = '### 1. Original case\n- **개요**: Original overview\n- **상황**: Original situation\n- **문제**: Original bottleneck\n- **해결**: Original solution\n- **임팩트**: Original outcome\n'
+        sources = {'master_resume': master, 'fit_evidence': '', 'role_contexts': '', 'portfolios': projects}
+        profile = {'preserve_order': True, 'resume_projects': ['Original case'], 'portfolio_projects': ['Original case']}
+        for lang in ['ko', 'en']:
+            resume, _ = self.renderer.build_tailored_html('Preview', 'fifth', 'fifth', sources, lang=lang, profile=profile)
+            portfolio = self.renderer.build_portfolio_html('Preview', 'Example', '', sources, lang=lang, profile=profile)
+            for value in original + ['Original task ' + str(i) for i in range(6)]:
+                self.assertIn(value, resume)
+            self.assertLess(resume.index(original[0]), resume.index(original[-1]))
+            for doc in [resume, portfolio]:
+                for value in ['Original situation', 'Original bottleneck', 'Original solution', 'Original outcome']:
+                    self.assertIn(value, doc)
+                self.assertNotIn('{{', doc)
+                self.renderer._assert_balanced(doc, lang)
+            if lang == 'en':
+                self.assertIn('lang="en"', portfolio)
+                self.assertIn('<dt>Situation</dt>', portfolio)
+                self.assertIn('<dt>Impact</dt>', portfolio)
+                self.assertNotIn('<dt>성과</dt>', portfolio)
+
     def test_dated_experience_accepts_both_heading_styles(self):
         for heading in ['Example (근무 기간: 2025.01 ~ 2025.06)', 'Example (2025.01 ~ 2025.06)']:
             with self.subTest(heading=heading):
