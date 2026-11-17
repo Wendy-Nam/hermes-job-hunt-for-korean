@@ -53,6 +53,7 @@ class DocumentTest(unittest.TestCase):
             def run(command, **kwargs):
                 profile = next(x.split('=', 1)[1] for x in command if x.startswith('--user-data-dir='))
                 profiles.append(profile)
+                self.assertFalse(Path(profile).is_relative_to(html.parent))
                 self.assertIn('--disable-dev-shm-usage', command)
                 target = Path(next(x.split('=', 1)[1] for x in command if x.startswith('--print-to-pdf=')))
                 target.write_bytes(b'%PDF-new')

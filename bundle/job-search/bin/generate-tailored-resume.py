@@ -101,7 +101,8 @@ def render_pdf(html_path: Path, pdf_path: Path) -> bool:
     chrome = find_chrome_binary()
     if chrome:
         try:
-            with tempfile.TemporaryDirectory(prefix="job-hunt-pdf-", dir=pdf_path.parent) as work:
+            with tempfile.TemporaryDirectory(prefix="job-hunt-browser-") as profile, \
+                    tempfile.TemporaryDirectory(prefix=".job-hunt-pdf-", dir=pdf_path.parent) as work:
                 rendered = Path(work) / "document.pdf"
                 cmd = [
                     chrome,
@@ -109,7 +110,8 @@ def render_pdf(html_path: Path, pdf_path: Path) -> bool:
                     "--disable-gpu",
                     "--no-sandbox",
                     "--disable-dev-shm-usage",
-                    f"--user-data-dir={Path(work) / 'profile'}",
+                    "--disable-background-networking",
+                    f"--user-data-dir={profile}",
                     "--no-first-run",
                     "--no-default-browser-check",
                     "--no-pdf-header-footer",      # 파일 경로·날짜 머리글/바닥글 제거
