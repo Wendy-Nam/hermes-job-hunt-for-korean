@@ -1,0 +1,85 @@
+"""Resume facts stay in their own sections; PDF uses an isolated browser profile."""
+import importlib.util
+from contextlib import redirect_stdout
+import io
+from pathlib import Path
+import subprocess
+import sys
+import tempfile
+import unittest
+from unittest.mock import patch
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+class DocumentTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        path = ROOT / 'bundle/job-search/bin'
+        old = sys.path[:]
+        sys.path.insert(0, str(path))
+        try:
+            spec = importlib.util.spec_from_file_location('resume_renderer', path / 'generate-tailored-resume.py')
+            cls.renderer = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(cls.renderer)
+        finally:
+            sys.path[:] = old
+
+    def test_dated_experience_accepts_both_heading_styles(self):
+        for heading in ['Example (근무 기간: 2025.01 ~ 2025.06)', 'Example (2025.01 ~ 2025.06)']:
+            with self.subTest(heading=heading):
+                parsed = self.renderer.parse_master_resume('## 2. 경력\n### ' + heading + '\n- **직급/직책**: 강사\n- **주요 정량 성과**:\n  - AI 실습 12회 운영\n')
+                self.assertEqual(len(parsed['experiences']), 1)
+                self.assertEqual(parsed['experiences'][0]['kpis'], ['AI 실습 12회 운영'])
+
+    def test_unrelated_sections_do_not_modify_previous_experience(self):
+        for heading in ['## 4. 프로젝트', '### 별도 프로젝트', '### 교육 과정 (수료)']:
+            with self.subTest(heading=heading):
+                text = ('### Example (근무 기간: 2025.01 ~ 2025.06)\n'
+                        '- **직급/직책**: 강사\n- **주요 정량 성과**:\n  - AI 실습 12회 운영\n'
+                        + heading + '\n- **직급/직책**: 프로젝트 리더\n- **주요 정량 성과**:\n  - 별도 프로젝트 성과\n')
+                parsed = self.renderer.parse_master_resume(text)
+                self.assertEqual(len(parsed['experiences']), 1)
+                self.assertEqual(parsed['experiences'][0]['role'], '강사')
+                self.assertEqual(parsed['experiences'][0]['kpis'], ['AI 실습 12회 운영'])
+
+    def test_pdf_uses_private_profile_and_never_accepts_stale_output(self):
+        with tempfile.TemporaryDirectory() as directory:
+            html = Path(directory) / 'resume.html'
+            pdf = html.with_suffix('.pdf')
+            html.write_text('<html>Example</html>')
+            pdf.write_bytes(b'%PDF-old')
+            profiles = []
+            def run(command, **kwargs):
+                profile = next(x.split('=', 1)[1] for x in command if x.startswith('--user-data-dir='))
+                profiles.append(profile)
+                self.assertIn('--disable-dev-shm-usage', command)
+                target = Path(next(x.split('=', 1)[1] for x in command if x.startswith('--print-to-pdf=')))
+                target.write_bytes(b'%PDF-new')
+                return subprocess.CompletedProcess(command, 0)
+            with patch.object(self.renderer, 'find_chrome_binary', return_value='/chrome'), patch.object(self.renderer.subprocess, 'run', side_effect=run):
+                self.assertTrue(self.renderer.render_pdf(html, pdf))
+                self.assertTrue(self.renderer.render_pdf(html, pdf))
+            self.assertNotEqual(*profiles)
+            self.assertTrue(all(not Path(p).exists() for p in profiles))
+            self.assertEqual(pdf.read_bytes(), b'%PDF-new')
+            with patch.object(self.renderer, 'find_chrome_binary', return_value='/chrome'), patch.object(self.renderer.subprocess, 'run', return_value=subprocess.CompletedProcess([], 0)):
+                self.assertFalse(self.renderer.render_pdf(html, pdf))
+            self.assertEqual(pdf.read_bytes(), b'%PDF-new')
+
+    def test_pdf_failure_reports_saved_html_without_changing_sources(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / 'output'
+            facts = {'master_resume': '- **이름**: Example\n', 'fit_evidence': '', 'role_contexts': '', 'portfolios': ''}
+            printed = io.StringIO()
+            with patch.object(sys, 'argv', ['renderer', '--pdf', '--out', str(output)]), patch.object(self.renderer, 'read_source_vault', return_value=facts), patch.object(self.renderer, 'find_chrome_binary', return_value=None), redirect_stdout(printed):
+                with self.assertRaisesRegex(SystemExit, 'HTML은 위 경로에 보존'):
+                    self.renderer.main()
+            paths = [Path(p) for p in printed.getvalue().splitlines()]
+            self.assertEqual(len(paths), 2)
+            self.assertTrue(all(p.is_file() and p.suffix == '.html' for p in paths))
+            self.assertEqual(facts['master_resume'], '- **이름**: Example\n')
+
+
+if __name__ == '__main__':
+    unittest.main()

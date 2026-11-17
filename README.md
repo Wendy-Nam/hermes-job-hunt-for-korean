@@ -1,4 +1,4 @@
-# Hermes Job Hunt for Korean · v2.0.0
+# Hermes Job Hunt for Korean · v2.0.1
 
 Hermes에서 한국 채용 공고를 수집하고, 경력 근거로 적합도를 판단하며, 지원 현황·문서·면접을 관리합니다. 선택적으로 Aside 브라우저에서 저장 이력서 선택과 지원 폼·최종 제출을 실행합니다.
 
@@ -67,6 +67,27 @@ HERMES_HOME/
 - `/job-interview`: 회사 조사·면접 연습·복기
 
 Hermes의 Python 환경에서 `native/cron-jobs.py --app "$HERMES_HOME/apps/job-hunt" --channel YOUR_CHANNEL_ID`를 실행하면 세 크론을 일시중지 상태로 준비합니다. 개인 데이터 처리용 모델과 메일 인증을 확인한 뒤 `--activate`로 활성화합니다. 작업 시각은 Hermes에 설정한 타임존을 따릅니다. 스크립트 경로·모델·채널을 직접 jobs.json에 복사하는 방식은 사용하지 않습니다.
+
+## 문서 출력과 로컬 PDF
+
+설치된 `job-hunt documents`를 사용합니다. `work/` 아래 staging 사본은 실행하지 않습니다. 일반 출력은 원본 경력·생성기 코드를 수정하지 않습니다.
+
+```bash
+"$HERMES_HOME/apps/job-hunt/job-hunt" documents \
+  --company "직무별 예시" --position "AI 교육 담당자" \
+  --jd-text "AI 교육 실습 워크숍 교육자료 콘텐츠 설계" --lang ko
+```
+
+기본 출력은 HTML이며, PDF가 필요할 때만 `--pdf`를 붙입니다. PDF 변환은 설치된 Chrome/Chromium을 사용하고 한 번에 한 문서씩 처리합니다. PDF 실패 시에도 HTML 파일과 경로는 남깁니다. 외부 렌더링 SaaS는 필수가 아닙니다.
+
+Debian 컨테이너의 이미지 빌드 단계 또는 컨테이너 내부 root에서 실행할 설치 명령:
+
+```bash
+apt-get update
+apt-get install -y --no-install-recommends chromium fonts-noto-cjk
+```
+
+다른 경로의 브라우저는 `CHROME_PATH`로 지정합니다. 컨테이너 안에서만 설치한 패키지는 컨테이너 재생성 시 사라질 수 있으므로 운영 이미지의 Dockerfile에도 반영하세요. 설치기는 시스템 패키지 설치나 컨테이너 재시작을 자동 실행하지 않습니다.
 
 ## Aside 지원 실행
 
