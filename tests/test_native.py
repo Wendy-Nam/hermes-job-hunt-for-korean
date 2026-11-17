@@ -180,6 +180,21 @@ class NativeTest(unittest.TestCase):
         self.assertNotIn("Native Person", p.stdout + p.stderr)
         self.assertFalse((self.home / "wiki").exists())
 
+    def test_documents_can_select_role_materials_without_rewriting_master(self):
+        original = (self.notes / 'resume/master_resume.md').read_bytes()
+        folder = self.notes / 'resume/variants/education'
+        folder.mkdir(parents=True)
+        for name in ['master_resume', 'fit_evidence', 'role_contexts', 'portfolios']:
+            (folder / (name + '.md')).write_text('- **이름**: Selected Person\n' if name == 'master_resume' else '')
+        self.cli('documents', '--materials-dir', str(folder), '--only', 'resume')
+        file = next((self.notes / 'outputs').glob('*.html'))
+        self.assertIn('Selected Person', file.read_text())
+        self.assertEqual((self.notes / 'resume/master_resume.md').read_bytes(), original)
+        (folder / 'fit_evidence.md').unlink()
+        failed = self.cli('documents', '--materials-dir', str(folder), '--out', str(self.notes / 'missing-output'), ok=False)
+        self.assertNotEqual(failed.returncode, 0)
+        self.assertFalse((self.notes / 'missing-output').exists())
+
     def test_ats_dispatch_passes_keyword_as_named_option(self):
         target = self.app / "adapters/ats-search/scripts/ats_search.py"
         target.write_text('import argparse\np=argparse.ArgumentParser()\np.add_argument("--keyword", required=True)\np.add_argument("--json", action="store_true")\nprint(p.parse_args().keyword)\n')

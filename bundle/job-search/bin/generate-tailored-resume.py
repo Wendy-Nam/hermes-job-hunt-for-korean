@@ -62,13 +62,20 @@ def get_wiki_root() -> Path:
     return Path(wiki_path).resolve()
 
 
-def read_source_vault(wiki_root: Path, *, job_root: Path | None = None) -> dict[str, str]:
+def read_source_vault(wiki_root: Path, *, job_root: Path | None = None,
+                      materials_dir: Path | None = None) -> dict[str, str]:
     sources = {
         "master_resume": "",
         "fit_evidence": "",
         "role_contexts": "",
         "portfolios": "",
     }
+
+    if materials_dir is not None:
+        folder = Path(materials_dir).expanduser().resolve()
+        for key in sources:
+            sources[key] = (folder / f"{key}.md").read_text(encoding="utf-8")
+        return sources
 
     resume_dir = (job_root or JOB_ROOT) / "resume" if NATIVE else wiki_root / "automation" / "job-hunting" / "resume"
     template_dir = VAULT_DIR / "automation" / "job-hunting" / "resume"
@@ -224,7 +231,7 @@ def parse_master_resume(text: str) -> dict:
                   "거주지": "address", "포트폴리오": "portfolio", "LinkedIn": "linkedin",
                   "블로그": "blog", "사진": "photo", "희망 연봉": "salary",
                   "입사 가능일": "available", "희망 근무지": "work_location",
-                  "주요 트랙": "tracks", "숨길 항목": "hide"}
+                  "주요 트랙": "tracks", "숨길 항목": "hide", "요약 방식": "summary_style"}
     ident: dict = {v: "" for v in ident_keys.values()}
     ident["competencies"] = []
     exp_keys = {"직급/직책": "role", "담당 업무": "department", "회사 소개": "company_desc",
@@ -274,7 +281,7 @@ def parse_master_resume(text: str) -> dict:
                 ident[ident_keys[key]] = _strip_md(val)
             elif key == "커리어 핵심 경쟁력":
                 in_competency = True
-            elif key.startswith("주요 정량"):
+            elif key.startswith("주요 정량") or key == "주요 업무":
                 in_kpi = True
                 if current_exp is not None:
                     current_exp["_kpi_mode"] = True
@@ -301,7 +308,7 @@ def parse_episodes(text: str) -> list:
     """Parse the episode pool (상황/행동/정량결과/역량태그) from master_resume.md."""
     episodes: list = []
     cur = None
-    field_map = {"상황": "situation", "행동": "action", "정량결과": "result", "역량태그": "tags"}
+    field_map = {"상황": "situation", "행동": "action", "정량결과": "result", "결과": "result", "역량태그": "tags"}
     for raw in text.splitlines():
         s = raw.strip()
         m = re.match(r"^###\s*에피소드\s*\d+\s*[:：]\s*(.+)$", s)
@@ -427,6 +434,7 @@ PROJECT_FIELDS = {
     "개요": "description", "배경·문제": "problem", "배경": "problem", "문제": "problem",
     "해결": "approach", "해결 방법": "approach", "접근": "approach",
     "성과": "impact", "배운 점": "learning", "회고": "learning", "기술 스택": "tech_stack",
+    "성과 근거": "evidence_note",
 }
 PROJECT_LINK_KEYS = {"링크": "링크", "GitHub": "GitHub", "데모": "데모", "문서": "문서",
                      "포트폴리오": "포트폴리오", "영상": "영상", "발표 자료": "발표 자료"}
@@ -505,6 +513,21 @@ RESUME_SECTIONS = {
     "발표·강연": ("talks", ("date", "title", "event")),
     "병역": ("military", ("status", "detail", "period")),
     "취업 우대": ("preferences", ("category", "detail")),
+    "교육·코칭": ("teaching", ("period", "audience", "topic", "outcome")),
+    "오픈소스·커뮤니티": ("community", ("period", "name", "role", "outcome")),
+    "연구 경험": ("research_experience", ("period", "institution", "role", "outcome")),
+    "콘텐츠": ("content", ("period", "title", "channel", "evidence")),
+}
+
+ADDITIONAL_SECTIONS = {
+    "교육·코칭": ("Teaching & Coaching", ("기간", "대상·규모", "주제·형식", "역할·성과"),
+                    ("Period", "Audience", "Topic & Format", "Contribution & Outcome")),
+    "오픈소스·커뮤니티": ("Open Source & Community", ("기간", "활동명", "역할", "기여·성과"),
+                           ("Period", "Activity", "Role", "Contribution & Outcome")),
+    "연구 경험": ("Research Experience", ("기간", "기관", "역할", "기여·성과"),
+                    ("Period", "Institution", "Role", "Contribution & Outcome")),
+    "콘텐츠": ("Content & Knowledge Sharing", ("기간", "주제", "채널", "내용·근거"),
+                ("Period", "Topic", "Channel", "Content & Evidence")),
 }
 
 # 선택 항목 라벨 → 숨길 때 비울 컨텍스트 키 (master_resume.md `숨길 항목`에서 사용)
@@ -740,6 +763,9 @@ def build_context(company: str, position: str, jd_text: str, sources: dict,
             summary_points.append(line)
     summary_points = [{"text": t} for t in summary_points[:4]] or [
         {"text": "경력·역량 자료를 master_resume.md에 등록해 주세요."}]
+    if ident["summary_style"] == "역량":
+        summary_points = [{"text": t} for t in _usable(rank_by_jd(
+            ident["competencies"], keywords, lambda t: t, limit=5))] or summary_points
     total_career = format_months(total_months([e["period"] for e in experiences]), lang)
 
     # --- cover letter: 문항별로 소재 블록·에피소드를 JD 순으로 골라 조립 ---
@@ -796,7 +822,7 @@ def build_context(company: str, position: str, jd_text: str, sources: dict,
         "target_position": position,
         "email": _first_filled([ident["email"]], "이메일 입력"),
         "phone": _first_filled([ident["phone"]], "연락처 입력"),
-        "github_or_portfolio": _first_filled([ident["portfolio"]], "포트폴리오 URL"),
+        "github_or_portfolio": opt("portfolio"),
         "applicant_name_en": opt("name_en"),
         "headline": opt("headline"),
         **{k: opt(k) for k in ("birth", "address", "linkedin", "blog", "photo",
@@ -833,6 +859,18 @@ def apply_output_options(ctx: dict, hide: str, lang: str = "ko") -> dict:
             ctx[RESUME_SECTIONS[label][0]] = []
     for key, _ in RESUME_SECTIONS.values():
         ctx[f"has_{key}"] = bool(ctx[key])
+    ctx["additional_sections"] = []
+    for label, (title_en, columns_ko, columns_en) in ADDITIONAL_SECTIONS.items():
+        key, fields = RESUME_SECTIONS[label]
+        if not ctx[key]:
+            continue
+        rows = []
+        for row in ctx[key]:
+            values = [row[field] for field in fields]
+            rows.append({"cells": [{"value": v} for v in values], "period": values[0],
+                         "lead": values[1], "detail": " · ".join(v for v in values[2:] if v)})
+        ctx["additional_sections"].append({"title": title_en if lang == "en" else label,
+            "columns": [{"label": v} for v in (columns_en if lang == "en" else columns_ko)], "rows": rows})
     ctx["has_quals"] = bool(ctx["certifications"] or ctx["languages"])
 
     # 인적사항 표(국문): 채워진 항목만 2열 격자로
@@ -1079,6 +1117,8 @@ def main() -> None:
     parser.add_argument("--jd-text")
     parser.add_argument("--output-dir", "--out", dest="output_dir")
     parser.add_argument("--lang", choices=("ko", "en"), default="ko")
+    parser.add_argument("--materials-dir", type=Path,
+                        help="직무·언어별 경력 자료 4종이 있는 폴더; 누락 시 다른 이력서로 대체하지 않음")
     parser.add_argument("--only", choices=("resume", "cover-letter", "portfolio"),
                         help="요청한 문서 한 종류만 출력")
     parser.add_argument("--portfolio", action="store_true",
@@ -1092,8 +1132,11 @@ def main() -> None:
     jd = Path(args.jd_file).read_text(encoding="utf-8") if args.jd_file else (args.jd_text or "")
     default_out = JOB_ROOT / "outputs" if NATIVE else get_wiki_root() / "automation/job-hunting/resumes"
     out = Path(args.output_dir).expanduser().resolve() if args.output_dir else default_out
+    try:
+        sources = read_source_vault(get_wiki_root(), materials_dir=args.materials_dir)
+    except OSError as e:
+        parser.error(f"경력 자료를 읽을 수 없습니다: {e}")
     out.mkdir(parents=True, exist_ok=True)
-    sources = read_source_vault(get_wiki_root())
     resume, cover = build_tailored_html(args.company, args.position, jd, sources, lang=args.lang)
     safe = lambda s: re.sub(r"[^\w\-_]", "_", s, flags=re.UNICODE)
     paths = []
