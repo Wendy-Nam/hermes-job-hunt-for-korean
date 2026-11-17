@@ -104,6 +104,16 @@ class DocumentTest(unittest.TestCase):
             kill.assert_called_once_with(process.pid, signal.SIGKILL)
             self.assertEqual(pdf.read_bytes(), b'%PDF-previous')
 
+    def test_only_requested_document_is_written(self):
+        for choice, suffix in [('resume', 'Resume'), ('cover-letter', 'CoverLetter'), ('portfolio', 'Portfolio')]:
+            with self.subTest(choice=choice), tempfile.TemporaryDirectory() as directory:
+                facts = {'master_resume': '', 'fit_evidence': '', 'role_contexts': '', 'portfolios': ''}
+                with patch.object(sys, 'argv', ['renderer', '--only', choice, '--out', directory]), patch.object(self.renderer, 'read_source_vault', return_value=facts), redirect_stdout(io.StringIO()):
+                    self.renderer.main()
+                files = list(Path(directory).glob('*.html'))
+                self.assertEqual(len(files), 1)
+                self.assertTrue(files[0].name.endswith('_' + suffix + '.html'))
+
 
 if __name__ == '__main__':
     unittest.main()

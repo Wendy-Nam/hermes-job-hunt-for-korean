@@ -17,10 +17,10 @@ metadata:
 AI 교육은 설명·교육자료·워크숍 운영·실습 설계 근거를 먼저, 자동화 실무·PM은 문제 정의·구현·도입·운영 근거를 먼저, GTM·RevOps는 CRM·파이프라인·데이터 품질·프로세스 근거를 먼저 배치한다. 강의 경력을 영업 경력으로 바꾸거나 교육생 수·절감 시간을 추정하지 않는다.
 
 ```bash
-@APP@/job-hunt documents --company "직무별 예시" --position "AI 교육 담당자" --jd-text "AI 교육 실습 워크숍 교육자료 콘텐츠 설계" --out "@JOB_ROOT@/outputs/ai-education" --lang ko
+@APP@/job-hunt documents --company "직무별 예시" --position "AI 교육 담당자" --jd-text "AI 교육 실습 워크숍 교육자료 콘텐츠 설계" --out "@JOB_ROOT@/outputs/ai-education" --lang ko --only resume
 ```
 
-실제 공고는 `--jd-text` 대신 `--jd-file "공고 노트 경로"`를 사용한다. 포트폴리오를 요청한 경우만 `--portfolio`, PDF를 요청한 경우만 `--pdf`를 붙인다. 명령은 생성한 파일 경로를 출력한다. PDF가 실패해도 HTML은 보존된다. 환경 문제를 이력서나 코드 수정으로 해결하려 하지 않는다.
+실제 공고는 `--jd-text` 대신 `--jd-file "공고 노트 경로"`를 사용한다. 이력서만 요청하면 `--only resume`, 자소서만 요청하면 `--only cover-letter`, 포트폴리오만 요청하면 `--only portfolio`를 사용한다. 이력서·자소서 묶음은 `--only`를 빼고, 세 문서 묶음은 `--portfolio`를 붙인다. PDF를 요청한 경우만 `--pdf`를 붙인다. 명령은 생성한 파일 경로를 출력한다. PDF가 실패해도 HTML은 보존된다. 환경 문제를 이력서나 코드 수정으로 해결하려 하지 않는다.
 
 생성기는 키워드로 사실을 골라 HTML 서식에 넣는다. 출력 후 경력 누락·잘못 붙은 성과·회사명·미채움 항목을 한 번 점검하고 파일을 제공한다. 전체 HTML을 여러 번 읽거나 출력 완료 뒤 표현을 바꾸려고 생성기를 수정하지 않는다. PDF 제출 전 페이지 나눔과 잘림을 점검한다.
 

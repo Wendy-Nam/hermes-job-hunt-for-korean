@@ -1079,6 +1079,8 @@ def main() -> None:
     parser.add_argument("--jd-text")
     parser.add_argument("--output-dir", "--out", dest="output_dir")
     parser.add_argument("--lang", choices=("ko", "en"), default="ko")
+    parser.add_argument("--only", choices=("resume", "cover-letter", "portfolio"),
+                        help="요청한 문서 한 종류만 출력")
     parser.add_argument("--portfolio", action="store_true",
                         help="포함: 맞춤 포트폴리오 HTML도 생성")
     parser.add_argument("--pdf", action="store_true")
@@ -1096,9 +1098,12 @@ def main() -> None:
     safe = lambda s: re.sub(r"[^\w\-_]", "_", s, flags=re.UNICODE)
     paths = []
     documents = [("Resume", resume), ("CoverLetter", cover)]
-    if args.portfolio:
+    if args.portfolio or args.only == "portfolio":
         documents.append(("Portfolio", build_portfolio_html(
             args.company, args.position, jd, sources, is_senior=True)))
+    if args.only:
+        kind = {"resume": "Resume", "cover-letter": "CoverLetter", "portfolio": "Portfolio"}[args.only]
+        documents = [(suffix, body) for suffix, body in documents if suffix == kind]
     for suffix, body in documents:
         path = out / f"{safe(args.company)}_{safe(args.position)}_{suffix}.html"
         path.write_text(body, encoding="utf-8")
