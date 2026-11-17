@@ -1,0 +1,6 @@
+# Set your own model routes before enabling agent cron jobs.
+endpoint: null
+public_enabled: false
+public_model: null
+private_model: null
+private_provider: null

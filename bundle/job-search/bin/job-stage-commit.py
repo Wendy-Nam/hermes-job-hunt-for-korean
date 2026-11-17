@@ -30,7 +30,8 @@ from datetime import datetime, timezone, timedelta
 DATA = os.environ.get("HERMES_DATA") or "/opt/data"   # 명시 env 우선(테스트·호스트 격리), 없으면 컨테이너 기본
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from noteio import DRY_RUN, why_dry, write_atomic   # 쓰기 스위치·원자적 저장 = noteio 단일 계층
-POSTINGS = f"{DATA}/wiki/automation/job-hunting/postings"
+from jobpaths import POSTINGS as _POSTINGS, STATE_DIR, BIN_DIR, ADAPTERS
+POSTINGS = str(_POSTINGS)
 os.makedirs(POSTINGS, exist_ok=True)  # 새 설치에서 디렉터리 부재로 즉사 방지
 
 def _wjson(path, obj, indent=1):
@@ -44,9 +45,9 @@ def _wjson(path, obj, indent=1):
     os.chmod(tmp, os.stat(path).st_mode & 0o7777 if os.path.exists(path) else 0o600)  # 장부=지원이력 → 비공개
     os.replace(tmp, path)
 
-STAGING = f"{DATA}/.job-staging.json"
-LEDGER = f"{DATA}/.job-seen.json"
-REJECTED = f"{DATA}/.job-rejected.json"
+STAGING = str(STATE_DIR / ".job-staging.json")
+LEDGER = str(STATE_DIR / ".job-seen.json")
+REJECTED = str(STATE_DIR / ".job-rejected.json")
 KST = timezone(timedelta(hours=9))
 
 
@@ -108,7 +109,7 @@ def make_note(item, fit, status="open", sebu="발견", memo="", priority=""):
     os.chmod(fp, 0o600)        # private: true는 에이전트용 표식일 뿐 — OS 권한도 맞춰준다
     import subprocess
     subprocess.run(["chown", "10000:10000", fp], stderr=subprocess.DEVNULL, check=False)
-    r = subprocess.run([sys.executable, f"{DATA}/bin/priority-recalc.py", "--file", fp],
+    r = subprocess.run([sys.executable, str(BIN_DIR / "priority-recalc.py"), "--file", fp],
                        capture_output=True, text=True, check=False)  # 우선도 파생
     if r.returncode != 0:   # 조용히 넘어가면 대시보드 정렬 필드가 통째로 빠진 노트가 생긴다
         print(f"⚠️ 우선도 계산 실패({r.returncode}) — 노트는 만들었지만 우선도 없음: "
@@ -123,7 +124,7 @@ def find_note(company, position):
     nk = None
     try:
         import sys as _s
-        _s.path.insert(0, f"{DATA}/skills/job-search")
+        _s.path.insert(0, str(ADAPTERS))
         import jobfilter as _jf
         nk = _jf.norm_key(company, position)
     except Exception:
@@ -145,7 +146,7 @@ def find_note(company, position):
 
 def main():
     # 동시 호출(크론·메일스윕·수동) 직렬화 — lost update 방지
-    _lk = open(f"{DATA}/.jsc.lock", "a")
+    _lk = open(STATE_DIR / ".jsc.lock", "a")
     fcntl.flock(_lk, fcntl.LOCK_EX)
     os.environ["HERMES_KIT_LOCK_HELD"] = "1"   # 자식(priority-recalc)이 같은 락을 다시 잡아 교착되지 않게
     ap = argparse.ArgumentParser()
@@ -186,7 +187,7 @@ def main():
             return 0
         try:  # 제목 게이트 즉석 적용(수집기와 동일 기준)
             import sys as _s
-            _s.path.insert(0, f"{DATA}/skills/job-search")
+            _s.path.insert(0, str(ADAPTERS))
             import jobfilter as _jf
             if _jf.is_senior(a.position) or _jf.is_excluded(a.position) or not _jf.matches_track(a.position) or _jf.exceeds_exp(a.position):
                 add_ledger(a.url)
@@ -243,7 +244,7 @@ def main():
         # 커밋 게이트: 스테이징이 낡았어도 위키 진입 직전에 '현재' 규칙으로 재검사(레이스 방어)
         try:
             import sys as _s
-            _s.path.insert(0, f"{DATA}/skills/job-search")
+            _s.path.insert(0, str(ADAPTERS))
             import jobfilter as _jf
             if _jf.is_senior(pos) or _jf.is_excluded(pos) or not _jf.matches_track(pos) or _jf.exceeds_exp(pos):
                 rej = load(REJECTED, {})

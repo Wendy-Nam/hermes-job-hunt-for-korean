@@ -1,0 +1,101 @@
+#!/usr/bin/env python3
+"""Job hunt entry point. Uses the invoking Python interpreter and never assembles shell commands."""
+import hashlib
+import json
+import os
+from datetime import datetime
+from pathlib import Path
+import subprocess
+import sys
+from zoneinfo import ZoneInfo
+from urllib.parse import urlsplit
+
+APP = Path(__file__).resolve().parent
+sys.path.insert(0, str(APP / "bin"))
+from jobpaths import JOB_ROOT, STATE_DIR, POSTINGS, ADAPTERS, PROFILE_PATH, HOME
+from noteio import DRY_RUN
+
+
+def main():
+    if len(sys.argv) < 2:
+        print("Usage: job-hunt status|collect|queue|stage|commit|note|rank|documents|jd|search|monitor [arguments]")
+        return 2
+    command, args = sys.argv[1], sys.argv[2:]
+    if command == "mail-check":
+        from jobmail import check_backend
+        status = check_backend(APP, HOME)
+        print(json.dumps(status, ensure_ascii=False))
+        return 1 if status["ready"] is False else 0
+    if command == "harvest":
+        code = subprocess.run([sys.executable, str(APP / "scripts/job-collect.py"), "--public-jsonl-out",
+                               str(STATE_DIR / "public-candidates.jsonl"), *args], check=False).returncode
+        if code:
+            return code
+        return subprocess.run([sys.executable, str(APP / "public-review.py")], check=False).returncode
+    if command in ["status", "monitor"]:
+        p = STATE_DIR / ".job-staging.json"
+        rows = json.loads(p.read_text()) if p.exists() else []
+        if not isinstance(rows, list):
+            raise ValueError("판정 대기열은 JSON 배열이어야 합니다")
+        if command == "monitor":
+            if rows:
+                day = datetime.now(ZoneInfo("Asia/Seoul")).date().isoformat()
+                print(hashlib.sha256(json.dumps([day, rows], sort_keys=True, ensure_ascii=False).encode()).hexdigest())
+        else:
+            sys.path.insert(0, str(ADAPTERS))
+            import jobfilter  # Validate the deployed profile instead of silently using defaults.
+            print(json.dumps({"job_root": str(JOB_ROOT), "state_dir": str(STATE_DIR),
+                              "profile": str(PROFILE_PATH), "writes": not DRY_RUN, "pending": len(rows),
+                              "posting_files": len(list(POSTINGS.glob("*.md")))}, ensure_ascii=False))
+        return 0
+    routes = {"collect": (APP / "scripts/job-collect.py", []),
+              "public-review": (APP / "public-review.py", []),
+              "queue": (APP / "bin/job-stage-commit.py", ["--list"]),
+              "stage": (APP / "bin/job-stage-commit.py", ["--stage"]),
+              "commit": (APP / "bin/job-stage-commit.py", []),
+              "note": (APP / "bin/note-set-field.py", []),
+              "rank": (APP / "bin/priority-recalc.py", []),
+              "documents": (APP / "bin/generate-tailored-resume.py", []),
+              "jd": (ADAPTERS / "job-match/scripts/fetch_jd.py", [])}
+    if command == "search":
+        if not args:
+            raise ValueError("search requires wanted|saramin|jobkorea|linkedin|ats|web and a keyword")
+        board, args = args[0], args[1:]
+        boards = {"wanted": ("wanted-search/scripts/wanted_search.py", []),
+                  "saramin": ("kr-search/scripts/kr_job_search.py", ["--board", "saramin"]),
+                  "jobkorea": ("kr-search/scripts/kr_job_search.py", ["--board", "jobkorea"]),
+                  "linkedin": ("linkedin-search/scripts/linkedin_jobs.py", ["--level", "신입,인턴,주니어"]),
+                  "ats": ("ats-search/scripts/ats_search.py", []),
+                  "web": ("web-search/scripts/web_job_search.py", [])}
+        if board not in boards:
+            raise ValueError(f"Unknown board: {board}")
+        path, extra = boards[board]
+        if not args:
+            raise ValueError("search requires a keyword")
+        if board == "ats":
+            args = ["--keyword", args[0], *args[1:]]
+        target, prefix = ADAPTERS / path, extra + ["--json"]
+        # The web helper's first argument is the keyword; its remaining options are order-independent.
+        if board == "web":
+            prefix, args = [], args + ["--json"]
+    elif command in routes:
+        target, prefix = routes[command]
+    else:
+        raise ValueError(f"Unknown command: {command}")
+    env = os.environ.copy()
+    wants_proxy = ((command == "search" and board == "wanted") or
+                   (command == "jd" and args and urlsplit(args[0]).hostname in {"wanted.co.kr", "www.wanted.co.kr"}))
+    if wants_proxy and (HOME / "bin/proxy-doctor.py").is_file():
+        proxy = subprocess.run([sys.executable, str(HOME / "bin/proxy-doctor.py")],
+                               capture_output=True, text=True, timeout=90, check=False)
+        if proxy.returncode == 0 and proxy.stdout.strip():
+            env.update(HTTP_PROXY=proxy.stdout.strip(), HTTPS_PROXY=proxy.stdout.strip())
+    return subprocess.run([sys.executable, str(target), *prefix, *args], env=env, check=False).returncode
+
+
+if __name__ == "__main__":
+    try:
+        raise SystemExit(main())
+    except (OSError, ValueError) as e:
+        print(f"job-hunt: {e}", file=sys.stderr)
+        raise SystemExit(2)

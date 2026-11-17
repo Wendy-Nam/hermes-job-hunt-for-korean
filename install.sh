@@ -5,6 +5,10 @@
 #   --dry-run: 파일을 쓰지 않고 설치 작업과 검증 대상만 출력.
 # 기본 DATA_DIR: /opt/data. 기존 파일은 덮어쓰지 않습니다.
 set -euo pipefail
+if [ "${1:-}" = "--native" ]; then
+  shift
+  exec "${HERMES_PYTHON:-python3}" "$(dirname "$0")/native/install.py" "$@"
+fi
 UPGRADE=0; DRY_RUN=0; DATA=""
 for arg in "$@"; do
   case "$arg" in

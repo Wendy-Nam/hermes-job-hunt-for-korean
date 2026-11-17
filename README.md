@@ -1,88 +1,100 @@
-# Hermes Agent 구직 자동화 번들
+# Hermes Job Hunt for Korean · v2.0.0
 
-Hermes Agent 위에 설치하는 **구직 전용 이식 번들**입니다. 공고 수집부터 지원 상태, 이메일 확인, 회사·면접 리서치, 맞춤 이력서·자소서까지 한 흐름으로 관리합니다.
+Hermes에서 한국 채용 공고를 수집하고, 경력 근거로 적합도를 판단하며, 지원 현황·문서·면접을 관리합니다. 선택적으로 Aside 브라우저에서 저장 이력서 선택과 지원 폼·최종 제출을 실행합니다.
 
-## 빠른 설치
+## 구성
+
+| 실행 환경 | 역할 |
+|---|---|
+| Hermes · Linux/macOS | 공개 공고 수집, 판정, 경력 자료, 문서·면접, 메일·리마인더 |
+| google-workspace 또는 Composio | 사용자가 선택한 Gmail 연결의 검색·읽기 |
+| Aside · macOS/Windows | 로그인된 채용 플랫폼의 이력서 선택·폼 작성·승인 범위 내 제출 |
+
+공개 모델 분석은 선택 사항입니다. 개인 경력·메일은 사용자가 지정한 개인 데이터 처리용 모델에만 전달합니다. 샘플에 특정 모델 라우터·계정·Discord 채널을 강제하지 않습니다.
+
+## 설치
+
+Python 3.10+, PyYAML, requests와 이미 설치된 Hermes가 필요합니다. Hermes의 Python 환경에서 실행하세요. 기존 공용 스크립트나 전역 설정을 덮어쓰지 않는 native 설치를 권장합니다.
 
 ```bash
-git clone <repo> && cd hermes-agent-kit
-python3 -m pip install -r requirements.txt
-./install.sh /opt/data
-python3 tests/smoke_test.py
-python3 /opt/data/bin/kit-doctor.py /opt/data
+git clone https://github.com/Wendy-Nam/hermes-job-hunt-for-korean.git
+cd hermes-job-hunt-for-korean
+python3 native/install.py \
+  --home "$HERMES_HOME" \
+  --job-root "/path/to/your/vault/job-hunting" \
+  --mail-backend google-workspace \
+  --profile-file profiles/korean-junior-ai.yaml \
+  --dry-run
 ```
 
-기본 경로는 `/opt/data`입니다. 설치기는 기존 파일을 덮어쓰지 않으며 `--upgrade`로 관리 코드의 교체본만 백업 후 갱신합니다.
+미리보기를 확인한 뒤 `--dry-run`을 빼고 실행합니다. `HERMES_HOME`은 실제 프로필 홈을 지정하세요. 기본 프로필을 사용하는 일반 설치는 `~/.hermes`, 컨테이너는 해당 데이터 볼륨 경로입니다. `./install.sh --native ...`도 같은 인자를 받습니다.
 
-```bash
-./install.sh /opt/data --upgrade
-./uninstall.sh /opt/data --dry-run
-```
+메일을 사용하지 않으면 `--mail-backend none`, Composio를 사용하면 `--mail-backend composio`를 선택합니다. Google Workspace 선택 시 기존 `google-workspace` 스킬 설치와 OAuth 인증이 필요합니다. 이 저장소에 토큰을 복사하지 않습니다.
 
-## 포함 기능
-
-| 단계 | 구성요소 | 역할 |
-|---|---|---|
-| 검색·수집 | Wanted, KR, LinkedIn, ATS, Web | 여러 보드의 공고를 공통 JSON으로 수집 |
-| 필터·판정 | `job-hunter-kit`, `job-collect.py` | 중복 제거, 프로필 필터, 적합도 판정 대기열 |
-| 지원 관리 | `job-alert-mail`, `job-match` | 채용 메일 분류, 지원 노트 생성·갱신, JD 조회 |
-| 문서 작성 | `generate-tailored-resume.py` | 마스터 경력·역량 근거를 JD에 맞춰 국문/영문 이력서·자소서 생성 |
-| 면접 준비 | `company-interview-research`, `interview-grill`, `web-reader` | 회사 조사, 웹 참고자료 수집, 질문 연습 |
-| 관리 UI | Obsidian 볼트 템플릿 | 공고·리서치·복기·이력서 자료와 TaskNotes 대시보드 |
-| 자동화 | `bundle/cron/jobs.json` | 수집, 판정, 메일 확인, 리마인더 작업(기본 모두 비활성) |
-
-## 문서 서식 예시
-
-가상 인물 자료로 생성한 국문·영문 이력서, 자기소개서, 포트폴리오입니다. 모두 A4 인쇄용 미니멀 서식입니다.
-
-![이력서·자기소개서·포트폴리오 서식 예시](docs/examples/preview.png)
-
-| 문서 | HTML | PDF |
-|---|---|---|
-| 국문 이력서 | [resume_ko.html](docs/examples/output/resume_ko.html) | [resume_ko.pdf](docs/examples/output/resume_ko.pdf) |
-| 영문 이력서 | [resume_en.html](docs/examples/output/resume_en.html) | [resume_en.pdf](docs/examples/output/resume_en.pdf) |
-| 자기소개서 | [cover_letter_ko.html](docs/examples/output/cover_letter_ko.html) | [cover_letter_ko.pdf](docs/examples/output/cover_letter_ko.pdf) |
-| 포트폴리오 | [portfolio_ko.html](docs/examples/output/portfolio_ko.html) | [portfolio_ko.pdf](docs/examples/output/portfolio_ko.pdf) |
-
-입력으로 쓴 자료는 [`docs/examples/wiki/…/master_resume.md`](docs/examples/wiki/automation/job-hunting/resume/master_resume.md)와 [`portfolios.md`](docs/examples/wiki/automation/job-hunting/resume/portfolios.md)입니다. 빈 서식을 채울 때 참고하세요. 예시는 `python3 docs/examples/build_examples.py`로 다시 만들 수 있습니다(Chrome, `pymupdf`, `pillow` 필요).
-
-## 번들 구조
+설치기는 다음 경로를 사용합니다.
 
 ```text
-bundle/
-├── job-search/
-│   ├── bin/       공고·노트·우선도·이력서 생성 도구
-│   ├── scripts/   수집기와 내부 모듈
-│   └── skills/    보드·메일·리서치·문서 작성 스킬
-├── config/        검색 프로필과 Hermes 설정 예시
-├── cron/          비활성 크론 예시
-└── vault/         Obsidian 볼트 템플릿
+HERMES_HOME/
+├── apps/job-hunt/          코드·설정·문서 서식
+├── state/job-hunt/         대기열·장부·공개 분석·쓰기 스위치
+├── skills/job-search/     공통 스킬 5개
+└── scripts/job-hunt/       Hermes 크론의 작은 실행기
 ```
 
-실행 파일은 기존 Hermes 호환 경로인 `/opt/data/{skills,scripts,bin,wiki}`에 설치됩니다.
+지정한 구직 폴더에는 **없는 서식만** 보강합니다. 기존 Rules, 이력서, TaskNotes 칸반과 기록은 보존합니다. 개인 설정·검색 프로필은 재설치로 교체하지 않습니다. 바뀐 관리 코드는 백업한 뒤 갱신합니다.
 
-## 처음 설정하는 순서
+## 첫 설정
 
-1. `/opt/data/search-profile.yaml`에서 검색어, 연차, 제외 직군과 보드를 조정합니다.
-2. `/opt/data/wiki/automation/job-hunting/Rules.md`에서 공고 적합도 기준을 정합니다.
-3. `/opt/data/wiki/automation/job-hunting/resume/`에 마스터 경력, 성과 근거, 직무 맥락과 포트폴리오를 채웁니다.
-4. `bundle/config/config.example.yaml`과 `bundle/cron/jobs.json`의 자리표시자를 본인 값으로 바꿉니다.
-5. 메일 쓰기 전에 `.kit-live`와 Gmail 권한을 제외한 DRY-RUN 기간을 먼저 운영합니다.
+1. 앱의 `config/search-profile.yaml`과 구직 폴더의 `Rules.md`를 본인의 조건으로 조정합니다. 제공 프로필은 주니어 AI 교육·자동화 실무/PM·GTM/RevOps의 예시입니다.
+2. `resume/`의 마스터 경력·검증 근거·직무 맥락·포트폴리오를 채웁니다. 예시 인물의 사실을 본인 경력으로 사용하지 않습니다.
+3. 앱의 `config/mail.yaml`에서 선택한 백엔드를 확인하고 `job-hunt mail-check`로 연결 준비 상태를 확인합니다. Composio의 실제 MCP 연결은 Hermes에서 선택 계정으로 확인합니다.
+4. 앱의 `config/models.yaml`에 본인의 공개/개인 모델 경로를 지정합니다. OmniRoute 사용자는 `examples/models.omniroute.yaml`을 참고하되 본인에게 존재하는 라우트명으로 바꿉니다.
+5. 읽기 전용 관찰 뒤 `HERMES_HOME/state/job-hunt/.kit-live`를 만들면 노트·상태 쓰기를 허용합니다. 기존 전역 `.kit-live`를 승계하지 않습니다.
 
-상세 조정 항목은 [CUSTOMIZE.md](CUSTOMIZE.md)를 보세요.
+```bash
+"$HERMES_HOME/apps/job-hunt/job-hunt" status
+"$HERMES_HOME/apps/job-hunt/job-hunt" mail-check
+"$HERMES_HOME/apps/job-hunt/job-hunt" collect
+"$HERMES_HOME/apps/job-hunt/job-hunt" queue
+```
 
-## 안전 장치
+## 스킬과 자동화
 
-- 노트와 상태 파일 쓰기는 기본적으로 차단되며 `touch /opt/data/.kit-live`로 로컬 쓰기를 허용합니다.
-- `HERMES_KIT_DRY_RUN=1`은 한 실행만 읽기 전용으로 만듭니다.
-- 수집기·판정·메일 크론은 기본 비활성이며 외부 서비스 변경은 별도 권한으로 통제해야 합니다.
-- 회사가 정확히 1:1로 대응할 때만 지원 상태를 갱신합니다.
+- `/job-search`: 보드별 검색·수집
+- `/job-match`: 공고와 실제 경력 비교
+- `/job-application`: 선택한 메일 백엔드로 상태 확인·리마인더
+- `/job-documents`: 이력서·자소서·포트폴리오 생성
+- `/job-interview`: 회사 조사·면접 연습·복기
 
-## 요구사항
+Hermes의 Python 환경에서 `native/cron-jobs.py --app "$HERMES_HOME/apps/job-hunt" --channel YOUR_CHANNEL_ID`를 실행하면 세 크론을 일시중지 상태로 준비합니다. 개인 데이터 처리용 모델과 메일 인증을 확인한 뒤 `--activate`로 활성화합니다. 작업 시각은 Hermes에 설정한 타임존을 따릅니다. 스크립트 경로·모델·채널을 직접 jobs.json에 복사하는 방식은 사용하지 않습니다.
 
-- Python 3.10 이상
-- Hermes Agent(자동 크론과 메일 연동용)
-- Obsidian의 TaskNotes·Dataview·Tasks 플러그인(대시보드용)
-- 채용 메일 연동용 Gmail API 또는 Composio 연결
+## Aside 지원 실행
 
-개인정보와 API 키는 포함되어 있지 않습니다.
+[`integrations/aside/aside-job-apply`](integrations/aside/aside-job-apply)에 별도 표준 스킬을 제공합니다. 플랫폼에 저장된 이력서 버전을 실제 내용과 JD로 비교하고, 지원 폼·문항·첨부를 처리합니다. 명시적으로 승인한 계정·지원 범위·조건·횟수·기한 안에서 최종 제출할 수 있습니다.
+
+정책 예시는 작성 모드입니다. 실제 자동 제출은 본인의 정책을 설정한 뒤 사용합니다. Python 표준 SQLite 이력으로 중복·제출 한도·확인 불가 상태를 관리합니다. 저장소 설치가 실제 지원을 실행하지는 않습니다. 실행 방법은 [Aside 안내](docs/aside.md)를 보세요.
+
+## 업그레이드·제거
+
+같은 홈과 구직 루트로 설치기를 다시 실행합니다. 변경 코드의 이전 사본은 `HERMES_HOME/backups/job-hunt-*`에 보관합니다. 개인 설정·노트는 유지하며 과거 지원 기록을 자동 정리하지 않습니다.
+
+```bash
+python3 native/uninstall.py --home "$HERMES_HOME" --dry-run
+```
+
+제거 전 구직 크론을 일시중지해야 합니다. 제거기는 매니페스트의 변경되지 않은 관리 코드만 백업으로 이동하며 노트·설정·상태·사용자 파일은 남깁니다. 직접 수정한 코드나 잘못된 경로는 제거하지 않고 중단합니다.
+
+## 검증과 호환성
+
+```bash
+python3 -m unittest discover -s tests -p 'test_*.py'
+python3 tests/smoke_test.py
+```
+
+CI는 Python 3.10·3.12에서 검증합니다. Aside의 실제 로그인·페이지 조작·접수는 별도 실행 검증이 필요합니다.
+
+기존 v1 overlay 설치의 `./install.sh DATA_DIR`, `./uninstall.sh DATA_DIR`는 호환용으로 남겨 둡니다. 신규 설치는 native 방식을 사용하세요. 자세한 설정은 [CUSTOMIZE.md](CUSTOMIZE.md), 변경 내용은 [CHANGELOG.md](CHANGELOG.md)를 참고하세요.
+
+## 서식 예시
+
+`docs/examples/`에는 가상 인물로 만든 국문·영문 이력서, 자소서, 포트폴리오 예시가 있습니다. `python3 docs/examples/build_examples.py`로 다시 만들 수 있습니다. 실제 개인 자료·메일·브라우저 로그인·제출 이력은 공개 저장소에 넣지 않습니다.

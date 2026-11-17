@@ -13,12 +13,14 @@ import glob
 import os
 import re
 import sys
+from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from noteio import note_lock, write_atomic   # 노트 쓰기는 반드시 이 계층으로(잠금+원자성)
+from jobpaths import POSTINGS as _POSTINGS, PROFILE_PATH
 
 DATA = os.environ.get("HERMES_DATA") or "/opt/data"   # 명시 env 우선(테스트·호스트 격리), 없으면 컨테이너 기본
-POSTINGS = f"{DATA}/wiki/automation/job-hunting/postings"
+POSTINGS = str(_POSTINGS)
 TIER_PT = {"S": 5.0, "A": 4.0, "B": 3.0, "C": 2.0, "D": 0.0}
 FIT_PT = {"✅": 0.9, "🔧": 0.5, "❌": 0.0}
 
@@ -35,7 +37,7 @@ def _track_bonus():
     잘못된 점수가 노트에 영구 기록된다."""
     try:
         import yaml
-        with open(f"{DATA}/search-profile.yaml", encoding="utf-8") as fh:
+        with open(PROFILE_PATH, encoding="utf-8") as fh:
             p = yaml.safe_load(fh) or {}
     except FileNotFoundError:
         return []                      # 파일 없음 = 트랙 가산점 없음(첫 설치·독립 실행)
@@ -53,7 +55,14 @@ TRACK_BONUS = _track_bonus()
 
 
 def recalc(fp):
+    path = Path(fp)
+    if path.is_symlink() or Path(POSTINGS).is_symlink() or not path.resolve().is_relative_to(Path(POSTINGS).resolve()):
+        raise SystemExit(f"거부(공고 폴더 밖 또는 심볼릭 링크): {fp}")
     t = open(fp, encoding="utf-8", errors="ignore").read()
+    frontmatter = re.match(r"\A(---\n)(.*?)(\n---(?:\n|$))(.*)\Z", t, re.S)
+    if not frontmatter:
+        return False
+    t = frontmatter.group(2)
     mt = re.search(r'^티어:\s*"?([SABCD])', t, re.M)
     tier_pt = TIER_PT.get(mt.group(1) if mt else "C", 2.0)
     mf = re.search(r'^적합도:\s*"?(.)', t, re.M)
@@ -71,7 +80,7 @@ def recalc(fp):
         if new == t:
             new = re.sub(r'(^회사:.*$)', r'\1' + f'\n우선도: "{score}"', t, count=1, flags=re.M)
     if new != t:
-        write_atomic(fp, new)
+        write_atomic(fp, frontmatter.group(1) + new + frontmatter.group(3) + frontmatter.group(4))
         return True
     return False
 

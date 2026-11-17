@@ -1,0 +1,30 @@
+# Example: junior AI education, automation delivery/PM, GTM and RevOps. Customize before use.
+limit_per_board: 12
+body_fetch_cap: 12
+boards: [wanted, saramin, jobkorea, linkedin, ats]
+keyword_blocks:
+  - [AI 교육, 생성형 AI 교육, 기업 AI 교육, AI 강사]
+  - [AI trainer, AI instructor, AI education, AI 교육 운영]
+  - [업무 자동화, 자동화 PM, AX 운영, AI 도입]
+  - [GTM operations, RevOps, sales operations, revenue operations]
+filters:
+  title_exp_min_years: 3
+  body_exp_min_years: 3
+  ax_exp_min_years: 3
+  ax_title: ''
+  senior_signals: '\bintern(?:ship)?\b|인턴|\blead\b|\bstaff\b|\bsenior\b|\bsr\.?\b|\bprincipal\b|\bdirector\b|\bhead\s+of\b|\bVP\b|\bchief\b|시니어|수석|책임급|팀장|실장|본부장|팀리드|총괄'
+  title_must_match: 'AI.*(?:교육|강사|트레이너|trainer|instructor|educat|training)|(?:교육|강사|instructor|trainer).*(?:AI|인공지능|생성형)|인공지능.*교육|생성형.*교육|자동화|automation|\bRPA\b|\bAX\b|AI.*(?:도입|활용|운영|프로젝트|\bPM\b)|\bRevOps\b|revenue\s*operations|sales\s*operations|세일즈\s*오퍼레이션|\bGTM\b'
+  exclude_roles:
+    engineering: ['백엔드', '프론트엔드', '풀스택', 'AI\s*엔지니어', '머신러닝\s*엔지니어', '연구원', '\bMLOps\b', '\bSRE\b', '로봇\s*제어', 'PLC', '설비\s*자동화']
+    unrelated: ['간호', '약사', '의사\s*채용', '회계사', '변호사', '디자이너', '물류\s*사원']
+    labeling: ['데이터\s*(라벨링|입력|수집)', 'data\s*(label|entry|annotation)', 'crowdsourc', '\brater\b', '모델\s*평가\s*알바']
+    sales_title: ['^(?!.*(?:sales\s*(?:operations?|ops)|세일즈\s*(?:오퍼레이션|옵스)|영업\s*(?:운영|기획))).*(?:영업|세일즈|\bsales\b)']
+    sales: ['솔루션\s*영업', '기술\s*영업', '필드\s*세일즈', '해외\s*영업', '\bSDR\b', '\bBDR\b', '\baccount\s*executive\b']
+track_bonus:
+  - ['AI.*(?:교육|강사|트레이너|trainer|instructor|educat|training)|(?:교육|강사|instructor|trainer).*(?:AI|인공지능|생성형)|인공지능.*교육|생성형.*교육', 90]
+  - ['자동화|automation|\bRPA\b|\bAX\b|AI.*(?:도입|활용|운영|프로젝트|\bPM\b)', 80]
+  - ['\bRevOps\b|revenue\s*operations|sales\s*operations|세일즈\s*오퍼레이션|\bGTM\b', 70]
+company_aliases:
+  당근: [당근마켓, Daangn, Karrot]
+  쿠팡: [Coupang, 쿠팡풀필먼트]
+  토스: [비바리퍼블리카, Toss, 토스페이먼츠]

@@ -30,11 +30,14 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
+from jobpaths import JOB_ROOT, NATIVE, APP
 
 # The generator lives at bundle/job-search/bin; the vault is a sibling directory.
 BUNDLE_DIR = Path(__file__).resolve().parents[1]
 REPO_BUNDLE_DIR = BUNDLE_DIR.parent
 VAULT_DIR = REPO_BUNDLE_DIR / "vault"
+if NATIVE:
+    VAULT_DIR = APP / "assets/vault"
 
 # Mini-mustache: section blocks first ({{#name}}...{{/name}}), then plain vars.
 SECTION_RE = re.compile(r"\{\{#(\w+)\}\}(.*?)\{\{/\1\}\}", re.DOTALL)
@@ -58,7 +61,7 @@ def get_wiki_root() -> Path:
     return Path(wiki_path).resolve()
 
 
-def read_source_vault(wiki_root: Path) -> dict[str, str]:
+def read_source_vault(wiki_root: Path, *, job_root: Path | None = None) -> dict[str, str]:
     sources = {
         "master_resume": "",
         "fit_evidence": "",
@@ -66,7 +69,7 @@ def read_source_vault(wiki_root: Path) -> dict[str, str]:
         "portfolios": "",
     }
 
-    resume_dir = wiki_root / "automation" / "job-hunting" / "resume"
+    resume_dir = (job_root or JOB_ROOT) / "resume" if NATIVE else wiki_root / "automation" / "job-hunting" / "resume"
     template_dir = VAULT_DIR / "automation" / "job-hunting" / "resume"
 
     for key in sources.keys():
@@ -890,7 +893,7 @@ def run_selftest() -> None:
 
     # 2) 파서 계약: 소재 창고 → 구조화 데이터 (kit 템플릿 사용)
     tmp = Path(tempfile.mkdtemp(prefix="tailored-resume-test-"))
-    sources = read_source_vault(tmp)
+    sources = read_source_vault(tmp, job_root=tmp / "automation/job-hunting")
     assert sources["master_resume"], "master_resume 소스 로드 실패"
     master = parse_master_resume(sources["master_resume"])
     assert master["ident"]["name"] == "<지원자 이름>", f"식별자 파싱 실패: {master['ident']}"
@@ -1061,7 +1064,8 @@ def main() -> None:
         run_selftest()
         return
     jd = Path(args.jd_file).read_text(encoding="utf-8") if args.jd_file else (args.jd_text or "")
-    out = Path(args.output_dir).expanduser().resolve() if args.output_dir else get_wiki_root() / "automation" / "job-hunting" / "resumes"
+    default_out = JOB_ROOT / "outputs" if NATIVE else get_wiki_root() / "automation/job-hunting/resumes"
+    out = Path(args.output_dir).expanduser().resolve() if args.output_dir else default_out
     out.mkdir(parents=True, exist_ok=True)
     sources = read_source_vault(get_wiki_root())
     resume, cover = build_tailored_html(args.company, args.position, jd, sources, lang=args.lang)

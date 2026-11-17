@@ -6,9 +6,17 @@ search-profile.yaml 없거나 깨지면 아래 기본값(폴백)으로 동작(�
 """
 import os
 import re
+import sys
+from pathlib import Path
+
+_bin = Path(__file__).resolve().parents[1] / "bin"
+if not _bin.is_dir():
+    _bin = Path(__file__).resolve().parents[2] / "bin"
+sys.path.insert(0, str(_bin))
+from jobpaths import PROFILE_PATH
 
 _DATA = os.environ.get("HERMES_DATA") or "/opt/data"   # 명시 env 우선(테스트·호스트 격리), 없으면 컨테이너 기본
-_PROFILE = f"{_DATA}/search-profile.yaml"
+_PROFILE = str(PROFILE_PATH)
 
 _DEF_SENIOR = (r"senior|\bsr\.?\b|staff|principal|\blead\b|director|head\s+of|\bvp\b|chief|高[级級]|"
                r"리더|리더급|strategic|시니어|수석|책임|총괄|팀장|실장|본부장|매니저급|팀리드|파트장|그룹장|"

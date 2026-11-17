@@ -17,9 +17,10 @@ import os
 import shutil
 import tempfile
 from contextlib import contextmanager
+from jobpaths import HOME, STATE_DIR, NATIVE
 
 DATA = os.environ.get("HERMES_DATA") or "/opt/data"   # 명시 env 우선(테스트·호스트 격리), 없으면 컨테이너 기본
-LOCK_PATH = f"{DATA}/.jsc.lock" if os.path.isdir(DATA) else os.path.join(tempfile.gettempdir(), "hermes-kit.lock")
+LOCK_PATH = str(STATE_DIR / ".jsc.lock") if STATE_DIR.is_dir() else os.path.join(tempfile.gettempdir(), "hermes-kit.lock")
 
 # ── 쓰기 스위치: 기본은 '안 쓴다'(DRY-RUN). ────────────────────────────────────
 # 프롬프트로 "DRY-RUN 하라"고 시키는 방식은 기본값이 아니다 — 모델이 지시를 흘리면 그대로 써버린다.
@@ -27,8 +28,9 @@ LOCK_PATH = f"{DATA}/.jsc.lock" if os.path.isdir(DATA) else os.path.join(tempfil
 #   ① 마커 파일:  touch $DATA/.kit-live      (재시작 불필요 — 운영 중 전환용)
 #   ② 환경변수:   HERMES_KIT_LIVE=1
 # 켠 뒤에도 HERMES_KIT_DRY_RUN=1을 주면 그 실행만 다시 읽기 전용이 된다(테스트·점검용).
-LIVE_MARKER = f"{DATA}/.kit-live"
-LIVE = (os.environ.get("HERMES_KIT_LIVE", "").lower() in ("1", "true", "yes")
+LIVE_MARKER = str(STATE_DIR / ".kit-live")
+LIVE_ENV = "JOB_HUNT_LIVE" if NATIVE else "HERMES_KIT_LIVE"
+LIVE = (os.environ.get(LIVE_ENV, "").lower() in ("1", "true", "yes")
         or os.path.exists(LIVE_MARKER))
 DRY_RUN = (not LIVE) or os.environ.get("HERMES_KIT_DRY_RUN", "").lower() in ("1", "true", "yes")
 
@@ -36,7 +38,7 @@ DRY_RUN = (not LIVE) or os.environ.get("HERMES_KIT_DRY_RUN", "").lower() in ("1"
 def why_dry():
     """왜 안 쓰는지 한 줄로 — 조용히 아무것도 안 하는 것처럼 보이지 않게."""
     if not LIVE:
-        return f"쓰기 스위치 꺼짐(기본값) — 켜려면: touch {LIVE_MARKER}  또는 HERMES_KIT_LIVE=1"
+        return f"쓰기 스위치 꺼짐(기본값) — 켜려면: touch {LIVE_MARKER}  또는 {LIVE_ENV}=1"
     return "HERMES_KIT_DRY_RUN=1 — 이번 실행만 읽기 전용"
 
 

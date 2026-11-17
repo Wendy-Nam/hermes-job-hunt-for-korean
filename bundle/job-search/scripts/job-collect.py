@@ -34,7 +34,7 @@ _SCRIPTS_DIR = str(Path(__file__).resolve().parent)
 if _SCRIPTS_DIR not in sys.path:
     sys.path.insert(0, _SCRIPTS_DIR)
 
-from job_collect.config import DATA, POSTINGS, LEDGER, REJECTED, STAGING, S, FJ, KST, FETCH_TIMEOUT, note_lock, PUBLIC_KEYS
+from job_collect.config import DATA, POSTINGS, LEDGER, REJECTED, STAGING, S, FJ, KST, FETCH_TIMEOUT, note_lock, PUBLIC_KEYS, STATE_DIR, BIN_DIR, NATIVE
 from job_collect.identity import key
 from job_collect.profile import load_profile, _exp_title, _exp_body
 from job_collect.ledger import (
@@ -165,7 +165,7 @@ def main():
         return 0
     # 단일 실행 락 — 수동 실행과 크론이 겹치면 네트워크 호출이 통째로 중복된다(저장은 note_lock이
     # 지키지만 수집 자체가 이중으로 돎). 이미 도는 중이면 조용히 빠진다.
-    runlock = open(f"{DATA}/.job-collect.lock", "a")
+    runlock = open(STATE_DIR / ".job-collect.lock", "a")
     try:
         fcntl.flock(runlock, fcntl.LOCK_EX | fcntl.LOCK_NB)
     except BlockingIOError:
@@ -183,9 +183,11 @@ def main():
     ledger = load_ledger()
     rejected = load_rejected()
     os.makedirs(POSTINGS, exist_ok=True)
-    with note_lock():        # 노트 이동·이름수정은 상태갱신·판정커밋과 겹치면 안 된다
-        reaped = reap_rejected(ledger, rejected, today)   # 트리아지 ❌ 노트 정리(알짜배기만 유지)
-        healed = desuffix_orphans()
+    reaped = healed = 0
+    if not NATIVE:
+        with note_lock():        # 노트 이동·이름수정은 상태갱신·판정커밋과 겹치면 안 된다
+            reaped = reap_rejected(ledger, rejected, today)   # 트리아지 ❌ 노트 정리(알짜배기만 유지)
+            healed = desuffix_orphans()
     existing = scan_existing()
     staging = load_staging()
     staged_keys = {key(x.get("회사",""), x.get("포지션","")) for x in staging}
@@ -199,6 +201,7 @@ def main():
     public_candidates = []
     fails = []                                  # 스크래퍼 실패 — 빈 결과와 구분해서 보고(차단·파서변경 감지)
     hit_deadline = False
+    attempted = failed_calls = 0
     for kw in block:
         if time.monotonic() > deadline:
             print("⚠️ 수집 데드라인 도달 — 남은 키워드 생략, 지금까지 모은 것 저장", file=sys.stderr)
@@ -206,28 +209,35 @@ def main():
             break
         jobs = []
         for board, argv in SCRAPERS:
+            attempted += 1
+            failure_mark = len(fails)
             cmd = [sys.executable] + [a.replace("{kw}", kw).replace("{lim}", str(LIMIT)) for a in argv]
             try:
                 r = subprocess.run(cmd, capture_output=True, text=True, timeout=40, env=_subenv(board))
                 out = r.stdout
-                if r.returncode != 0:
+                if r.returncode != 0 or ((r.stderr or "").strip() and out.strip() in ("", "[]")):
                     fails.append(f"{board}/{kw}: rc={r.returncode} {(r.stderr or '').strip()[:80]}")
             except Exception as e:
                 out = ""
                 fails.append(f"{board}/{kw}: {type(e).__name__}")
             jobs.extend(parse_scraper_json(out, board, kw, fails))
+            failed_calls += int(len(fails) > failure_mark)
         out = ""
         if ATS:
+            attempted += 1
+            failure_mark = len(fails)
             cmd = [sys.executable] + [a.replace("{kw}", kw).replace("{lim}", str(LIMIT)) for a in ATS]
             try:
                 r = subprocess.run(cmd, capture_output=True, text=True, timeout=40, env=_subenv('ats'))
                 out = r.stdout
-                if r.returncode != 0:
+                if r.returncode != 0 or ((r.stderr or "").strip() and out.strip() in ("", "[]")):
                     fails.append(f"ats/{kw}: rc={r.returncode} {(r.stderr or '').strip()[:80]}")
             except Exception as e:
                 out = ""
                 fails.append(f"ats/{kw}: {type(e).__name__}")
         jobs.extend(parse_scraper_json(out, "ats", kw, fails))
+        if ATS:
+            failed_calls += int(len(fails) > failure_mark)
 
         for comp, pos, url, board, jkw, loc in jobs:
             public_candidates.append({"url": url, "title": pos, "company": comp,
@@ -245,6 +255,8 @@ def main():
             k = key(comp, pos)
             if k in existing:                       # 이미 위키에 있는 공고 → 추가링크
                 ledger.add(url)
+                if NATIVE:
+                    continue
                 with note_lock():
                     added = add_extra_link(existing[k], url)
                 if added:
@@ -256,7 +268,10 @@ def main():
             if fetches < BODY_CAP:                  # 본문 연차 게이트
                 body = fetch_body(url)
                 fetches += 1
-                if body and (_EXP_BODY_AX if ax else _EXP_BODY).search(body):
+                if NATIVE and body:
+                    public_candidates[-1]["jd_text"] = body[:6000]
+                # Native intake defers body seniority to JD review: preferred experience is not a hard requirement.
+                if body and not NATIVE and (_EXP_BODY_AX if ax else _EXP_BODY).search(body):
                     reject(url, comp, pos, "body-exp")
                     rej += 1
                     continue
@@ -288,13 +303,14 @@ def main():
         _wjson(LEDGER, {"urls": sorted(ledger)}, 0)
         _wjson(REJECTED, rejected, 1)
         _wjson(STAGING, staging, 1)
-    subprocess.run([sys.executable, f"{DATA}/bin/dedup-postings.py"], capture_output=True, timeout=60)   # jsc 밖 경로가 만든 변형중복 수거(norm_key)
-    _nz = subprocess.run([sys.executable, f"{DATA}/bin/normalize-postings.py"], capture_output=True, text=True,
-                         env={**os.environ, "NORM_APPLY": "1"}, timeout=60)                              # 변칙 frontmatter 정규화(백스톱)
-    _m = re.search(r"변칙 변경 (\d+)", _nz.stdout or "")
-    if _m and int(_m.group(1)) > 0:   # 0이 아니면 jsc 밖 경로가 노트를 만들고 있다는 소리 — 예방규율 점검 신호
-        print(f"⚠️ frontmatter 변칙 {_m.group(1)}건 자동정규화 — jsc/note-set-field 밖에서 노트가 생성/편집되고 있다(규율 점검 필요)", file=sys.stderr)
-    subprocess.run([sys.executable, f"{DATA}/bin/priority-recalc.py"], capture_output=True, timeout=60)  # 우선도 파생 자가치유
+    if not NATIVE:
+        subprocess.run([sys.executable, f"{DATA}/bin/dedup-postings.py"], capture_output=True, timeout=60)   # jsc 밖 경로가 만든 변형중복 수거(norm_key)
+        _nz = subprocess.run([sys.executable, f"{DATA}/bin/normalize-postings.py"], capture_output=True, text=True,
+                             env={**os.environ, "NORM_APPLY": "1"}, timeout=60)                              # 변칙 frontmatter 정규화(백스톱)
+        _m = re.search(r"변칙 변경 (\d+)", _nz.stdout or "")
+        if _m and int(_m.group(1)) > 0:   # 0이 아니면 jsc 밖 경로가 노트를 만들고 있다는 소리 — 예방규율 점검 신호
+            print(f"⚠️ frontmatter 변칙 {_m.group(1)}건 자동정규화 — jsc/note-set-field 밖에서 노트가 생성/편집되고 있다(규율 점검 필요)", file=sys.stderr)
+        subprocess.run([sys.executable, f"{DATA}/bin/priority-recalc.py"], capture_output=True, timeout=60)  # 우선도 파생 자가치유
     if opts.public_jsonl_out:
         export_public_jsonl(public_candidates, opts.public_jsonl_out)
     dl_note = ", ⏰데드라인" if hit_deadline else ""
@@ -306,8 +322,7 @@ def main():
     if fails:  # 수집 0건이 '오늘 공고 없음'인지 '보드가 죽었음'인지 구분되게
         print(f"⚠️  스크래퍼 실패 {len(fails)}건: " + " | ".join(fails[:6]), file=sys.stderr)
         # 전 보드가 죽었는데 exit 0을 주면 크론·모니터에 '정상 실행, 신규 0건'으로 기록된다.
-        attempted = len(block) * (len(SCRAPERS) + (1 if ATS else 0))
-        if attempted and len(fails) >= attempted:
+        if attempted and failed_calls >= attempted:
             print("❌ 모든 보드 수집 실패 — 비정상 종료(사이트 차단·파서 파손·네트워크 확인)", file=sys.stderr)
             return 2
     return 0

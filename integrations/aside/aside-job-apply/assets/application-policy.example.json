@@ -1,0 +1,24 @@
+{
+  "policy_id": "my-approved-batch",
+  "mode": "prepare",
+  "authorized": false,
+  "expires_at": null,
+  "allowed_domains": ["wanted.co.kr", "saramin.co.kr", "jobkorea.co.kr", "linkedin.com"],
+  "accounts": {},
+  "approved_job_urls": [],
+  "discovery": {
+    "enabled": false,
+    "conditions": {
+      "role_priority": ["AI 교육", "자동화 실무·PM", "GTM·RevOps"],
+      "seniority": "신입·주니어",
+      "required_experience_max_years": 2,
+      "employment_types": [],
+      "locations": [],
+      "excluded_roles": ["순수 영업", "인턴"]
+    }
+  },
+  "max_submissions": 3,
+  "resume_source": "platform_saved",
+  "approved_attachments": [],
+  "preapproved_answers": {}
+}
