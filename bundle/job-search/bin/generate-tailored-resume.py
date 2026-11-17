@@ -26,6 +26,7 @@ import datetime as dt
 import html
 import os
 import re
+import signal
 import subprocess
 import sys
 import tempfile
@@ -101,19 +102,42 @@ def render_pdf(html_path: Path, pdf_path: Path) -> bool:
     chrome = find_chrome_binary()
     if chrome:
         try:
-            cmd = [
-                chrome,
-                "--headless",
-                "--disable-gpu",
-                "--no-sandbox",
-                "--no-pdf-header-footer",      # 파일 경로·날짜 머리글/바닥글 제거
-                "--print-to-pdf-no-header",    # 구버전 Chrome용 같은 옵션
-                f"--print-to-pdf={pdf_path}",
-                str(html_path),
-            ]
-            r = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
-            if r.returncode == 0 and pdf_path.is_file():
-                return True
+            with tempfile.TemporaryDirectory(prefix="job-hunt-browser-") as profile, \
+                    tempfile.TemporaryDirectory(prefix=".job-hunt-pdf-", dir=pdf_path.parent) as work:
+                rendered = Path(work) / "document.pdf"
+                cmd = [
+                    chrome,
+                    "--headless",
+                    "--disable-gpu",
+                    "--no-sandbox",
+                    "--disable-dev-shm-usage",
+                    "--disable-background-networking",
+                    f"--user-data-dir={profile}",
+                    "--no-first-run",
+                    "--no-default-browser-check",
+                    "--no-pdf-header-footer",      # 파일 경로·날짜 머리글/바닥글 제거
+                    "--print-to-pdf-no-header",    # 구버전 Chrome용 같은 옵션
+                    f"--print-to-pdf={rendered}",
+                    html_path.resolve().as_uri(),
+                ]
+                with subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                      text=True, start_new_session=True) as process:
+                    try:
+                        process.communicate(timeout=60)
+                    finally:
+                        if os.name == "posix":
+                            try:
+                                os.killpg(process.pid, signal.SIGKILL)
+                            except ProcessLookupError:
+                                pass
+                        elif process.poll() is None:
+                            process.kill()
+                        process.communicate()
+                if process.returncode == 0 and rendered.is_file() and rendered.read_bytes().startswith(b"%PDF-"):
+                    rendered.replace(pdf_path)
+                    return True
+        except subprocess.TimeoutExpired:
+            sys.stderr.write("Chrome PDF render warning: 60 second deadline exceeded; browser processes stopped.\n")
         except Exception as e:
             sys.stderr.write(f"Chrome PDF render warning: {e}\n")
 
@@ -219,21 +243,21 @@ def parse_master_resume(text: str) -> dict:
         if not s or s == "---":
             in_kpi = False
             in_competency = False
-            if s.startswith("## "):
-                current_exp = None
             continue
         if s.startswith("### "):
             in_kpi = False
             in_competency = False
-            m = re.match(r"^###\s+(.+?)\s*\(근무 기간[:：]\s*(.+?)\)\s*$", s)
+            current_exp = None
+            m = re.match(r"^###\s+(.+?)\s*\((?:근무\s*기간[:：]\s*(.+?)|(\d{4}[./-]\d{1,2}.*))\)\s*$", s)
             if m:
-                current_exp = {"company": m.group(1).strip(), "period": m.group(2).strip(),
+                current_exp = {"company": m.group(1).strip(), "period": (m.group(2) or m.group(3)).strip(),
                                "kpis": [], **{v: "" for v in exp_keys.values()}}
                 experiences.append(current_exp)
             continue
         if s.startswith("#"):
             in_kpi = False
             in_competency = False
+            current_exp = None
             if s.startswith("## "):
                 in_skills = bool(SKILLS_HEADING_RE.search(s))
             continue
@@ -1055,6 +1079,8 @@ def main() -> None:
     parser.add_argument("--jd-text")
     parser.add_argument("--output-dir", "--out", dest="output_dir")
     parser.add_argument("--lang", choices=("ko", "en"), default="ko")
+    parser.add_argument("--only", choices=("resume", "cover-letter", "portfolio"),
+                        help="요청한 문서 한 종류만 출력")
     parser.add_argument("--portfolio", action="store_true",
                         help="포함: 맞춤 포트폴리오 HTML도 생성")
     parser.add_argument("--pdf", action="store_true")
@@ -1072,19 +1098,24 @@ def main() -> None:
     safe = lambda s: re.sub(r"[^\w\-_]", "_", s, flags=re.UNICODE)
     paths = []
     documents = [("Resume", resume), ("CoverLetter", cover)]
-    if args.portfolio:
+    if args.portfolio or args.only == "portfolio":
         documents.append(("Portfolio", build_portfolio_html(
             args.company, args.position, jd, sources, is_senior=True)))
+    if args.only:
+        kind = {"resume": "Resume", "cover-letter": "CoverLetter", "portfolio": "Portfolio"}[args.only]
+        documents = [(suffix, body) for suffix, body in documents if suffix == kind]
     for suffix, body in documents:
         path = out / f"{safe(args.company)}_{safe(args.position)}_{suffix}.html"
         path.write_text(body, encoding="utf-8")
         paths.append(path)
-        if args.pdf:
+    for path in paths:
+        print(path, flush=True)
+    if args.pdf:
+        for path in paths:
             pdf = path.with_suffix(".pdf")
             if not render_pdf(path, pdf):
-                raise SystemExit(f"PDF rendering failed: {pdf}")
-    for path in paths:
-        print(path)
+                raise SystemExit("PDF 변환 실패. HTML은 위 경로에 보존했습니다. Chrome/Chromium 설치와 CHROME_PATH를 확인하세요. 생성기나 원본 이력서를 수정할 필요는 없습니다.")
+            print(pdf, flush=True)
 
 
 if __name__ == "__main__":
