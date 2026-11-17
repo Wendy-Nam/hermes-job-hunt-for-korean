@@ -114,6 +114,70 @@ class DocumentTest(unittest.TestCase):
                 self.assertEqual(len(files), 1)
                 self.assertTrue(files[0].name.endswith('_' + suffix + '.html'))
 
+    def test_explicit_materials_never_fall_back_to_another_resume(self):
+        with tempfile.TemporaryDirectory() as directory:
+            folder = Path(directory)
+            for key in ['master_resume', 'fit_evidence', 'role_contexts', 'portfolios']:
+                (folder / (key + '.md')).write_text('selected-' + key)
+            selected = self.renderer.read_source_vault(folder, materials_dir=folder)
+            self.assertEqual(selected['master_resume'], 'selected-master_resume')
+            (folder / 'fit_evidence.md').unlink()
+            with self.assertRaisesRegex(FileNotFoundError, 'fit_evidence.md'):
+                self.renderer.read_source_vault(folder, materials_dir=folder)
+
+    def test_missing_portfolio_is_omitted_and_case_evidence_is_rendered(self):
+        sources = {'master_resume': '- **이름**: Example\n', 'fit_evidence': '', 'role_contexts': '', 'portfolios': ''}
+        resume, _ = self.renderer.build_tailored_html('Example', 'Education', '', sources)
+        self.assertNotIn('포트폴리오 URL', resume)
+        sources['portfolios'] = ('### 1. 사용자 온보딩\n- **개요**: 실습 환경 구축\n'
+                                 '- **성과**: 사용 시작\n- **성과 근거**: 사용자 후기 (정성)\n')
+        portfolio = self.renderer.build_portfolio_html('Example', 'Education', '', sources)
+        self.assertIn('사용자 후기 (정성)', portfolio)
+
+    def test_optional_experiences_render_in_both_languages_and_respect_hidden_sections(self):
+        master = ('- **이름**: Example\n'
+                  '### 교육·코칭\n- 2026.01 | Learners | Workshop | Hands-on setup\n'
+                  '### 오픈소스·커뮤니티\n- 2025 | Module | Maintainer | Issue response\n'
+                  '### 연구 경험\n- 2024 | Lab | Assistant | Parallel tests\n'
+                  '### 콘텐츠\n- 2026 | Guide | Blog | A & B tutorial\n')
+        sources = {'master_resume': master, 'fit_evidence': '', 'role_contexts': '', 'portfolios': ''}
+        for lang in ['ko', 'en']:
+            with self.subTest(lang=lang):
+                resume, _ = self.renderer.build_tailored_html('Example', 'Education', '', sources, lang=lang)
+                for fact in ['Hands-on setup', 'Issue response', 'Parallel tests', 'A &amp; B tutorial']:
+                    self.assertIn(fact, resume)
+                self.assertNotIn('{{', resume)
+                self.renderer._assert_balanced(resume, lang)
+                sources['master_resume'] = '- **숨길 항목**: 오픈소스·커뮤니티\n' + master
+                hidden, _ = self.renderer.build_tailored_html('Example', 'Education', '', sources, lang=lang)
+                self.assertNotIn('Issue response', hidden)
+                sources['master_resume'] = master
+
+    def test_competency_brief_preserves_five_points_without_adding_episode_metrics(self):
+        master = ('- **요약 방식**: 역량\n- **커리어 핵심 경쟁력**:\n'
+                  + ''.join('  - 역량' + str(i) + ' — 수행 내용\n' for i in range(5))
+                  + '### 에피소드 1: 사례\n- **상황**: 문제\n- **행동**: 조치\n- **정량결과**: 별도 사례 성과\n')
+        sources = {'master_resume': master, 'fit_evidence': '', 'role_contexts': '', 'portfolios': ''}
+        context = self.renderer.build_context('Example', 'Education', '', sources)
+        self.assertEqual(len(context['summary_points']), 5)
+        self.assertNotIn('별도 사례 성과', str(context['summary_points']))
+
+    def test_responsibilities_and_qualitative_results_do_not_require_invented_metrics(self):
+        text = ('### Example (2026.01 ~ 2026.02)\n- **주요 업무**:\n  - 사용자 환경 구축\n'
+                '### 에피소드 1: 온보딩\n- **상황**: 설치 오류\n- **행동**: 함께 설정\n- **결과**: 직접 활용 시작\n')
+        self.assertEqual(self.renderer.parse_master_resume(text)['experiences'][0]['kpis'], ['사용자 환경 구축'])
+        self.assertEqual(self.renderer.parse_episodes(text)[0]['result'], '직접 활용 시작')
+
+    def test_korean_brief_orders_background_projects_activities_and_skills(self):
+        master = ('### 학력\n- 2025 | School | Degree | Graduate\n'
+                  '### 자격증\n- 2026 | Certificate | Issuer\n'
+                  '### 대외활동\n- 2026 | Community | Contribution\n')
+        sources = {'master_resume': master, 'fit_evidence': '', 'role_contexts': '', 'portfolios': ''}
+        resume, _ = self.renderer.build_tailored_html('Example', 'Education', '', sources)
+        names = ['경력 사항', '>학력<', '>자격증<', '주요 프로젝트', '>대외활동<', '보유 기술</h2>']
+        positions = [resume.index(name) for name in names]
+        self.assertEqual(positions, sorted(positions))
+
 
 if __name__ == '__main__':
     unittest.main()

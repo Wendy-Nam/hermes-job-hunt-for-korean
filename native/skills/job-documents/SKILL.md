@@ -8,11 +8,13 @@ metadata:
 
 # 지원 문서
 
-출력은 아래의 설치된 `job-hunt documents` 명령으로 시작한다. `work/` 아래 staging 사본을 실행하거나 생성기·jobpaths 소스를 찾아 읽지 않는다. 구체적인 공고가 없는 예시 요청은 해당 직무의 키워드를 `--jd-text`로 전달한다.
+출력은 설치된 `job-hunt documents`를 사용한다. `resume/variants/index.md`가 있으면 직무·언어에 맞는 자료 폴더를 선택하고 [직무별 자료·확장 서식](references/role-adaptation.md)의 `--materials-dir` 방식으로 실행한다. 없으면 아래 기본 명령을 사용한다. `work/` 아래 staging 사본을 실행하거나 생성기·jobpaths 소스를 찾아 읽지 않는다. 구체적인 공고가 없는 예시는 직무 키워드를 `--jd-text`로 전달한다.
 
 일반 문서 출력은 원본 경력 자료·설치 코드·서식을 수정하거나 테스트 묶음을 실행하는 작업이 아니다. 오류가 나면 짧은 오류와 보존된 출력 경로를 보고한다. 사용자가 별도로 데이터 수정·개발을 요청했을 때만 그 작업을 수행한다.
 
 근거는 `@JOB_ROOT@/resume/master_resume.md`, `fit_evidence.md`, `role_contexts.md`, `portfolios.md`와 같은 폴더의 원본 이력서·지원서다. 날짜·수치·직급을 확인하고 해당 직무의 근거를 선택한다. 마스터에 없는 사실은 원본에서 확인하되, 보강이 필요하면 알리고 원본을 임의로 바꾸지 않는다.
+
+새 PDF·경력 자료를 반영하도록 요청받으면 [출처·충돌 관리](references/source-evidence.md)를 읽고 `source_catalog.md`, `evidence_ledger.md`, `claim_conflicts.md`를 함께 보강한다. 일반 출력에서는 정리된 자료를 재사용한다. 활동란·문체·요약형과 상세형 구성은 [확장 서식](references/role-adaptation.md)을 따른다.
 
 AI 교육은 설명·교육자료·워크숍 운영·실습 설계 근거를 먼저, 자동화 실무·PM은 문제 정의·구현·도입·운영 근거를 먼저, GTM·RevOps는 CRM·파이프라인·데이터 품질·프로세스 근거를 먼저 배치한다. 강의 경력을 영업 경력으로 바꾸거나 교육생 수·절감 시간을 추정하지 않는다.
 

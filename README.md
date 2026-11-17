@@ -1,4 +1,4 @@
-# Hermes Job Hunt for Korean · v2.0.1
+# Hermes Job Hunt for Korean · v2.1.0
 
 Hermes에서 한국 채용 공고를 수집하고, 경력 근거로 적합도를 판단하며, 지원 현황·문서·면접을 관리합니다. 선택적으로 Aside 브라우저에서 저장 이력서 선택과 지원 폼·최종 제출을 실행합니다.
 
@@ -88,6 +88,26 @@ apt-get install -y --no-install-recommends chromium fonts-noto-cjk
 ```
 
 다른 경로의 브라우저는 `CHROME_PATH`로 지정합니다. 컨테이너 안에서만 설치한 패키지는 컨테이너 재생성 시 사라질 수 있으므로 운영 이미지의 Dockerfile에도 반영하세요. 설치기는 시스템 패키지 설치나 컨테이너 재시작을 자동 실행하지 않습니다.
+
+## 확장 이력 자료
+
+[내용 구성 템플릿](docs/resume-content-template.md)에서 역량·업무·프로젝트·활동에 어떤 내용을 적을지 확인할 수 있습니다.
+
+`resume/role_brief.template.md`는 제공한 원본처럼 한 줄 소개, 역량명과 수행 내용 5개, 경력별 주요 업무, 학력·자격, 프로젝트, 대외활동, 기술군을 연결하는 내용 틀입니다. `요약 방식: 역량`은 역량 뒤에 에피소드 지표를 자동 덧붙이지 않습니다. `주요 업무`와 정성적인 `결과`도 입력할 수 있어 숫자를 만들 필요가 없습니다.
+
+마스터 서식에 교육·코칭, 오픈소스·커뮤니티, 연구 경험, 콘텐츠 선택란을 제공합니다. 기존 대외활동·발표·교육 이수·수상 등도 유지합니다. `### 섹션명`과 `|`로 나눈 행을 사용하며, 빈 섹션과 `숨길 항목`에 적힌 섹션은 출력하지 않습니다. 국문은 표, 영문은 항목형으로 표시합니다.
+
+`resume/source_catalog.md`, `evidence_ledger.md`, `claim_conflicts.md`에서 원본 파일·페이지·주장·측정/추정/후기·수치 충돌을 관리합니다. 개인 원본과 이 장부의 실제 내용은 비공개 구직 폴더에만 둡니다.
+
+직무·언어별 자료 4종을 준비했다면 정본을 고치지 않고 해당 사본으로 출력할 수 있습니다.
+
+```bash
+"$HERMES_HOME/apps/job-hunt/job-hunt" documents \
+  --materials-dir "/path/to/private/role-materials" \
+  --position "AI 교육 담당자" --jd-text "실습 교육 코칭" --only resume
+```
+
+해당 폴더에는 `master_resume.md`, `fit_evidence.md`, `role_contexts.md`, `portfolios.md`가 모두 필요합니다. 누락 시 다른 이력서로 대체하지 않습니다. `--lang en`은 서식을 선택하므로 영문 본문은 영문 자료로 준비합니다. 포트폴리오에는 `성과 근거`로 직접 측정·추정·후기 같은 성격을 함께 표시할 수 있습니다.
 
 ## Aside 지원 실행
 

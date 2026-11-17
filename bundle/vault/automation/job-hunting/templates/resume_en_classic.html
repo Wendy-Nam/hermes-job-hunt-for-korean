@@ -118,6 +118,18 @@
     {{/projects}}
   </section>
 
+  {{#additional_sections}}
+  <section>
+    <h2 class="section-title">{{title}}</h2>
+    {{#rows}}
+    <div class="entry">
+      <div class="entry-header"><h3>{{lead}}</h3><span class="entry-date">{{period}}</span></div>
+      <p>{{detail}}</p>
+    </div>
+    {{/rows}}
+  </section>
+  {{/additional_sections}}
+
   {{#has_education}}
   <section>
     <h2 class="section-title">Education</h2>
