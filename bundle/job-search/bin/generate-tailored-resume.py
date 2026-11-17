@@ -1149,6 +1149,9 @@ def main() -> None:
     default_out = JOB_ROOT / "outputs" if NATIVE else get_wiki_root() / "automation/job-hunting/resumes"
     out = Path(args.output_dir).expanduser().resolve() if args.output_dir else default_out
     try:
+        if NATIVE and args.materials_dir is None and (JOB_ROOT / "resume/career_master.md").is_file():
+            from jobcareer import sync_career
+            sync_career(JOB_ROOT, APP)
         profile_root = JOB_ROOT if NATIVE else get_wiki_root() / "automation/job-hunting"
         materials, args.lang, profile = resolve_profile(profile_root, args.profile, args.lang, args.materials_dir)
         sources = read_source_vault(get_wiki_root(), materials_dir=materials)
