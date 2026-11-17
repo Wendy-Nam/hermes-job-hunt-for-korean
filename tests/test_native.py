@@ -37,6 +37,23 @@ class NativeTest(unittest.TestCase):
     def live(self):
         (self.home / "state/job-hunt/.kit-live").touch()
 
+    def test_queue_order_preserves_rows_and_rejects_invalid_input(self):
+        self.live()
+        path = self.home / 'state/job-hunt/.job-staging.json'
+        rows = [{'회사': 'A', 'url': 'https://example.com/a', 'extra': 'keep'},
+                {'회사': 'B', 'url': 'https://example.com/b'},
+                {'회사': 'C', 'url': 'https://example.com/c'}]
+        path.write_text(json.dumps(rows))
+        order = self.home / 'order.json'
+        order.write_text(json.dumps(['https://example.com/b']))
+        self.cli('queue', '--order-file', str(order))
+        self.assertEqual(json.loads(path.read_text()), [rows[1], rows[0], rows[2]])
+        previous = path.read_bytes()
+        for values in [['https://example.com/missing'], ['https://example.com/a'] * 2, {'bad': 'shape'}]:
+            order.write_text(json.dumps(values))
+            self.assertNotEqual(self.cli('queue', '--order-file', str(order), ok=False).returncode, 0)
+            self.assertEqual(path.read_bytes(), previous)
+
     def test_legacy_live_marker_does_not_allow_job_writes(self):
         (self.home / ".kit-live").touch()
         env = {**self.env, "HERMES_KIT_LIVE": "1"}

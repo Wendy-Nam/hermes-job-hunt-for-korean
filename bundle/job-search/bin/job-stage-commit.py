@@ -151,6 +151,7 @@ def main():
     os.environ["HERMES_KIT_LOCK_HELD"] = "1"   # 자식(priority-recalc)이 같은 락을 다시 잡아 교착되지 않게
     ap = argparse.ArgumentParser()
     ap.add_argument("--list", action="store_true")
+    ap.add_argument("--order-file", help="--list와 함께 사용: 먼저 처리할 URL 배열 JSON. 나머지 항목·순서는 보존")
     ap.add_argument("--url")
     ap.add_argument("--fit")
     ap.add_argument("--reject")
@@ -163,6 +164,19 @@ def main():
     ap.add_argument("--priority", choices=list("SABCD"))
     a = ap.parse_args()
     staging = load(STAGING, [])
+    if a.order_file:
+        if not a.list:
+            ap.error('--order-file requires --list')
+        with open(a.order_file, encoding='utf-8') as stream:
+            order = json.load(stream)
+        if not isinstance(order, list) or not all(isinstance(url, str) for url in order) or len(set(order)) != len(order):
+            ap.error('Order must be a JSON array of unique URL strings')
+        existing = {row.get('url') for row in staging}
+        if set(order) - existing:
+            ap.error('Order contains URLs no longer in the queue; refresh the order file')
+        ranks = {url: n for n, url in enumerate(order)}
+        staging = sorted(staging, key=lambda row: ranks.get(row.get('url'), len(ranks)))
+        _wjson(STAGING, staging, 1)
 
     if a.list:
         if not staging:
