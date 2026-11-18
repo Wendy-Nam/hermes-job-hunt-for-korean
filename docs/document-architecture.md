@@ -28,7 +28,7 @@ job-hunt documents --profile ai-education-ko --company "검토용" --position "A
 job-hunt documents --profile ai-education-en --company "Preview" --position "AI Enablement" --only portfolio --pdf
 ```
 
-`preserve_order: true`는 원문 핵심역량과 선택한 사례의 순서를 보존합니다. `brief_experiences: true`는 경력란에 원문의 `담당 업무` 한 줄만 표시하고 상세 성과는 회사 프로젝트에서 보여줍니다. 담당 업무가 비어 있으면 임의로 문장을 자르지 않고 오류로 종료합니다. `resume_projects`와 `portfolio_projects`로 선택 순서를 명시합니다. 원문에 있는 핵심역량을 새 역량명·도구 목록·성과 숫자로 바꾸지 않습니다. 선택 결과의 문장은 원문 자료를 그대로 사용합니다.
+`preserve_order: true`는 원문 핵심역량과 선택한 사례의 순서를 보존합니다. `brief_experiences: true`는 경력란에 원문의 `담당 업무` 한 줄만 표시하고 상세 성과는 회사 프로젝트에서 보여줍니다. 담당 업무가 비어 있으면 임의로 문장을 자르지 않고 오류로 종료합니다. `resume_projects`와 `portfolio_projects`로 선택 순서를 명시합니다. 기본 핵심역량은 원문 자료를 사용합니다. 직무별 이름과 설명이 필요하면 `summary_points`로 명시하며 원문 사실과 다른 역량, 도구 또는 수치를 만들지 않습니다. 프로젝트와 업무의 선택 문장은 원문 자료를 그대로 사용합니다.
 
 프로필 없이 기존 명령과 `--materials-dir`도 유지됩니다. 업그레이드는 사용자 자료를 덮어쓰지 않습니다. 새 템플릿은 앱의 assets와 공개 배포본에서 확인할 수 있습니다.
 
@@ -89,7 +89,7 @@ highlight_terms: [CRM, SQL]
 
 국문 서식의 3열 표는 `three-column` 클래스와 세 개의 `<col>`을 둔 `<colgroup>`을 사용합니다. 날짜22%, 항목30%, 설명48%를 공유하고, 보유기술의 행 제목도22%를 사용합니다. 셀 여백은 공통 CSS 변수로 관리합니다. 서로 다른 표에 인라인 열 너비를 추가하지 않습니다.
 
-핵심역량은 원문을 유지하면서 앞쪽 이름만 `highlight_terms`에 넣어 세미볼드600을 적용할 수 있습니다. 예를 들어 이름이 `업무 분석`이고 뒤에 설명이 붙으면 해당 이름만 등록합니다. 전체 설명 문장을 강조 목록에 넣지 않습니다.
+핵심역량은 선택한 문장을 유지하면서 앞쪽 이름만 `highlight_terms`에 넣어 세미볼드600을 적용할 수 있습니다. 예를 들어 이름이 `업무 분석`이고 뒤에 설명이 붙으면 해당 이름만 등록합니다. 전체 설명 문장을 강조 목록에 넣지 않습니다.
 
 ### 직무별 핵심역량
 
