@@ -50,11 +50,15 @@
     dl.profile dt { background: var(--fill); color: var(--ink-2); font-weight: 600; white-space: nowrap; }
 
     /* 표: 보유 기술 (행 제목형) */
-    table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    table { width: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; }
     table th, table td { padding: 1.5mm 3mm; border-bottom: 1px solid var(--rule); text-align: left; vertical-align: top; font-size: 9pt; }
     table th { background: var(--fill); color: var(--ink-2); font-weight: 600; white-space: nowrap; }
+    thead { display: table-header-group; }
+    thead tr { break-after: avoid; }
+    thead th { border-top: 1px solid var(--ink); }
     tr { break-inside: avoid; }
     table.grid-table th { width: 17%; }
+    table.grid-table tr:first-child > * { border-top: 1px solid var(--ink); }
 
     /* 표: 학력·자격·교육 등 (열 제목형) */
     table.list-table th, table.list-table td { padding: 1.2mm 3mm; }
@@ -69,7 +73,8 @@
     h2.sec-header .sec-note { color: var(--ink-2); font-size: 9pt; font-weight: 500; }
     section.compact { margin-top: 4mm; break-inside: avoid; }
     h2.sec-header { break-after: avoid; }
-    section.compact h2.sec-header { margin-bottom: 0; }
+    /* 표의 상단선은 제목이 아니라 표에 붙여 페이지·섹션마다 동일하게 표시. */
+    section.table-section > h2.sec-header { margin-bottom: 2mm; padding-bottom: 0; border-bottom: 0; }
 
     /* 경력·프로젝트 항목 */
     .exp-card { margin-bottom: 4mm; break-inside: avoid; }
@@ -110,6 +115,7 @@
     </dl>
   </div>
 
+  {{#has_summary_points}}
   <section>
     <h2 class="sec-header">핵심 역량</h2>
     <ul>
@@ -118,7 +124,9 @@
       {{/summary_points}}
     </ul>
   </section>
+  {{/has_summary_points}}
 
+  {{#has_experiences}}
   <section>
     <h2 class="sec-header">경력 사항{{#total_career}}<span class="sec-note">총 {{total_career}}</span>{{/total_career}}</h2>
     {{#experiences}}
@@ -138,43 +146,51 @@
     </div>
     {{/experiences}}
   </section>
+  {{/has_experiences}}
 
   {{#has_education}}
-  <section class="compact">
+  <section class="compact table-section">
     <h2 class="sec-header">학력</h2>
     <table class="list-table">
       <thead><tr><th class="col-date">기간</th><th>학교</th><th>전공 · 학위</th><th class="col-sm">구분</th></tr></thead>
+      <tbody>
       {{#education}}
       <tr><td class="muted">{{period}}</td><td>{{school}}</td><td>{{major}}</td><td class="muted">{{status}}</td></tr>
       {{/education}}
+      </tbody>
     </table>
   </section>
   {{/has_education}}
 
   {{#has_certifications}}
-  <section class="compact">
+  <section class="compact table-section">
     <h2 class="sec-header">자격증</h2>
     <table class="list-table">
       <thead><tr><th class="col-date">취득일</th><th>자격명</th><th class="col-sm">발급기관</th></tr></thead>
+      <tbody>
       {{#certifications}}
       <tr><td class="muted">{{date}}</td><td>{{name}}</td><td class="muted">{{issuer}}</td></tr>
       {{/certifications}}
+      </tbody>
     </table>
   </section>
   {{/has_certifications}}
 
   {{#has_languages}}
-  <section class="compact">
+  <section class="compact table-section">
     <h2 class="sec-header">어학</h2>
     <table class="list-table">
       <thead><tr><th class="col-date">취득일</th><th>시험 · 언어</th><th class="col-sm">점수 · 등급</th></tr></thead>
+      <tbody>
       {{#languages}}
       <tr><td class="muted">{{date}}</td><td>{{test}}</td><td>{{score}}</td></tr>
       {{/languages}}
+      </tbody>
     </table>
   </section>
   {{/has_languages}}
 
+  {{#has_projects}}
   <section>
     <h2 class="sec-header">주요 프로젝트</h2>
     {{#projects}}
@@ -195,9 +211,10 @@
     </div>
     {{/projects}}
   </section>
+  {{/has_projects}}
 
   {{#additional_sections}}
-  <section>
+  <section class="table-section">
     <h2 class="sec-header">{{title}}</h2>
     <table class="list-table">
       <thead><tr>{{#columns}}<th>{{label}}</th>{{/columns}}</tr></thead>
@@ -215,102 +232,119 @@
 
 
   {{#has_training}}
-  <section class="compact">
+  <section class="compact table-section">
     <h2 class="sec-header">교육 이수</h2>
     <table class="list-table">
       <thead><tr><th class="col-date">기간</th><th>과정명</th><th class="col-sm">기관</th></tr></thead>
+      <tbody>
       {{#training}}
       <tr><td class="muted">{{period}}</td><td>{{course}}</td><td class="muted">{{institution}}</td></tr>
       {{/training}}
+      </tbody>
     </table>
   </section>
   {{/has_training}}
 
   {{#has_awards}}
-  <section class="compact">
+  <section class="compact table-section">
     <h2 class="sec-header">수상</h2>
     <table class="list-table">
       <thead><tr><th class="col-date">수상일</th><th>수상명</th><th class="col-sm">수여기관</th></tr></thead>
+      <tbody>
       {{#awards}}
       <tr><td class="muted">{{date}}</td><td>{{name}}</td><td class="muted">{{issuer}}</td></tr>
       {{/awards}}
+      </tbody>
     </table>
   </section>
   {{/has_awards}}
 
   {{#has_activities}}
-  <section class="compact">
+  <section class="compact table-section">
     <h2 class="sec-header">대외활동</h2>
     <table class="list-table">
       <thead><tr><th class="col-date">기간</th><th>활동명</th><th class="col-sm">역할 · 내용</th></tr></thead>
+      <tbody>
       {{#activities}}
       <tr><td class="muted">{{period}}</td><td>{{name}}</td><td class="muted">{{detail}}</td></tr>
       {{/activities}}
+      </tbody>
     </table>
   </section>
   {{/has_activities}}
 
   {{#has_overseas}}
-  <section class="compact">
+  <section class="compact table-section">
     <h2 class="sec-header">해외 경험</h2>
     <table class="list-table">
       <thead><tr><th class="col-date">기간</th><th>국가 · 도시</th><th class="col-sm">목적 · 내용</th></tr></thead>
+      <tbody>
       {{#overseas}}
       <tr><td class="muted">{{period}}</td><td>{{country}}</td><td class="muted">{{purpose}}</td></tr>
       {{/overseas}}
+      </tbody>
     </table>
   </section>
   {{/has_overseas}}
 
   {{#has_publications}}
-  <section class="compact">
+  <section class="compact table-section">
     <h2 class="sec-header">논문 · 특허 · 출판</h2>
     <table class="list-table">
       <thead><tr><th class="col-date">발표일</th><th>제목</th><th class="col-sm">게재처 · 번호</th></tr></thead>
+      <tbody>
       {{#publications}}
       <tr><td class="muted">{{date}}</td><td>{{title}}</td><td class="muted">{{venue}}</td></tr>
       {{/publications}}
+      </tbody>
     </table>
   </section>
   {{/has_publications}}
 
   {{#has_talks}}
-  <section class="compact">
+  <section class="compact table-section">
     <h2 class="sec-header">발표 · 강연</h2>
     <table class="list-table">
       <thead><tr><th class="col-date">일자</th><th>주제</th><th class="col-sm">행사 · 기관</th></tr></thead>
+      <tbody>
       {{#talks}}
       <tr><td class="muted">{{date}}</td><td>{{title}}</td><td class="muted">{{event}}</td></tr>
       {{/talks}}
+      </tbody>
     </table>
   </section>
   {{/has_talks}}
 
   {{#has_military}}
-  <section class="compact">
+  <section class="compact table-section">
     <h2 class="sec-header">병역</h2>
     <table class="list-table">
       <thead><tr><th class="col-date">복무 기간</th><th>군별 · 계급</th><th class="col-sm">구분</th></tr></thead>
+      <tbody>
       {{#military}}
       <tr><td class="muted">{{period}}</td><td>{{detail}}</td><td>{{status}}</td></tr>
       {{/military}}
+      </tbody>
     </table>
   </section>
   {{/has_military}}
 
   {{#has_preferences}}
-  <section class="compact">
+  <section class="compact table-section">
     <h2 class="sec-header">취업 우대</h2>
     <table class="list-table">
       <thead><tr><th class="col-date">구분</th><th>내용</th></tr></thead>
+      <tbody>
       {{#preferences}}
       <tr><td>{{category}}</td><td class="muted">{{detail}}</td></tr>
       {{/preferences}}
+      </tbody>
     </table>
   </section>
   {{/has_preferences}}
 
-  <section>
+  {{#has_skills}}
+  <section class="table-section">
     <h2 class="sec-header">보유 기술</h2>
     <table class="grid-table">
       {{#skills}}
@@ -321,6 +355,7 @@
       {{/skills}}
     </table>
   </section>
+  {{/has_skills}}
 
   {{#show_attest}}
   <p class="attest">

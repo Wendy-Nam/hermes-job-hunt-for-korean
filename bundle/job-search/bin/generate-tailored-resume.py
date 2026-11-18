@@ -882,6 +882,8 @@ def apply_output_options(ctx: dict, hide: str, lang: str = "ko") -> dict:
         ctx["additional_sections"].append({"title": title_en if lang == "en" else label,
             "columns": [{"label": v} for v in (columns_en if lang == "en" else columns_ko)], "rows": rows})
     ctx["has_quals"] = bool(ctx["certifications"] or ctx["languages"])
+    for key in ("summary_points", "experiences", "projects", "skills"):
+        ctx[f"has_{key}"] = bool(ctx[key])
 
     # 인적사항 표(국문): 채워진 항목만 2열 격자로
     profile = [("성명", ctx["applicant_name"] + (f" ({ctx['applicant_name_en']})" if ctx["applicant_name_en"] else "")),
@@ -939,6 +941,8 @@ def build_portfolio_html(company: str, position: str, jd_text: str, sources: dic
     ctx["has_overview"] = len(chosen) >= 2
     ctx.update({"pf_title": "Portfolio" if lang == "en" else "포트폴리오", "pf_intro": "Introduction" if lang == "en" else "소개", "pf_skills": "Technical Skills" if lang == "en" else "보유 기술", "pf_selected": "Selected Projects" if lang == "en" else "주요 프로젝트", "pf_project": "Project" if lang == "en" else "프로젝트"})
     ctx["portfolio_intro"] = opts["intro"]
+    ctx["has_intro"] = bool(opts["intro"] or ctx["summary_points"])
+    ctx["has_portfolio_projects"] = bool(chosen)
     ctx["page_per_project"] = opts["page_per_project"]
     return render_template(tmpl.read_text(encoding="utf-8"), ctx)
 
@@ -1020,7 +1024,7 @@ def run_selftest() -> None:
     portfolio_html = build_portfolio_html("TestCo", "Sales Ops Lead",
                                          "Salesforce 파이프라인 CRM 분석", sources)
     assert "{{" not in portfolio_html, "portfolio: 미처리 토큰 잔존"
-    assert "주요 프로젝트" in portfolio_html, "portfolio: 프로젝트 섹션 없음"
+    assert "<header>" in portfolio_html, "portfolio: 머리글 없음"
     _assert_balanced(portfolio_html, "portfolio")
     portfolio_doc = portfolio_html.lower()
     assert "<!doctype html" in portfolio_doc and "name=\"viewport\"" in portfolio_doc, "portfolio: 반응형 메타 누락"

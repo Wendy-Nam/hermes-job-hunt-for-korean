@@ -73,6 +73,7 @@
     <p class="contact-line">{{#contact_items}}<span>{{value}}</span>{{/contact_items}}</p>
   </header>
 
+  {{#has_summary_points}}
   <section>
     <h2 class="section-title">Summary</h2>
     <ul>
@@ -81,7 +82,9 @@
       {{/summary_points}}
     </ul>
   </section>
+  {{/has_summary_points}}
 
+  {{#has_experiences}}
   <section>
     <h2 class="section-title">Experience</h2>
     {{#experiences}}
@@ -100,7 +103,9 @@
     </div>
     {{/experiences}}
   </section>
+  {{/has_experiences}}
 
+  {{#has_projects}}
   <section>
     <h2 class="section-title">Projects</h2>
     {{#projects}}
@@ -121,6 +126,7 @@
     </div>
     {{/projects}}
   </section>
+  {{/has_projects}}
 
   {{#additional_sections}}
   <section>
@@ -146,12 +152,14 @@
   </section>
   {{/has_education}}
 
+  {{#has_skills}}
   <section>
     <h2 class="section-title">Skills</h2>
     <dl class="skills">
       {{#skills}}<dt>{{label}}</dt><dd>{{value}}</dd>{{/skills}}
     </dl>
   </section>
+  {{/has_skills}}
 
   {{#has_quals}}
   <section>

@@ -57,6 +57,19 @@ class DocumentTest(unittest.TestCase):
                 self.assertEqual(len(parsed['experiences']), 1)
                 self.assertEqual(parsed['experiences'][0]['kpis'], ['AI 실습 12회 운영'])
 
+    def test_empty_experience_and_projects_leave_no_headings_or_rules(self):
+        sources = {'master_resume': '- **이름**: Example\n', 'fit_evidence': '',
+                   'role_contexts': '', 'portfolios': ''}
+        for lang in ['ko', 'en']:
+            resume, _ = self.renderer.build_tailored_html('Preview', 'Role', '', sources, lang=lang)
+            portfolio = self.renderer.build_portfolio_html('Preview', 'Role', '', sources, lang=lang)
+            for title in ['경력 사항', '주요 프로젝트', '>Experience<', '>Projects<']:
+                self.assertNotIn(title, resume)
+            for title in ['주요 프로젝트', '>Selected Projects<']:
+                self.assertNotIn(title, portfolio)
+            for document in [resume, portfolio]:
+                self.renderer._assert_balanced(document, lang)
+
     def test_unrelated_sections_do_not_modify_previous_experience(self):
         for heading in ['## 4. 프로젝트', '### 별도 프로젝트', '### 교육 과정 (수료)']:
             with self.subTest(heading=heading):
@@ -193,10 +206,14 @@ class DocumentTest(unittest.TestCase):
         self.assertEqual(self.renderer.parse_episodes(text)[0]['result'], '직접 활용 시작')
 
     def test_korean_brief_orders_background_projects_activities_and_skills(self):
-        master = ('### 학력\n- 2025 | School | Degree | Graduate\n'
+        master = ('### Example (근무 기간: 2025.01 ~ 2025.06)\n'
+                  '- **주요 업무**:\n  - 사용자 환경 구성\n'
+                  '## 보유 기술\n- **자동화**: Python\n'
+                  '### 학력\n- 2025 | School | Degree | Graduate\n'
                   '### 자격증\n- 2026 | Certificate | Issuer\n'
                   '### 대외활동\n- 2026 | Community | Contribution\n')
-        sources = {'master_resume': master, 'fit_evidence': '', 'role_contexts': '', 'portfolios': ''}
+        projects = '### 1. Workflow\n- **개요**: 업무 자동화\n- **임팩트**: 현장 사용\n'
+        sources = {'master_resume': master, 'fit_evidence': '', 'role_contexts': '', 'portfolios': projects}
         resume, _ = self.renderer.build_tailored_html('Example', 'Education', '', sources)
         names = ['경력 사항', '>학력<', '>자격증<', '주요 프로젝트', '>대외활동<', '보유 기술</h2>']
         positions = [resume.index(name) for name in names]

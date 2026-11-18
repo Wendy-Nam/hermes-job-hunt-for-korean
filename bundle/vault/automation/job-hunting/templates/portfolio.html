@@ -51,7 +51,12 @@
     li::marker { color: var(--muted); }
 
     /* {{pf_projects}} */
-    table.overview { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 9pt; }
+    table.overview { width: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; font-size: 9pt; }
+    .table-section > h2 { margin-bottom: 2mm; padding-bottom: 0; border-bottom: 0; }
+    table.overview thead { display: table-header-group; }
+    table.overview thead tr { break-after: avoid; }
+    table.overview thead th { border-top: 1px solid var(--ink); }
+    table.overview tr { break-inside: avoid; }
     table.overview th, table.overview td { padding: 1.4mm 2.5mm; border-bottom: 1px solid var(--rule); text-align: left; vertical-align: top; }
     table.overview thead th { background: var(--fill); color: var(--ink-2); font-weight: 600; border-bottom-color: var(--ink-2); }
     table.overview .c-no { width: 9%; color: var(--muted); }
@@ -97,6 +102,7 @@
     <p class="meta"><span>{{target_company}} · {{target_position}}</span>{{#contact_items}}<span>{{value}}</span>{{/contact_items}}</p>
   </header>
 
+  {{#has_intro}}
   <section>
     <h2>{{pf_intro}}</h2>
     {{#portfolio_intro}}<p class="intro">{{portfolio_intro}}</p>{{/portfolio_intro}}
@@ -106,26 +112,32 @@
       {{/summary_points}}
     </ul>
   </section>
+  {{/has_intro}}
 
   {{#has_overview}}
-  <section>
+  <section class="table-section">
     <h2>{{pf_projects}}</h2>
     <table class="overview">
       <thead><tr><th class="c-no">No.</th><th>{{pf_project}}</th><th class="c-period">{{pf_period}}</th><th class="c-role">{{pf_role}}</th></tr></thead>
+      <tbody>
       {{#portfolio_projects}}
       <tr><td class="c-no">{{no}}</td><td>{{project_name}}</td><td class="c-period">{{period}}</td><td class="c-role">{{role}}</td></tr>
       {{/portfolio_projects}}
+      </tbody>
     </table>
   </section>
   {{/has_overview}}
 
+  {{#has_skills}}
   <section>
     <h2>{{pf_skills}}</h2>
     <dl class="rows">
       {{#skills}}<dt>{{label}}</dt><dd>{{value}}</dd>{{/skills}}
     </dl>
   </section>
+  {{/has_skills}}
 
+  {{#has_portfolio_projects}}
   <section class="{{#page_per_project}}page-each{{/page_per_project}}">
     <h2>{{pf_selected}}</h2>
     {{#portfolio_projects}}
@@ -158,5 +170,6 @@
     </article>
     {{/portfolio_projects}}
   </section>
+  {{/has_portfolio_projects}}
 </body>
 </html>
