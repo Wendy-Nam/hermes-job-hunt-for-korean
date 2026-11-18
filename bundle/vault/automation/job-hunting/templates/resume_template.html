@@ -33,7 +33,8 @@
     }
 
     header { padding-bottom: 3mm; border-bottom: 1.5px solid var(--ink); }
-    .header-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8mm; }
+    .header-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 2mm 8mm; }
+    .header-top > * { min-width: 0; max-width: 100%; }
     h1 { margin: 0; font-size: 21pt; font-weight: 700; letter-spacing: -.02em; line-height: 1.2; }
     .target { margin: 0; color: var(--ink-2); font-size: 9pt; text-align: right; }
     .headline { margin: 1mm 0 0; color: var(--ink-2); }
@@ -48,8 +49,8 @@
 
     .item { margin-bottom: 4mm; break-inside: avoid; }
     .item:last-child { margin-bottom: 0; }
-    .item-header { display: flex; justify-content: space-between; align-items: baseline; gap: 6mm; }
-    .item-header h3 { margin: 0; font-size: 10.2pt; font-weight: 700; }
+    .item-header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 1mm 6mm; }
+    .item-header h3 { min-width: 0; max-width: 100%; margin: 0; font-size: 10.2pt; font-weight: 700; }
     .item-header .desc { margin-left: 2mm; color: var(--muted); font-size: 8.8pt; font-weight: 400; }
     .item-date { flex-shrink: 0; color: var(--ink-2); font-size: 9pt; white-space: nowrap; }
     .item-sub { margin: .3mm 0 1.2mm; color: var(--muted); font-size: 9pt; }
