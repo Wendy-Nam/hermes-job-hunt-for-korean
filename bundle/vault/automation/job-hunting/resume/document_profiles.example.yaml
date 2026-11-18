@@ -38,3 +38,9 @@ profiles:
 #   - label: 데이터 운영
 #     value: SQL, Excel
 # highlight_terms: [CRM, SQL]
+
+# 선택: 해당 직무에서 보여줄 핵심역량. 원문 자료는 그대로 보존합니다.
+# summary_points:
+#   - 교육 운영 – 실습과 안내 자료를 연결
+#   - 사용자 지원 – 설정 오류 해결과 후속 안내
+# highlight_terms: [교육 운영, 사용자 지원]
