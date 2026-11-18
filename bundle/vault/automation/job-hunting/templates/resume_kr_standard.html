@@ -199,14 +199,13 @@
         <h3>{{project_name}}</h3>
         {{#period}}<span class="exp-period">{{period}}</span>{{/period}}
       </div>
-      <p class="exp-dept">{{tech_stack}}</p>
+      <p class="exp-dept">{{#role}}{{role}}{{#tech_stack}} · {{/tech_stack}}{{/role}}{{tech_stack}}</p>
       <ul>
         <li>{{description}}</li>
-        {{#situation}}<li><span class="label">상황</span> {{situation}}</li>{{/situation}}
-        {{#problem}}<li><span class="label">{{problem_label}}</span> {{problem}}</li>{{/problem}}
-        {{#approach}}<li><span class="label">해결</span> {{approach}}</li>{{/approach}}
-        {{#role}}<li><span class="label">역할</span> {{role}}</li>{{/role}}
-        <li><span class="label">임팩트</span> {{impact}}</li>
+        {{#situation}}<li>{{situation}}</li>{{/situation}}
+        {{#problem}}<li>{{problem}}</li>{{/problem}}
+        {{#approach}}<li>{{approach}}</li>{{/approach}}
+        <li>{{impact}}</li>
       </ul>
     </div>
     {{/projects}}
