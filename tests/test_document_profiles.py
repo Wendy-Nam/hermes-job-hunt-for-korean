@@ -48,6 +48,11 @@ class ProfileTest(unittest.TestCase):
                 "    materials: /outside\n",
                 "    materials: materials\n    preserve_order: yes-no\n",
                 "    materials: materials\n    resume_projects: [a, a]\n",
+                "    materials: materials\n    brief_experiences: invalid\n",
+                "    materials: materials\n    plain_punctuation: invalid\n",
+                "    materials: materials\n    skills: [{label: data, value: ''}]\n",
+                "    materials: materials\n    skills: [{label: data, value: SQL}, {label: data, value: API}]\n",
+                "    materials: materials\n    highlight_terms: [CRM, CRM]\n",
             ]:
                 write(body)
                 with self.assertRaises(ValueError):

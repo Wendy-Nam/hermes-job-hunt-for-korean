@@ -13,6 +13,7 @@
       --fill: #f5f6f8;
     }
     * { box-sizing: border-box; }
+    strong.metric { font-weight: 600; }
     @page { size: A4; margin: 16mm 18mm; }
     html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     body {
@@ -34,7 +35,7 @@
     }
 
     /* 머리글 */
-    .doc-header { display: flex; justify-content: space-between; align-items: flex-end; gap: 8mm; padding-bottom: 3mm; border-bottom: 1.5px solid var(--ink); }
+    .doc-header { display: flex; justify-content: space-between; align-items: flex-end; gap: 8mm; padding-bottom: 0; }
     .doc-type { margin: 0 0 1mm; color: var(--muted); font-size: 8.5pt; font-weight: 600; letter-spacing: .2em; }
     h1 { margin: 0; font-size: 21pt; font-weight: 700; letter-spacing: -.02em; line-height: 1.2; }
     h1 .name-en { margin-left: 2.5mm; color: var(--muted); font-size: 10pt; font-weight: 500; letter-spacing: 0; }
@@ -135,7 +136,7 @@
         <h3>{{company}}{{#company_desc}}<span class="company-desc">{{company_desc}}</span>{{/company_desc}}</h3>
         <span class="exp-period">{{period}}{{#duration}}<span class="duration">({{duration}})</span>{{/duration}}</span>
       </div>
-      <p class="exp-dept">{{role}} · {{department}}{{#employment_type}} · {{employment_type}}{{/employment_type}}</p>
+      <p class="exp-dept">{{role}}{{#department}} · {{department}}{{/department}}{{#employment_type}} · {{employment_type}}{{/employment_type}}</p>
       <ul>
         {{#accomplishments}}
         <li>{{description}}</li>

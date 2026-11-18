@@ -12,6 +12,7 @@
       --rule: #dfe2e6;
     }
     * { box-sizing: border-box; }
+    strong.metric { font-weight: 600; }
     @page { size: A4; margin: 16mm 18mm; }
     body {
       margin: 0;
@@ -101,7 +102,7 @@
         <h3>{{company}}{{#company_desc}}<span class="desc">{{company_desc}}</span>{{/company_desc}}</h3>
         <span class="item-date">{{period}}{{#duration}} ({{duration}}){{/duration}}</span>
       </div>
-      <p class="item-sub">{{role}} · {{department}}{{#employment_type}} · {{employment_type}}{{/employment_type}}</p>
+      <p class="item-sub">{{role}}{{#department}} · {{department}}{{/department}}{{#employment_type}} · {{employment_type}}{{/employment_type}}</p>
       <ul>
         {{#accomplishments}}
         <li>{{description}}</li>

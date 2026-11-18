@@ -45,15 +45,24 @@ def resolve_profile(job_root, name, language=None, materials_dir=None):
     folder = (root / relative).resolve()
     if not folder.is_relative_to(root):
         raise ValueError("Profile materials leave resume/")
-    for key in ["resume_projects", "portfolio_projects", "hide_sections"]:
+    for key in ["resume_projects", "portfolio_projects", "hide_sections", "highlight_terms"]:
         if key in profile and (
             not isinstance(profile[key], list)
-            or not all(isinstance(x, str) for x in profile[key])
+            or not all(isinstance(x, str) and x.strip() for x in profile[key])
             or len(set(profile[key])) != len(profile[key])
         ):
             raise ValueError(f"{key} must be a list of unique strings")
-    if "preserve_order" in profile and not isinstance(profile["preserve_order"], bool):
-        raise ValueError("preserve_order must be a boolean")
+    for key in ["preserve_order", "brief_experiences", "plain_punctuation"]:
+        if key in profile and not isinstance(profile[key], bool):
+            raise ValueError(f"{key} must be a boolean")
+    if "skills" in profile:
+        skills = profile["skills"]
+        if (not isinstance(skills, list) or not skills
+                or any(not isinstance(row, dict) or set(row) != {"label", "value"}
+                       or any(not isinstance(row[k], str) or not row[k].strip()
+                              for k in ["label", "value"]) for row in skills)
+                or len({row["label"] for row in skills}) != len(skills)):
+            raise ValueError("skills must contain unique nonempty label/value rows")
     return folder, profile["language"], profile
 
 

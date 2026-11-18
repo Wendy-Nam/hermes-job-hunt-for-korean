@@ -717,6 +717,10 @@ def build_context(company: str, position: str, jd_text: str, sources: dict,
         if _is_placeholder(exp["company"]):
             continue
         kpis = _usable(rank(exp["kpis"], keywords, lambda t: t, limit=0 if profile.get("preserve_order") else 4) or exp["kpis"])
+        if profile.get("brief_experiences"):
+            if _is_placeholder(exp["department"]):
+                raise ValueError(f"Brief experience requires 담당 업무: {exp['company']}")
+            kpis = [exp["department"]]
         if not kpis:
             continue
         experiences.append({
@@ -724,7 +728,7 @@ def build_context(company: str, position: str, jd_text: str, sources: dict,
             "period": exp["period"],
             "duration": format_months(period_months(exp["period"]), lang),
             "role": _first_filled([exp["role"]], "직무"),
-            "department": _first_filled([exp["department"]], "담당 업무"),
+            "department": "" if profile.get("brief_experiences") else _first_filled([exp["department"]], "담당 업무"),
             **{k: "" if _is_placeholder(exp[k]) else exp[k]
                for k in ("company_desc", "employment_type", "leave_reason", "tools")},
             "accomplishments": [
@@ -752,6 +756,8 @@ def build_context(company: str, position: str, jd_text: str, sources: dict,
     skills = [{"label": row["label_en" if lang == "en" else "label_ko"], "value": row["value"]}
               for row in master["skills"]] or [
         {"label": "보유 기술", "value": "보유 기술을 master_resume.md에 `- **분야**: 기술` 형식으로 등록해 주세요."}]
+    if "skills" in profile:
+        skills = profile["skills"]
 
     # --- episodes: JD-ranked pool feeds summary + cover achievements ---
     episodes = rank(
@@ -904,6 +910,27 @@ def apply_output_options(ctx: dict, hide: str, lang: str = "ko") -> dict:
 # HTML assembly
 # ---------------------------------------------------------------------------
 
+def format_document(document: str, profile: dict | None) -> str:
+    profile = profile or {}
+    if profile.get("plain_punctuation"):
+        # Role/affiliation lines keep their separator; attributes never change.
+        parts = re.split(r'(<p class="(?:exp-dept|entry-sub|item-sub)">.*?</p>)', document, flags=re.S)
+        document = "".join(part if i % 2 else re.sub(
+            r">([^<]*)<", lambda m: ">" + m[1].replace("·", ", ") + "<", part)
+            for i, part in enumerate(parts))
+    terms = profile.get("highlight_terms", [])
+    if terms:
+        pattern = re.compile("|".join(re.escape(html.escape(term))
+                                      for term in sorted(terms, key=len, reverse=True)))
+        def emphasize(match):
+            # Restrict highlighting to bullet/table contents, not headings or links.
+            body = re.sub(r">([^<]*)<", lambda m: ">" + pattern.sub(
+                lambda word: '<strong class="metric">' + word[0] + '</strong>', m[1]) + "<",
+                ">" + match[2] + "<")[1:-1]
+            return match[1] + body + match[3]
+        document = re.sub(r"(<(?:li|td)(?:\s[^>]*)?>)(.*?)(</(?:li|td)>)", emphasize, document, flags=re.S)
+    return document
+
 def build_tailored_html(company: str, position: str, jd_text: str, sources: dict,
                         is_senior: bool = True, lang: str = "ko", profile: dict | None = None) -> tuple:
     tmpl_dir = VAULT_DIR / "automation" / "job-hunting" / "templates"
@@ -919,7 +946,8 @@ def build_tailored_html(company: str, position: str, jd_text: str, sources: dict
     cov_tmpl = (tmpl_dir / "cover_letter_template.html").read_text(encoding="utf-8")
 
     ctx = build_context(company, position, jd_text, sources, is_senior=is_senior, lang=lang, profile=profile)
-    return render_template(res_tmpl, ctx), render_template(cov_tmpl, ctx)
+    return (format_document(render_template(res_tmpl, ctx), profile),
+            format_document(render_template(cov_tmpl, ctx), profile))
 
 
 def build_portfolio_html(company: str, position: str, jd_text: str, sources: dict,
@@ -944,7 +972,7 @@ def build_portfolio_html(company: str, position: str, jd_text: str, sources: dic
     ctx["has_intro"] = bool(opts["intro"] or ctx["summary_points"])
     ctx["has_portfolio_projects"] = bool(chosen)
     ctx["page_per_project"] = opts["page_per_project"]
-    return render_template(tmpl.read_text(encoding="utf-8"), ctx)
+    return format_document(render_template(tmpl.read_text(encoding="utf-8"), ctx), profile)
 
 
 # ---------------------------------------------------------------------------
