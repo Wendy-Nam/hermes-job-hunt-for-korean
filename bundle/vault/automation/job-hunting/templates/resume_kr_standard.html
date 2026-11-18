@@ -11,6 +11,11 @@
       --muted: #6b7280;
       --rule: #dfe2e6;
       --fill: #f5f6f8;
+      --col-date: 22%;
+      --col-subject: 30%;
+      --col-detail: 48%;
+      --cell-y: 1.4mm;
+      --cell-x: 3mm;
     }
     * { box-sizing: border-box; }
     strong.metric { font-weight: 600; }
@@ -47,24 +52,28 @@
     .profile-wrap { display: flex; gap: 4mm; margin-top: 4mm; }
     .photo { flex-shrink: 0; width: 26mm; height: 34.5mm; object-fit: cover; border: 1px solid var(--rule); }
     dl.profile { flex: 1; display: grid; grid-template-columns: 22mm 1fr 22mm 1fr; margin: 0; border-top: 1px solid var(--ink); align-content: start; }
-    dl.profile dt, dl.profile dd { margin: 0; padding: 1.5mm 3mm; border-bottom: 1px solid var(--rule); font-size: 9pt; }
+    dl.profile dt, dl.profile dd { margin: 0; padding: var(--cell-y) var(--cell-x); border-bottom: 1px solid var(--rule); font-size: 9pt; }
     dl.profile dt { background: var(--fill); color: var(--ink-2); font-weight: 600; white-space: nowrap; }
 
     /* 표: 보유 기술 (행 제목형) */
     table { width: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; }
-    table th, table td { padding: 1.5mm 3mm; border-bottom: 1px solid var(--rule); text-align: left; vertical-align: top; font-size: 9pt; }
+    table th, table td { padding: var(--cell-y) var(--cell-x); border-bottom: 1px solid var(--rule); text-align: left; vertical-align: top; font-size: 9pt; }
     table th { background: var(--fill); color: var(--ink-2); font-weight: 600; white-space: nowrap; }
     thead { display: table-header-group; }
     thead tr { break-after: avoid; }
     thead th { border-top: 1px solid var(--ink); }
     tr { break-inside: avoid; }
-    table.grid-table th { width: 17%; }
+    table.grid-table th { width: var(--col-date); }
     table.grid-table tr:first-child > * { border-top: 1px solid var(--ink); }
 
     /* 표: 학력·자격·교육 등 (열 제목형) */
-    table.list-table th, table.list-table td { padding: 1.2mm 3mm; }
+    table.list-table th, table.list-table td { padding: var(--cell-y) var(--cell-x); }
     table.list-table thead th { border-bottom-color: var(--ink-2); font-size: 8.6pt; }
-    table.list-table .col-date { width: 22%; }
+    table.list-table .col-date { width: var(--col-date); }
+    /* 날짜, 항목, 설명의 열 경계를 모든 3열 표에서 공유. */
+    table.three-column col:nth-child(1) { width: var(--col-date); }
+    table.three-column col:nth-child(2) { width: var(--col-subject); }
+    table.three-column col:nth-child(3) { width: var(--col-detail); }
     table.list-table .col-sm { width: 28%; }
     table.list-table td.muted { color: var(--ink-2); }
 
@@ -166,8 +175,9 @@
   {{#has_certifications}}
   <section class="compact table-section">
     <h2 class="sec-header">자격증</h2>
-    <table class="list-table">
-      <thead><tr><th class="col-date">취득일</th><th>자격명</th><th class="col-sm">발급기관</th></tr></thead>
+    <table class="list-table three-column">
+      <colgroup><col><col><col></colgroup>
+      <thead><tr><th>취득일</th><th>자격명</th><th>발급기관</th></tr></thead>
       <tbody>
       {{#certifications}}
       <tr><td class="muted">{{date}}</td><td>{{name}}</td><td class="muted">{{issuer}}</td></tr>
@@ -180,8 +190,9 @@
   {{#has_languages}}
   <section class="compact table-section">
     <h2 class="sec-header">어학</h2>
-    <table class="list-table">
-      <thead><tr><th class="col-date">취득일</th><th>시험 · 언어</th><th class="col-sm">점수 · 등급</th></tr></thead>
+    <table class="list-table three-column">
+      <colgroup><col><col><col></colgroup>
+      <thead><tr><th>취득일</th><th>시험 · 언어</th><th>점수 · 등급</th></tr></thead>
       <tbody>
       {{#languages}}
       <tr><td class="muted">{{date}}</td><td>{{test}}</td><td>{{score}}</td></tr>
