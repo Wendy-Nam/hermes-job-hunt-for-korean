@@ -37,7 +37,8 @@
     }
 
     /* 표지 머리글 */
-    header { display: flex; justify-content: space-between; align-items: flex-end; gap: 8mm; padding-bottom: 3mm; border-bottom: 1.5px solid var(--ink); }
+    header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 2mm 8mm; padding-bottom: 3mm; border-bottom: 1.5px solid var(--ink); }
+    header > * { min-width: 0; max-width: 100%; }
     .doc-type { margin: 0 0 1mm; color: var(--muted); font-size: 8.5pt; font-weight: 600; letter-spacing: .2em; }
     h1 { margin: 0; font-size: 21pt; font-weight: 700; letter-spacing: -.02em; line-height: 1.2; }
     .headline { margin: 1.2mm 0 0; color: var(--ink-2); }
@@ -69,8 +70,8 @@
     .project:last-child { border-bottom: 0; }
     .page-each { break-before: page; }
     .page-each .project + .project { break-before: page; }
-    .project-head { display: flex; justify-content: space-between; align-items: baseline; gap: 6mm; break-after: avoid; }
-    .project h3 { margin: 0; font-size: 12pt; font-weight: 700; letter-spacing: -.01em; }
+    .project-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 1mm 6mm; break-after: avoid; }
+    .project h3 { min-width: 0; max-width: 100%; margin: 0; font-size: 12pt; font-weight: 700; letter-spacing: -.01em; }
     .project h3 .no { margin-right: 2.5mm; color: var(--muted); font-weight: 600; }
     .project .period { flex-shrink: 0; color: var(--ink-2); font-size: 9pt; white-space: nowrap; }
     .project .sub { margin: .5mm 0 3mm; color: var(--muted); font-size: 9pt; }

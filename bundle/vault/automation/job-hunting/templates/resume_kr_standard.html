@@ -14,7 +14,7 @@
       --col-date: 22%;
       --col-subject: 30%;
       --col-detail: 48%;
-      --cell-y: 1.4mm;
+      --cell-y: 1.2mm;
       --cell-x: 3mm;
     }
     * { box-sizing: border-box; }
@@ -40,7 +40,8 @@
     }
 
     /* 머리글 */
-    .doc-header { display: flex; justify-content: space-between; align-items: flex-end; gap: 8mm; padding-bottom: 0; }
+    .doc-header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 2mm 8mm; padding-bottom: 0; }
+    .doc-header > * { min-width: 0; max-width: 100%; }
     .doc-type { margin: 0 0 1mm; color: var(--muted); font-size: 8.5pt; font-weight: 600; letter-spacing: .2em; }
     h1 { margin: 0; font-size: 21pt; font-weight: 700; letter-spacing: -.02em; line-height: 1.2; }
     h1 .name-en { margin-left: 2.5mm; color: var(--muted); font-size: 10pt; font-weight: 500; letter-spacing: 0; }
@@ -51,14 +52,14 @@
     /* 인적사항: 채워진 항목만 2쌍씩 흐르는 격자 */
     .profile-wrap { display: flex; gap: 4mm; margin-top: 4mm; }
     .photo { flex-shrink: 0; width: 26mm; height: 34.5mm; object-fit: cover; border: 1px solid var(--rule); }
-    dl.profile { flex: 1; display: grid; grid-template-columns: 22mm 1fr 22mm 1fr; margin: 0; border-top: 1px solid var(--ink); align-content: start; }
+    dl.profile { flex: 1; display: grid; grid-template-columns: 22mm minmax(0, 1fr) 22mm minmax(0, 1fr); margin: 0; border-top: 1px solid var(--ink); align-content: start; }
     dl.profile dt, dl.profile dd { margin: 0; padding: var(--cell-y) var(--cell-x); border-bottom: 1px solid var(--rule); font-size: 9pt; }
     dl.profile dt { background: var(--fill); color: var(--ink-2); font-weight: 600; white-space: nowrap; }
 
     /* 표: 보유 기술 (행 제목형) */
     table { width: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; }
     table th, table td { padding: var(--cell-y) var(--cell-x); border-bottom: 1px solid var(--rule); text-align: left; vertical-align: top; font-size: 9pt; }
-    table th { background: var(--fill); color: var(--ink-2); font-weight: 600; white-space: nowrap; }
+    table th { background: var(--fill); color: var(--ink-2); font-weight: 600; }
     thead { display: table-header-group; }
     thead tr { break-after: avoid; }
     thead th { border-top: 1px solid var(--ink); }
@@ -81,7 +82,7 @@
     section { margin-top: 5mm; }
     h2.sec-header { display: flex; justify-content: space-between; align-items: baseline; margin: 0 0 3mm; padding-bottom: 1.5mm; border-bottom: 1px solid var(--ink); font-size: 11pt; font-weight: 700; letter-spacing: -.01em; }
     h2.sec-header .sec-note { color: var(--ink-2); font-size: 9pt; font-weight: 500; }
-    section.compact { margin-top: 4mm; break-inside: avoid; }
+    section.compact { margin-top: 4mm; }
     h2.sec-header { break-after: avoid; }
     /* 표의 상단선은 제목이 아니라 표에 붙여 페이지·섹션마다 동일하게 표시. */
     section.table-section > h2.sec-header { margin-bottom: 2mm; padding-bottom: 0; border-bottom: 0; }
@@ -89,8 +90,8 @@
     /* 경력·프로젝트 항목 */
     .exp-card { margin-bottom: 4mm; break-inside: avoid; }
     .exp-card:last-child { margin-bottom: 0; }
-    .exp-title { display: flex; justify-content: space-between; align-items: baseline; gap: 6mm; }
-    .exp-title h3 { margin: 0; font-size: 10.2pt; font-weight: 700; }
+    .exp-title { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 1mm 6mm; }
+    .exp-title h3 { min-width: 0; max-width: 100%; margin: 0; font-size: 10.2pt; font-weight: 700; }
     .exp-title .company-desc { margin-left: 2mm; color: var(--muted); font-size: 8.6pt; font-weight: 400; }
     .exp-period { flex-shrink: 0; color: var(--ink-2); font-size: 9pt; white-space: nowrap; }
     .exp-period .duration { margin-left: 1.5mm; color: var(--muted); }
@@ -245,8 +246,9 @@
   {{#has_training}}
   <section class="compact table-section">
     <h2 class="sec-header">교육 이수</h2>
-    <table class="list-table">
-      <thead><tr><th class="col-date">기간</th><th>과정명</th><th class="col-sm">기관</th></tr></thead>
+    <table class="list-table three-column">
+      <colgroup><col><col><col></colgroup>
+      <thead><tr><th>기간</th><th>과정명</th><th>기관</th></tr></thead>
       <tbody>
       {{#training}}
       <tr><td class="muted">{{period}}</td><td>{{course}}</td><td class="muted">{{institution}}</td></tr>
@@ -259,8 +261,9 @@
   {{#has_awards}}
   <section class="compact table-section">
     <h2 class="sec-header">수상</h2>
-    <table class="list-table">
-      <thead><tr><th class="col-date">수상일</th><th>수상명</th><th class="col-sm">수여기관</th></tr></thead>
+    <table class="list-table three-column">
+      <colgroup><col><col><col></colgroup>
+      <thead><tr><th>수상일</th><th>수상명</th><th>수여기관</th></tr></thead>
       <tbody>
       {{#awards}}
       <tr><td class="muted">{{date}}</td><td>{{name}}</td><td class="muted">{{issuer}}</td></tr>
@@ -273,8 +276,9 @@
   {{#has_activities}}
   <section class="compact table-section">
     <h2 class="sec-header">대외활동</h2>
-    <table class="list-table">
-      <thead><tr><th class="col-date">기간</th><th>활동명</th><th class="col-sm">역할 · 내용</th></tr></thead>
+    <table class="list-table three-column">
+      <colgroup><col><col><col></colgroup>
+      <thead><tr><th>기간</th><th>활동명</th><th>역할 · 내용</th></tr></thead>
       <tbody>
       {{#activities}}
       <tr><td class="muted">{{period}}</td><td>{{name}}</td><td class="muted">{{detail}}</td></tr>
@@ -287,8 +291,9 @@
   {{#has_overseas}}
   <section class="compact table-section">
     <h2 class="sec-header">해외 경험</h2>
-    <table class="list-table">
-      <thead><tr><th class="col-date">기간</th><th>국가 · 도시</th><th class="col-sm">목적 · 내용</th></tr></thead>
+    <table class="list-table three-column">
+      <colgroup><col><col><col></colgroup>
+      <thead><tr><th>기간</th><th>국가 · 도시</th><th>목적 · 내용</th></tr></thead>
       <tbody>
       {{#overseas}}
       <tr><td class="muted">{{period}}</td><td>{{country}}</td><td class="muted">{{purpose}}</td></tr>
@@ -301,8 +306,9 @@
   {{#has_publications}}
   <section class="compact table-section">
     <h2 class="sec-header">논문 · 특허 · 출판</h2>
-    <table class="list-table">
-      <thead><tr><th class="col-date">발표일</th><th>제목</th><th class="col-sm">게재처 · 번호</th></tr></thead>
+    <table class="list-table three-column">
+      <colgroup><col><col><col></colgroup>
+      <thead><tr><th>발표일</th><th>제목</th><th>게재처 · 번호</th></tr></thead>
       <tbody>
       {{#publications}}
       <tr><td class="muted">{{date}}</td><td>{{title}}</td><td class="muted">{{venue}}</td></tr>
@@ -315,8 +321,9 @@
   {{#has_talks}}
   <section class="compact table-section">
     <h2 class="sec-header">발표 · 강연</h2>
-    <table class="list-table">
-      <thead><tr><th class="col-date">일자</th><th>주제</th><th class="col-sm">행사 · 기관</th></tr></thead>
+    <table class="list-table three-column">
+      <colgroup><col><col><col></colgroup>
+      <thead><tr><th>일자</th><th>주제</th><th>행사 · 기관</th></tr></thead>
       <tbody>
       {{#talks}}
       <tr><td class="muted">{{date}}</td><td>{{title}}</td><td class="muted">{{event}}</td></tr>
@@ -329,8 +336,9 @@
   {{#has_military}}
   <section class="compact table-section">
     <h2 class="sec-header">병역</h2>
-    <table class="list-table">
-      <thead><tr><th class="col-date">복무 기간</th><th>군별 · 계급</th><th class="col-sm">구분</th></tr></thead>
+    <table class="list-table three-column">
+      <colgroup><col><col><col></colgroup>
+      <thead><tr><th>복무 기간</th><th>군별 · 계급</th><th>구분</th></tr></thead>
       <tbody>
       {{#military}}
       <tr><td class="muted">{{period}}</td><td>{{detail}}</td><td>{{status}}</td></tr>

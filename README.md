@@ -1,4 +1,4 @@
-# Hermes Job Hunt for Korean · v2.1.0
+# Hermes Job Hunt for Korean · v2.3.8
 
 Hermes에서 한국 채용 공고를 수집하고, 경력 근거로 적합도를 판단하며, 지원 현황·문서·면접을 관리합니다. 선택적으로 Aside 브라우저에서 저장 이력서 선택과 지원 폼·최종 제출을 실행합니다.
 
@@ -77,6 +77,8 @@ Hermes의 Python 환경에서 `native/cron-jobs.py --app "$HERMES_HOME/apps/job-
   --company "직무별 예시" --position "AI 교육 담당자" \
   --jd-text "AI 교육 실습 워크숍 교육자료 콘텐츠 설계" --lang ko --only resume
 ```
+
+서식의 표 너비·구분선·선택 강조와 제출 전 쪽수 점검은 [서식과 분량 가이드](docs/resume-content-template.md#서식과-분량)를 따릅니다. 국문 제출본은 2쪽을 우선하되 원문을 자동 절단하거나 글자 크기를 줄이지 않습니다.
 
 기본 출력은 HTML이며, PDF가 필요할 때만 `--pdf`를 붙입니다. PDF 변환은 설치된 Chrome/Chromium을 사용하고 한 번에 한 문서씩 처리합니다. 문서별 60초 기한을 넘기면 브라우저 자식 프로세스까지 정리합니다. PDF 실패 시에도 HTML 파일과 경로는 남깁니다. 외부 렌더링 SaaS는 필수가 아닙니다.
 
