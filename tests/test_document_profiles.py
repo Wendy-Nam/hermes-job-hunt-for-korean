@@ -53,6 +53,11 @@ class ProfileTest(unittest.TestCase):
                 "    materials: materials\n    skills: [{label: data, value: ''}]\n",
                 "    materials: materials\n    skills: [{label: data, value: SQL}, {label: data, value: API}]\n",
                 "    materials: materials\n    highlight_terms: [CRM, CRM]\n",
+                "    materials: materials\n    summary_points: []\n",
+                "    materials: materials\n    summary_points: [same, same]\n",
+                "    materials: materials\n    summary_points: [valid, 42]\n",
+                "    materials: materials\n    summary_points: [valid, ' ' ]\n",
+                "    materials: materials\n    summary_points: invalid\n",
             ]:
                 write(body)
                 with self.assertRaises(ValueError):

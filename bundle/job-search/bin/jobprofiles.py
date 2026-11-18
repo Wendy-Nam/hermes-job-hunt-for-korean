@@ -45,13 +45,15 @@ def resolve_profile(job_root, name, language=None, materials_dir=None):
     folder = (root / relative).resolve()
     if not folder.is_relative_to(root):
         raise ValueError("Profile materials leave resume/")
-    for key in ["resume_projects", "portfolio_projects", "hide_sections", "highlight_terms"]:
+    for key in ["resume_projects", "portfolio_projects", "hide_sections", "highlight_terms", "summary_points"]:
         if key in profile and (
             not isinstance(profile[key], list)
             or not all(isinstance(x, str) and x.strip() for x in profile[key])
             or len(set(profile[key])) != len(profile[key])
         ):
             raise ValueError(f"{key} must be a list of unique strings")
+    if "summary_points" in profile and not profile["summary_points"]:
+        raise ValueError("summary_points must not be empty")
     for key in ["preserve_order", "brief_experiences", "plain_punctuation"]:
         if key in profile and not isinstance(profile[key], bool):
             raise ValueError(f"{key} must be a boolean")

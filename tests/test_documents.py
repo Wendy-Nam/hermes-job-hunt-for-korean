@@ -50,6 +50,27 @@ class DocumentTest(unittest.TestCase):
                 self.assertIn('<dt>Impact</dt>', portfolio)
                 self.assertNotIn('<dt>성과</dt>', portfolio)
 
+    def test_role_competencies_override_shared_material_without_changing_it(self):
+        original = ['Original analysis', 'Original implementation']
+        master = '- **요약 방식**: 역량\n- **커리어 핵심 경쟁력**:\n' + ''.join('  - ' + value + '\n' for value in original)
+        sources = {'master_resume': master, 'fit_evidence': '', 'role_contexts': '', 'portfolios': ''}
+        profiles = [['Workshop design – Hands-on learning', 'Learning support – Guide <review>'],
+                    ['CRM & data – Qualification and handoff', 'Automation – Build and operate']]
+        for lang in ['ko', 'en']:
+            for values in profiles:
+                with self.subTest(language=lang, points=values):
+                    profile = {'summary_points': values, 'highlight_terms': [value.split(' – ')[0] for value in values]}
+                    context = self.renderer.build_context('Example', 'Role', 'Original analysis', sources, lang=lang, profile=profile)
+                    self.assertEqual([point['text'] for point in context['summary_points']], values)
+                    resume, _ = self.renderer.build_tailored_html('Example', 'Role', '', sources, lang=lang, profile=profile)
+                    self.assertNotIn('<review>', resume)
+                    self.assertIn('<strong class="metric">' + ('Workshop design' if values is profiles[0] else 'CRM &amp; data') + '</strong>', resume)
+                    if values is profiles[0]:
+                        self.assertIn('&lt;review&gt;', resume)
+            context = self.renderer.build_context('Example', 'Role', '', sources, lang=lang, profile={'preserve_order': True})
+            self.assertEqual([point['text'] for point in context['summary_points']], original)
+        self.assertEqual(sources['master_resume'], master)
+
     def test_dated_experience_accepts_both_heading_styles(self):
         for heading in ['Example (근무 기간: 2025.01 ~ 2025.06)', 'Example (2025.01 ~ 2025.06)']:
             with self.subTest(heading=heading):

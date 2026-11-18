@@ -782,6 +782,8 @@ def build_context(company: str, position: str, jd_text: str, sources: dict,
     if ident["summary_style"] == "역량":
         summary_points = [{"text": t} for t in _usable(rank(
             ident["competencies"], keywords, lambda t: t, limit=5))] or summary_points
+    if "summary_points" in profile:
+        summary_points = [{"text": text} for text in profile["summary_points"]]
     total_career = format_months(total_months([e["period"] for e in experiences]), lang)
 
     # --- cover letter: 문항별로 소재 블록·에피소드를 JD 순으로 골라 조립 ---
