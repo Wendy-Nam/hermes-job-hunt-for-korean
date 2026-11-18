@@ -81,6 +81,7 @@
     <p class="contact">{{#contact_items}}<span>{{value}}</span>{{/contact_items}}</p>
   </header>
 
+  {{#has_summary_points}}
   <section>
     <h2>요약</h2>
     <ul>
@@ -89,7 +90,9 @@
       {{/summary_points}}
     </ul>
   </section>
+  {{/has_summary_points}}
 
+  {{#has_experiences}}
   <section>
     <h2>경력{{#total_career}}<span class="note">총 {{total_career}}</span>{{/total_career}}</h2>
     {{#experiences}}
@@ -108,7 +111,9 @@
     </div>
     {{/experiences}}
   </section>
+  {{/has_experiences}}
 
+  {{#has_projects}}
   <section>
     <h2>프로젝트</h2>
     {{#projects}}
@@ -126,6 +131,7 @@
     </div>
     {{/projects}}
   </section>
+  {{/has_projects}}
 
   {{#has_education}}
   <section>
@@ -136,12 +142,14 @@
   </section>
   {{/has_education}}
 
+  {{#has_skills}}
   <section>
     <h2>보유 기술</h2>
     <dl class="skills">
       {{#skills}}<dt>{{label}}</dt><dd>{{value}}</dd>{{/skills}}
     </dl>
   </section>
+  {{/has_skills}}
 
   {{#has_quals}}
   <section>
