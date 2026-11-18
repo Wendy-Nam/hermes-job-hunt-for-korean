@@ -50,7 +50,7 @@
     dl.profile dt { background: var(--fill); color: var(--ink-2); font-weight: 600; white-space: nowrap; }
 
     /* 표: 보유 기술 (행 제목형) */
-    table { width: 100%; border-collapse: collapse; table-layout: fixed; border-top: 1px solid var(--ink); }
+    table { width: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; }
     table th, table td { padding: 1.5mm 3mm; border-bottom: 1px solid var(--rule); text-align: left; vertical-align: top; font-size: 9pt; }
     table th { background: var(--fill); color: var(--ink-2); font-weight: 600; white-space: nowrap; }
     thead { display: table-header-group; }
@@ -58,6 +58,7 @@
     thead th { border-top: 1px solid var(--ink); }
     tr { break-inside: avoid; }
     table.grid-table th { width: 17%; }
+    table.grid-table tr:first-child > * { border-top: 1px solid var(--ink); }
 
     /* 표: 학력·자격·교육 등 (열 제목형) */
     table.list-table th, table.list-table td { padding: 1.2mm 3mm; }
