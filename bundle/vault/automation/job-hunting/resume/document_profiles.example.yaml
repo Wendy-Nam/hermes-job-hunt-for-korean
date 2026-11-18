@@ -30,3 +30,11 @@ profiles:
 # 원하는 프로필에 추가:
 # resume_projects: ["원문 프로젝트 제목"]
 # portfolio_projects: ["원문 프로젝트 제목"]
+
+# 선택: 경력 요약, 직무별 기술, 본문 문장부호 및 선택 강조
+# brief_experiences: true
+# plain_punctuation: true
+# skills:
+#   - label: 데이터 운영
+#     value: SQL, Excel
+# highlight_terms: [CRM, SQL]

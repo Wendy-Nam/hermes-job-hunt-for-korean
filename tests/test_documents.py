@@ -70,6 +70,40 @@ class DocumentTest(unittest.TestCase):
             for document in [resume, portfolio]:
                 self.renderer._assert_balanced(document, lang)
 
+    def test_brief_career_keeps_detailed_company_project_and_role_skills(self):
+        master = ('### Company (근무 기간: 2025.01 ~ 2025.06)\n'
+                  '- **직급/직책**: Analyst\n- **담당 업무**: CRM workflow ownership\n'
+                  '- **주요 업무**:\n  - Original detailed implementation\n')
+        projects = ('### 1. Company CRM\n- **해결**: Built API workflow\n'
+                    '- **임팩트**: 40 users adopted the tool\n')
+        sources = {'master_resume': master, 'fit_evidence': '',
+                   'role_contexts': '', 'portfolios': projects}
+        profile = {'brief_experiences': True, 'resume_projects': ['Company CRM'],
+                   'skills': [{'label': 'CRM & data', 'value': 'SQL, API <integration>'}]}
+        context = self.renderer.build_context('Example', 'Role', '', sources, profile=profile)
+        self.assertEqual(context['experiences'][0]['accomplishments'][0]['description'],
+                         'CRM workflow ownership')
+        self.assertEqual(context['experiences'][0]['department'], '')
+        self.assertEqual(context['projects'][0]['approach'], 'Built API workflow')
+        self.assertEqual(context['skills'], profile['skills'])
+        resume, _ = self.renderer.build_tailored_html('Example', 'Role', '', sources, profile=profile)
+        self.assertIn('API &lt;integration&gt;', resume)
+        self.assertIn('Original detailed implementation', sources['master_resume'])
+        missing = {**sources, 'master_resume': master.replace('- **담당 업무**: CRM workflow ownership\n', '')}
+        with self.assertRaisesRegex(ValueError, '담당 업무'):
+            self.renderer.build_context('Example', 'Role', '', missing, profile=profile)
+
+    def test_document_formatting_keeps_role_separators_and_url_attributes(self):
+        document = ('<p class="exp-dept">Writer · Marketing</p>'
+                    '<li>CRM·API: 40 users</li><a href="https://example.test/a·b">Link</a>')
+        profile = {'plain_punctuation': True, 'highlight_terms': ['40 users', 'CRM']}
+        formatted = self.renderer.format_document(document, profile)
+        self.assertIn('Writer · Marketing', formatted)
+        self.assertIn('<strong class="metric">40 users</strong>', formatted)
+        self.assertIn('</strong>, API', formatted)
+        self.assertIn('href="https://example.test/a·b"', formatted)
+        self.assertEqual(self.renderer.format_document(document, {}), document)
+
     def test_unrelated_sections_do_not_modify_previous_experience(self):
         for heading in ['## 4. 프로젝트', '### 별도 프로젝트', '### 교육 과정 (수료)']:
             with self.subTest(heading=heading):
