@@ -122,11 +122,10 @@
         <h3>{{project_name}}</h3>
         {{#period}}<span class="item-date">{{period}}</span>{{/period}}
       </div>
-      <p class="item-sub">{{tech_stack}}</p>
+      <p class="item-sub">{{#role}}{{role}}{{#tech_stack}} · {{/tech_stack}}{{/role}}{{tech_stack}}</p>
       <ul>
         <li>{{description}}</li>
-        {{#role}}<li><span class="label">역할</span> {{role}}</li>{{/role}}
-        <li><span class="label">성과</span> {{impact}}</li>
+        <li>{{impact}}</li>
       </ul>
     </div>
     {{/projects}}

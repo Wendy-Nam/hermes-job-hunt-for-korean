@@ -114,14 +114,13 @@
         <h3>{{project_name}}</h3>
         {{#period}}<span class="entry-date">{{period}}</span>{{/period}}
       </div>
-      <p class="entry-sub">{{tech_stack}}</p>
+      <p class="entry-sub">{{#role}}{{role}}{{#tech_stack}} · {{/tech_stack}}{{/role}}{{tech_stack}}</p>
       <ul>
         <li>{{description}}</li>
-        {{#situation}}<li><strong>Situation:</strong> {{situation}}</li>{{/situation}}
-        {{#problem}}<li><strong>{{problem_label}}:</strong> {{problem}}</li>{{/problem}}
-        {{#approach}}<li><strong>Solution:</strong> {{approach}}</li>{{/approach}}
-        {{#role}}<li><strong>Role:</strong> {{role}}</li>{{/role}}
-        <li><strong>Impact:</strong> {{impact}}</li>
+        {{#situation}}<li>{{situation}}</li>{{/situation}}
+        {{#problem}}<li>{{problem}}</li>{{/problem}}
+        {{#approach}}<li>{{approach}}</li>{{/approach}}
+        <li>{{impact}}</li>
       </ul>
     </div>
     {{/projects}}
