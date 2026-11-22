@@ -116,10 +116,12 @@ class DocumentTest(unittest.TestCase):
 
     def test_document_formatting_keeps_role_separators_and_url_attributes(self):
         document = ('<p class="exp-dept">Writer · Marketing</p>'
+                    '<h3>Company <span class="entry-role"> | Sales · Operations</span></h3>'
                     '<li>CRM·API: 40 users</li><a href="https://example.test/a·b">Link</a>')
         profile = {'plain_punctuation': True, 'highlight_terms': ['40 users', 'CRM']}
         formatted = self.renderer.format_document(document, profile)
         self.assertIn('Writer · Marketing', formatted)
+        self.assertIn('Sales · Operations', formatted)
         self.assertIn('<strong class="metric">40 users</strong>', formatted)
         self.assertIn('</strong>, API', formatted)
         self.assertIn('href="https://example.test/a·b"', formatted)
