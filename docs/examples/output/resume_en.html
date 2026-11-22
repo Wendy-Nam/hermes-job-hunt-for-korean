@@ -16,7 +16,7 @@
     body {
       margin: 0;
       color: var(--ink);
-      font-family: "Source Serif 4", "Source Serif Pro", "Noto Serif", Georgia, "Times New Roman", "Noto Serif KR", "Noto Serif CJK KR", serif;
+      font-family: Arial, "Helvetica Neue", Helvetica, "Liberation Sans", "Noto Sans", "Noto Sans KR", sans-serif;
       font-size: 10.2pt;
       line-height: 1.42;
       word-break: keep-all;
@@ -41,15 +41,16 @@
     section { margin-top: 5mm; }
     section:has(.line) { break-inside: avoid; }
     h2.section-title { break-after: avoid; }
-    h2.section-title { margin: 0 0 2.5mm; padding-bottom: .8mm; border-bottom: .75pt solid var(--ink); font-size: 10pt; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+    h2.section-title { margin: 0 0 2.5mm; padding-bottom: .8mm; border-bottom: .75pt solid var(--ink); font-size: 11pt; font-weight: 700; letter-spacing: .025em; text-align: center; text-transform: uppercase; }
 
     .entry { margin-bottom: 3.5mm; break-inside: avoid; }
     .entry:last-child { margin-bottom: 0; }
     .entry-header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 1mm 6mm; }
     .entry-header h3 { min-width: 0; max-width: 100%; margin: 0; font-size: 10.4pt; font-weight: 700; }
-    .entry-header .company-desc { margin-left: 2mm; color: var(--muted); font-size: 9pt; font-weight: 400; }
-    .entry-date { flex-shrink: 0; white-space: nowrap; }
-    .entry-sub { margin: .3mm 0 1mm; color: var(--ink-2); font-style: italic; }
+    .entry-role { font-weight: 400; }
+    .entry-date { flex-shrink: 0; color: var(--muted); font-size: 9.2pt; font-style: italic; white-space: nowrap; }
+    .entry-sub { margin: .3mm 0 1mm; color: var(--ink-2); font-size: 9.5pt; font-style: italic; }
+    .entry-sub:empty { display: none; }
     .entry-tools { margin: .8mm 0 0; color: var(--ink-2); font-size: 9.2pt; }
     ul { margin: 0; padding-left: 4.5mm; }
     li { margin-bottom: .6mm; padding-left: .5mm; }
@@ -60,7 +61,7 @@
     .line:last-child { margin-bottom: 0; }
     .line .what b { font-weight: 700; }
     .line .what i { color: var(--ink-2); }
-    .line .when { flex-shrink: 0; white-space: nowrap; }
+    .line .when { flex-shrink: 0; color: var(--muted); font-size: 9.2pt; font-style: italic; white-space: nowrap; }
 
     dl.skills { display: grid; grid-template-columns: max-content 1fr; gap: .8mm 4mm; margin: 0; }
     dl.skills dt { font-weight: 700; }
@@ -77,7 +78,7 @@
 
 
   <section>
-    <h2 class="section-title">Summary</h2>
+    <h2 class="section-title">Key Strengths</h2>
     <ul>
 
       <li>Salesforce 파이프라인 재설계로 매출 예측 오차율 ±22% → ±8% 개선</li>
@@ -94,14 +95,14 @@
 
 
   <section>
-    <h2 class="section-title">Experience</h2>
+    <h2 class="section-title">Professional Experience</h2>
 
     <div class="entry">
       <div class="entry-header">
-        <h3>주식회사 베타소프트<span class="company-desc">B2B SaaS · 임직원 120명</span></h3>
+        <h3>주식회사 베타소프트<span class="entry-role"> | Sales Operations 매니저</span></h3>
         <span class="entry-date">2021.03 ~ 현재</span>
       </div>
-      <p class="entry-sub">Sales Operations 매니저, 영업기획팀 · CRM·파이프라인 운영 (정규직)</p>
+      <p class="entry-sub"><span class="company-desc">B2B SaaS · 임직원 120명</span> · 영업기획팀 · CRM·파이프라인 운영 (정규직)</p>
       <ul>
 
         <li>Salesforce 파이프라인 대시보드를 재설계해 주간 보고 작성 시간 10시간 → 2시간으로 단축</li>
@@ -116,10 +117,10 @@
 
     <div class="entry">
       <div class="entry-header">
-        <h3>감마커머스<span class="company-desc">이커머스 · 임직원 300명</span></h3>
+        <h3>감마커머스<span class="entry-role"> | 영업지원 선임</span></h3>
         <span class="entry-date">2018.07 ~ 2021.02</span>
       </div>
-      <p class="entry-sub">영업지원 선임, B2B 영업본부 · 견적·계약 운영 (정규직)</p>
+      <p class="entry-sub"><span class="company-desc">이커머스 · 임직원 300명</span> · B2B 영업본부 · 견적·계약 운영 (정규직)</p>
       <ul>
 
         <li>Python·Google Apps Script로 정산 자동화, 월 40시간 수작업 제거</li>
@@ -201,7 +202,7 @@
 
 
   <section>
-    <h2 class="section-title">Skills</h2>
+    <h2 class="section-title">Technical Skills</h2>
     <dl class="skills">
       <dt>Languages</dt><dd>Python(상), SQL(상), TypeScript(중)</dd><dt>Data &amp; Automation</dt><dd>Airflow, dbt, Zapier, LLM API</dd><dt>CRM &amp; Sales Tools</dt><dd>Salesforce Admin, HubSpot, Outreach</dd><dt>Collaboration</dt><dd>Jira, Notion, Slack</dd><dt>Foreign Languages</dt><dd>영어(비즈니스), 일본어(일상 회화)</dd>
     </dl>
@@ -271,7 +272,7 @@
 
 
   <section>
-    <h2 class="section-title">Activities</h2>
+    <h2 class="section-title">Activities &amp; Community</h2>
 
     <div class="line">
       <span class="what"><b>RevOps 코리아 커뮤니티</b>, 운영진, 월간 밋업 기획</span>

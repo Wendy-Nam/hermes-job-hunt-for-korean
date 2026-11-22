@@ -916,7 +916,7 @@ def format_document(document: str, profile: dict | None) -> str:
     profile = profile or {}
     if profile.get("plain_punctuation"):
         # Role/affiliation lines keep their separator; attributes never change.
-        parts = re.split(r'(<p class="(?:exp-dept|entry-sub|item-sub)">.*?</p>)', document, flags=re.S)
+        parts = re.split(r'(<p class="(?:exp-dept|entry-sub|item-sub)">.*?</p>|<span class="entry-role">.*?</span>)', document, flags=re.S)
         document = "".join(part if i % 2 else re.sub(
             r">([^<]*)<", lambda m: ">" + m[1].replace("·", ", ") + "<", part)
             for i, part in enumerate(parts))
